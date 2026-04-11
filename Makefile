@@ -93,12 +93,10 @@ test-coverage:
 mock:
 	mockery
 
-# Git hooks (run once to install)
+# Git hooks (run once to install, works in worktrees too)
 hooks:
 	@echo "Installing git pre-commit hook..."
-	@mkdir -p .git/hooks
-	@cp scripts/pre-commit .git/hooks/pre-commit
-	@chmod +x .git/hooks/pre-commit
+	@d=$$(git rev-parse --git-dir) && mkdir -p "$$d/hooks" && cp scripts/pre-commit "$$d/hooks/pre-commit" && chmod +x "$$d/hooks/pre-commit"
 	@echo "Done!"
 
 # Quality

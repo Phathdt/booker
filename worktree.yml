@@ -2,3 +2,5 @@ symlinks:
   - .env
   - plans
   - .claude_sessions
+scripts:
+  - make hooks

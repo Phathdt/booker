@@ -31,5 +31,8 @@ proto/*/v1/gen/
 # Sessions
 .claude_sessions/
 
+# Worktree config
+worktree.yml
+
 # Plans reports (local only)
 plans/reports/

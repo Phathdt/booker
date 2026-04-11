@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	walletGRPC "booker/cmd/grpc/wallet"
 	walletHTTP "booker/cmd/http/wallet"
@@ -102,10 +103,11 @@ func RunWalletSvc(c *urfavecli.Context) error {
 		return fmt.Errorf("failed to listen on %s: %w", grpcAddr, err)
 	}
 
+	errCh := make(chan error, 2)
 	go func() {
 		log.With("address", grpcAddr).Info("Wallet gRPC started (inter-service)")
 		if err := grpcServer.Serve(lis); err != nil {
-			log.With("error", err.Error()).Error("gRPC server failed")
+			errCh <- fmt.Errorf("gRPC server failed: %w", err)
 		}
 	}()
 
@@ -131,18 +133,24 @@ func RunWalletSvc(c *urfavecli.Context) error {
 	go func() {
 		log.With("address", httpAddr).Info("Wallet REST API started (Fiber)")
 		if err := app.Listen(httpAddr); err != nil {
-			log.With("error", err.Error()).Error("Fiber server failed")
+			errCh <- fmt.Errorf("Fiber server failed: %w", err)
 		}
 	}()
 
-	// Graceful shutdown
+	// Wait for shutdown signal or server error
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-	<-sigChan
+	select {
+	case <-sigChan:
+		log.Info("shutting down wallet service...")
+	case err := <-errCh:
+		log.With("error", err.Error()).Error("server error, shutting down...")
+	}
 
-	log.Info("shutting down wallet service...")
 	healthServer.SetServingStatus("wallet.v1.WalletService", healthpb.HealthCheckResponse_NOT_SERVING)
-	_ = app.Shutdown()
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_ = app.ShutdownWithContext(shutdownCtx)
 	grpcServer.GracefulStop()
 
 	return nil

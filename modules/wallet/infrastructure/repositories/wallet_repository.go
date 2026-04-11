@@ -22,16 +22,21 @@ func NewWalletRepository(pool *pgxpool.Pool) interfaces.WalletRepository {
 }
 
 func (r *walletRepository) GetOrCreate(ctx context.Context, userID, assetID string) (*entities.Wallet, error) {
-	// Try insert (ON CONFLICT DO NOTHING), then select
-	_, _ = r.q.GetOrCreateWallet(ctx, gen.GetOrCreateWalletParams{
+	// Try insert first — returns row if created
+	row, err := r.q.GetOrCreateWallet(ctx, gen.GetOrCreateWalletParams{
 		UserID: userID, AssetID: assetID,
 	})
-
-	row, err := r.q.GetWalletByUserAndAsset(ctx, gen.GetWalletByUserAndAssetParams{
-		UserID: userID, AssetID: assetID,
-	})
-	if err != nil {
-		return nil, domain.ErrWalletNotFound.Wrap(err)
+	if err != nil && err != pgx.ErrNoRows {
+		return nil, err
+	}
+	// Conflict (already exists) — fetch existing
+	if err == pgx.ErrNoRows {
+		row, err = r.q.GetWalletByUserAndAsset(ctx, gen.GetWalletByUserAndAssetParams{
+			UserID: userID, AssetID: assetID,
+		})
+		if err != nil {
+			return nil, domain.ErrWalletNotFound.Wrap(err)
+		}
 	}
 	return toEntity(row), nil
 }
@@ -49,14 +54,19 @@ func (r *walletRepository) GetByUserID(ctx context.Context, userID string) ([]*e
 }
 
 func (r *walletRepository) Deposit(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
-	// Ensure wallet exists
-	if _, err := r.GetOrCreate(ctx, userID, assetID); err != nil {
-		return nil, err
-	}
-
+	// Try update first — fast path for existing wallets
 	row, err := r.q.DepositWallet(ctx, gen.DepositWalletParams{
 		UserID: userID, AssetID: assetID, Available: amount,
 	})
+	if err == pgx.ErrNoRows {
+		// Wallet doesn't exist — create then retry
+		if _, err := r.GetOrCreate(ctx, userID, assetID); err != nil {
+			return nil, err
+		}
+		row, err = r.q.DepositWallet(ctx, gen.DepositWalletParams{
+			UserID: userID, AssetID: assetID, Available: amount,
+		})
+	}
 	if err != nil {
 		return nil, err
 	}

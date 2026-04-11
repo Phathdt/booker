@@ -92,6 +92,12 @@ func toProto(w *entities.Wallet) *pb.WalletResponse {
 }
 
 func toGRPCError(err error) error {
+	if errors.Is(err, context.Canceled) {
+		return status.Error(codes.Canceled, err.Error())
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return status.Error(codes.DeadlineExceeded, err.Error())
+	}
 	var appErr apperrors.AppError
 	if errors.As(err, &appErr) {
 		code := codes.Internal

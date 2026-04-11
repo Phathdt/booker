@@ -6,15 +6,19 @@ import (
 	"booker/modules/users/domain/entities"
 	"booker/modules/users/domain/interfaces"
 	pb "booker/proto/user/v1/gen"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// UserServer implements the inter-service gRPC UserService.
 type UserServer struct {
 	pb.UnimplementedUserServiceServer
-	userSvc interfaces.UserService
+	userSvc  interfaces.UserService
+	tokenSvc interfaces.TokenService
 }
 
-func NewUserServer(userSvc interfaces.UserService) *UserServer {
-	return &UserServer{userSvc: userSvc}
+func NewUserServer(userSvc interfaces.UserService, tokenSvc interfaces.TokenService) *UserServer {
+	return &UserServer{userSvc: userSvc, tokenSvc: tokenSvc}
 }
 
 func (s *UserServer) GetUser(ctx context.Context, req *pb.GetUserByIDRequest) (*pb.User, error) {
@@ -25,27 +29,24 @@ func (s *UserServer) GetUser(ctx context.Context, req *pb.GetUserByIDRequest) (*
 	return userToProto(user), nil
 }
 
-func (s *UserServer) ListUsers(ctx context.Context, req *pb.ListUsersRequest) (*pb.ListUsersResponse, error) {
-	limit := int(req.Limit)
-	if limit <= 0 {
-		limit = 20
-	}
-	offset := int(req.Offset)
-
-	users, total, err := s.userSvc.List(ctx, limit, offset)
+func (s *UserServer) ValidateAccessToken(ctx context.Context, req *pb.ValidateTokenRequest) (*pb.TokenClaims, error) {
+	claims, err := s.tokenSvc.ValidateAccessToken(ctx, req.Token)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
-
-	pbUsers := make([]*pb.User, len(users))
-	for i, u := range users {
-		pbUsers[i] = userToProto(u)
-	}
-
-	return &pb.ListUsersResponse{
-		Users: pbUsers,
-		Total: total,
+	return &pb.TokenClaims{
+		UserId: claims.UserID,
+		Email:  claims.Email,
+		Role:   claims.Role,
+		Jti:    claims.JTI,
 	}, nil
+}
+
+func (s *UserServer) RevokeAllUserTokens(ctx context.Context, req *pb.RevokeAllRequest) (*emptypb.Empty, error) {
+	if err := s.tokenSvc.RevokeAllUserTokens(ctx, req.UserId); err != nil {
+		return nil, toGRPCError(err)
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func userToProto(u *entities.User) *pb.User {

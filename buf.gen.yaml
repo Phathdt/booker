@@ -6,6 +6,3 @@ plugins:
   - remote: buf.build/grpc/go
     out: .
     opt: module=booker
-  - remote: buf.build/grpc-ecosystem/gateway
-    out: .
-    opt: module=booker

@@ -1,0 +1,33 @@
+#!/bin/sh
+# Pre-commit hook: format check + lint + build
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# Format check
+echo "Checking Go formatting..."
+UNFORMATTED=$(gofmt -l . 2>/dev/null | grep -v vendor | grep -v gen/ | head -5)
+if [ -n "$UNFORMATTED" ]; then
+    echo "ERROR: Unformatted Go files (run 'make format'):"
+    echo "$UNFORMATTED"
+    exit 1
+fi
+
+# Build check
+echo "Checking build..."
+go build -o /dev/null . 2>&1
+if [ $? -ne 0 ]; then
+    echo "ERROR: Build failed"
+    exit 1
+fi
+
+# Unit tests (fast, skip integration)
+echo "Running unit tests..."
+go test ./modules/... -short -count=1 -timeout 30s > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "ERROR: Unit tests failed"
+    exit 1
+fi
+
+echo "All pre-commit checks passed!"

@@ -1,3 +1,12 @@
+// @title          Booker CEX API
+// @version        1.0
+// @description    Centralized Exchange demo — token trading platform
+// @host           localhost
+// @BasePath       /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter "Bearer {token}"
 package main
 
 import (

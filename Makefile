@@ -5,9 +5,9 @@ ifneq (,$(wildcard ./.env))
 endif
 
 .PHONY: build run-users-svc migrate-up migrate-down migrate-status seed \
-       sqlc-generate proto-generate proto-lint \
+       sqlc-generate proto-generate proto-lint swagger \
        docker-build docker-up docker-down docker-logs \
-       test lint format format-check
+       test lint format format-check mock hooks
 
 # Build
 build:
@@ -40,6 +40,9 @@ proto-generate:
 
 proto-lint:
 	buf lint
+
+swagger:
+	swag init --parseDependency --parseInternal -g main.go
 
 # Docker
 docker-build:
@@ -89,6 +92,14 @@ test-coverage:
 # Mocks
 mock:
 	mockery
+
+# Git hooks (run once to install)
+hooks:
+	@echo "Installing git pre-commit hook..."
+	@mkdir -p .git/hooks
+	@cp scripts/pre-commit .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "Done!"
 
 # Quality
 lint:

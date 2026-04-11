@@ -2,6 +2,7 @@ package testcontainers
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"path/filepath"
 	"runtime"
@@ -14,8 +15,8 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 
 	// pgx stdlib driver for goose migrations
+
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"database/sql"
 )
 
 // TestContainers holds running test containers and their clients.

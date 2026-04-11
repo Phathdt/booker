@@ -18,6 +18,9 @@ build:
 run-users-svc:
 	go run . users-svc --config config.yml
 
+run-wallet-svc:
+	go run . wallet-svc --config config.yml
+
 # Database
 migrate-up:
 	go run . migrate --config config.yml up

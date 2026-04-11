@@ -149,3 +149,38 @@ services:
       - "traefik.http.routers.users.service=users-svc"
       # Service port
       - "traefik.http.services.users-svc.loadbalancer.server.port=8081"
+
+  wallet-svc:
+    image: booker:local
+    command:
+      [
+        "./main",
+        "wallet-svc",
+        "--config",
+        "config.yml",
+        "--port",
+        "50052",
+        "--http-port",
+        "8082",
+      ]
+    environment:
+      - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
+      - REDIS__URI=redis://:@redis-db:6379/0
+      - NATS__URL=nats://nats:4222
+      - OTEL__ENDPOINT=otel-collector:4317
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis-db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      # Wallet routes (all protected via ForwardAuth)
+      - "traefik.http.routers.wallet.rule=PathPrefix(`/api/v1/wallet`)"
+      - "traefik.http.routers.wallet.entrypoints=web"
+      - "traefik.http.routers.wallet.middlewares=forward-auth"
+      - "traefik.http.routers.wallet.service=wallet-svc"
+      # Service port
+      - "traefik.http.services.wallet-svc.loadbalancer.server.port=8082"

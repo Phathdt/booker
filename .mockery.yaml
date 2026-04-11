@@ -7,3 +7,7 @@ packages:
       UserRepository:
       UserService:
       TokenService:
+  booker/modules/wallet/domain/interfaces:
+    interfaces:
+      WalletRepository:
+      WalletService:

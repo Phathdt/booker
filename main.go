@@ -49,6 +49,31 @@ func main() {
 				Action: mycli.RunUsersSvc,
 			},
 			{
+				Name:    "wallet-svc",
+				Aliases: []string{"ws"},
+				Usage:   "Start the wallet service (gRPC + REST)",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "config.yml",
+						Usage:   "Configuration file path",
+					},
+					&cli.IntFlag{
+						Name:    "port",
+						Aliases: []string{"p"},
+						Value:   50052,
+						Usage:   "gRPC listen port",
+					},
+					&cli.IntFlag{
+						Name:  "http-port",
+						Value: 8082,
+						Usage: "REST API port (0 = disabled)",
+					},
+				},
+				Action: mycli.RunWalletSvc,
+			},
+			{
 				Name:    "migrate",
 				Aliases: []string{"m"},
 				Usage:   "Run database migrations",

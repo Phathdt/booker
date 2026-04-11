@@ -1,0 +1,9 @@
+with-expecter: true
+dir: "{{.InterfaceDir}}/mocks"
+outpkg: mocks
+packages:
+  booker/modules/users/domain/interfaces:
+    interfaces:
+      UserRepository:
+      UserService:
+      TokenService:

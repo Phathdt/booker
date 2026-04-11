@@ -72,9 +72,24 @@ format-check:
 	@gofmt -l . | grep -q . && echo "Run 'make format' to fix" && exit 1 || echo "Go formatted OK"
 	@npx prettier --check "*.yml" "*.yaml" "docker-compose.yml" 2>/dev/null || (echo "Run 'make format' to fix YAML" && exit 1)
 
-# Quality
+# Testing
 test:
 	go test ./... -v
 
+test-unit:
+	go test ./modules/... -v -short
+
+test-integration:
+	go test ./test/... -v -timeout 300s
+
+test-coverage:
+	go test ./... -coverprofile=coverage.out
+	go tool cover -html=coverage.out -o coverage.html
+
+# Mocks
+mock:
+	mockery
+
+# Quality
 lint:
 	golangci-lint run

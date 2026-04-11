@@ -1,0 +1,151 @@
+services:
+  postgres-db:
+    image: postgres:16.2-alpine
+    environment:
+      POSTGRES_DB: booker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+
+  redis-db:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+
+  nats:
+    image: nats:2.12-alpine
+    command: ["-js", "-sd", "/data/jetstream", "-m", "8222"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  # --- Observability ---
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.127.0
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./infra/otel/otel-collector-config.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - tempo
+      - loki
+
+  tempo:
+    image: grafana/tempo:2.7.2
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    volumes:
+      - ./infra/tempo/tempo-config.yaml:/etc/tempo/config.yaml:ro
+    ports:
+      - "3200:3200"
+
+  loki:
+    image: grafana/loki:3.5.0
+    command: ["-config.file=/etc/loki/config.yaml"]
+    volumes:
+      - ./infra/loki/loki-config.yaml:/etc/loki/config.yaml:ro
+    ports:
+      - "3100:3100"
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - tempo
+      - loki
+
+  # --- Infrastructure ---
+  traefik:
+    image: traefik:v3.6
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8888:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  # --- App Services (1 binary, different commands) ---
+  migrate:
+    build: .
+    image: booker:local
+    command: ["./main", "migrate", "--config", "config.yml", "up"]
+    environment:
+      - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
+  users-svc:
+    image: booker:local
+    command:
+      [
+        "./main",
+        "users-svc",
+        "--config",
+        "config.yml",
+        "--port",
+        "50051",
+        "--http-port",
+        "8081",
+      ]
+    environment:
+      - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
+      - REDIS__URI=redis://:@redis-db:6379/0
+      - NATS__URL=nats://nats:4222
+      - OTEL__ENDPOINT=otel-collector:4317
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis-db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      # ForwardAuth middleware
+      - "traefik.http.middlewares.forward-auth.forwardauth.address=http://users-svc:8081/auth/verify"
+      - "traefik.http.middlewares.forward-auth.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.forward-auth.forwardauth.authResponseHeaders=X-User-Id,X-Role"
+      # Public auth routes (no auth required)
+      - "traefik.http.routers.auth-public.rule=PathPrefix(`/api/v1/auth/register`) || PathPrefix(`/api/v1/auth/login`) || PathPrefix(`/api/v1/auth/refresh`)"
+      - "traefik.http.routers.auth-public.entrypoints=web"
+      - "traefik.http.routers.auth-public.service=users-svc"
+      # Protected auth routes
+      - "traefik.http.routers.auth-protected.rule=PathPrefix(`/api/v1/auth/logout`) || PathPrefix(`/api/v1/auth/me`)"
+      - "traefik.http.routers.auth-protected.entrypoints=web"
+      - "traefik.http.routers.auth-protected.middlewares=forward-auth"
+      - "traefik.http.routers.auth-protected.service=users-svc"
+      # Users routes (protected)
+      - "traefik.http.routers.users.rule=PathPrefix(`/api/v1/users`)"
+      - "traefik.http.routers.users.entrypoints=web"
+      - "traefik.http.routers.users.middlewares=forward-auth"
+      - "traefik.http.routers.users.service=users-svc"
+      # Service port
+      - "traefik.http.services.users-svc.loadbalancer.server.port=8081"

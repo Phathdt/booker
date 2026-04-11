@@ -1,0 +1,4 @@
+symlinks:
+  - .env
+  - plans
+  - .claude_sessions

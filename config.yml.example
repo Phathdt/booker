@@ -1,0 +1,36 @@
+database:
+  uri: "postgresql://postgres:postgres@localhost:5432/booker?sslmode=disable"
+
+redis:
+  uri: "redis://:@localhost:6379/0"
+
+nats:
+  url: "nats://localhost:4222"
+
+jwt:
+  secret: "booker-dev-secret-change-in-prod"
+  access_ttl: "15m"
+  refresh_ttl: "168h"
+
+logger:
+  level: "debug"
+  format: "text"
+
+otel:
+  endpoint: "localhost:4317"
+  insecure: true
+
+users_service:
+  address: "localhost:50051"
+
+wallet_service:
+  address: "localhost:50052"
+
+order_service:
+  address: "localhost:50053"
+
+matching_service:
+  address: "localhost:50054"
+
+market_service:
+  address: "localhost:50055"

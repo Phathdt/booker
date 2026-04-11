@@ -1,0 +1,35 @@
+# Binary
+bin/
+*.exe
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+config.yml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+vendor/
+*.test
+*.out
+coverage.html
+
+# Generated
+proto/*/v1/gen/
+
+# Sessions
+.claude_sessions/
+
+# Plans reports (local only)
+plans/reports/

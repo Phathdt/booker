@@ -1,0 +1,9 @@
+.git
+.env
+.env.*
+.claude_sessions/
+plans/
+docs/
+*.md
+.idea/
+.vscode/

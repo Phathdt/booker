@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package wallet.v1;
+
+option go_package = "booker/proto/wallet/v1/gen";
+
+// WalletService — inter-service gRPC only
+// Used by order-svc to hold/release/settle balances during trading
+service WalletService {
+  rpc GetBalance(GetBalanceRequest) returns (WalletResponse);
+  rpc HoldBalance(BalanceRequest) returns (WalletResponse);
+  rpc ReleaseBalance(BalanceRequest) returns (WalletResponse);
+  rpc SettleTrade(BalanceRequest) returns (WalletResponse);
+  rpc Deposit(BalanceRequest) returns (WalletResponse);
+}
+
+message GetBalanceRequest {
+  string user_id = 1;
+  string asset_id = 2;
+}
+
+message BalanceRequest {
+  string user_id = 1;
+  string asset_id = 2;
+  string amount = 3; // decimal string
+}
+
+message WalletResponse {
+  string id = 1;
+  string user_id = 2;
+  string asset_id = 3;
+  string available = 4;
+  string locked = 5;
+  string updated_at = 6;
+}

@@ -27,6 +27,9 @@ run-order-svc:
 run-matching-svc:
 	go run . matching-svc --config config.yml
 
+run-market-svc:
+	go run . market-svc --config config.yml
+
 run-swagger-svc:
 	go run . swagger-svc
 

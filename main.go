@@ -119,6 +119,25 @@ func main() {
 				Action: mycli.RunMatchingSvc,
 			},
 			{
+				Name:    "market-svc",
+				Aliases: []string{"mk"},
+				Usage:   "Start the market data service (REST + WebSocket)",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "config.yml",
+						Usage:   "Configuration file path",
+					},
+					&cli.IntFlag{
+						Name:  "http-port",
+						Value: 8085,
+						Usage: "REST + WS API port",
+					},
+				},
+				Action: mycli.RunMarketSvc,
+			},
+			{
 				Name:    "swagger-svc",
 				Aliases: []string{"sw"},
 				Usage:   "Start the Swagger UI service (REST only)",

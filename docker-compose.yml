@@ -280,3 +280,29 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  market-svc:
+    image: booker:local
+    command:
+      ["./main", "market-svc", "--config", "config.yml", "--http-port", "8085"]
+    env_file: .env
+    environment:
+      - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
+      - NATS__URL=nats://nats:4222
+      - OTEL__ENDPOINT=otel-collector:4317
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      nats:
+        condition: service_started
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.market.rule=PathPrefix(`/api/v1/market`)"
+      - "traefik.http.routers.market.entrypoints=web"
+      - "traefik.http.routers.market.service=market-svc"
+      - "traefik.http.routers.market-ws.rule=Path(`/ws`)"
+      - "traefik.http.routers.market-ws.entrypoints=web"
+      - "traefik.http.routers.market-ws.service=market-svc"
+      - "traefik.http.services.market-svc.loadbalancer.server.port=8085"

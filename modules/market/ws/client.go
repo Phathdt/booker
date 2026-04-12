@@ -15,14 +15,25 @@ const (
 	sendBufferSize = 256
 )
 
+// WSConn defines the interface for WebSocket connection operations
+type WSConn interface {
+	ReadMessage() (messageType int, data []byte, err error)
+	WriteMessage(messageType int, data []byte) error
+	SetReadDeadline(t time.Time) error
+	SetWriteDeadline(t time.Time) error
+	SetReadLimit(limit int64)
+	SetPongHandler(h func(string) error)
+	Close() error
+}
+
 // Client represents a single WebSocket connection.
 type Client struct {
 	hub  *Hub
-	conn *websocket.Conn
+	conn WSConn
 	send chan []byte
 }
 
-func NewClient(conn *websocket.Conn, hub *Hub) *Client {
+func NewClient(conn WSConn, hub *Hub) *Client {
 	return &Client{
 		hub:  hub,
 		conn: conn,

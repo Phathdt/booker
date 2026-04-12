@@ -71,11 +71,12 @@ func LoadConfig(path string) (*Config, error) {
 
 	// Bind known env vars explicitly for nested keys
 	envBindings := map[string]string{
-		"database.uri":  "DATABASE__URI",
-		"redis.uri":     "REDIS__URI",
-		"nats.url":      "NATS__URL",
-		"jwt.secret":    "JWT__SECRET",
-		"otel.endpoint": "OTEL__ENDPOINT",
+		"database.uri":           "DATABASE__URI",
+		"redis.uri":              "REDIS__URI",
+		"nats.url":               "NATS__URL",
+		"jwt.secret":             "JWT__SECRET",
+		"otel.endpoint":          "OTEL__ENDPOINT",
+		"wallet_service.address": "WALLET_SERVICE__ADDRESS",
 	}
 	for key, env := range envBindings {
 		_ = v.BindEnv(key, env)

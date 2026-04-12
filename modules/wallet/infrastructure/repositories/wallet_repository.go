@@ -53,7 +53,11 @@ func (r *walletRepository) GetByUserID(ctx context.Context, userID string) ([]*e
 	return wallets, nil
 }
 
-func (r *walletRepository) Deposit(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (r *walletRepository) Deposit(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	// Try update first — fast path for existing wallets
 	row, err := r.q.DepositWallet(ctx, gen.DepositWalletParams{
 		UserID: userID, AssetID: assetID, Available: amount,
@@ -73,7 +77,11 @@ func (r *walletRepository) Deposit(ctx context.Context, userID, assetID string, 
 	return toEntity(row), nil
 }
 
-func (r *walletRepository) Withdraw(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (r *walletRepository) Withdraw(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	row, err := r.q.WithdrawWallet(ctx, gen.WithdrawWalletParams{
 		UserID: userID, AssetID: assetID, Available: amount,
 	})
@@ -86,7 +94,11 @@ func (r *walletRepository) Withdraw(ctx context.Context, userID, assetID string,
 	return toEntity(row), nil
 }
 
-func (r *walletRepository) Hold(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (r *walletRepository) Hold(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	row, err := r.q.HoldWallet(ctx, gen.HoldWalletParams{
 		UserID: userID, AssetID: assetID, Available: amount,
 	})
@@ -99,7 +111,11 @@ func (r *walletRepository) Hold(ctx context.Context, userID, assetID string, amo
 	return toEntity(row), nil
 }
 
-func (r *walletRepository) Release(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (r *walletRepository) Release(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	row, err := r.q.ReleaseWallet(ctx, gen.ReleaseWalletParams{
 		UserID: userID, AssetID: assetID, Available: amount,
 	})
@@ -112,7 +128,11 @@ func (r *walletRepository) Release(ctx context.Context, userID, assetID string, 
 	return toEntity(row), nil
 }
 
-func (r *walletRepository) Settle(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (r *walletRepository) Settle(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	row, err := r.q.SettleWallet(ctx, gen.SettleWalletParams{
 		UserID: userID, AssetID: assetID, Locked: amount,
 	})

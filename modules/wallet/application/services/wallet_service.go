@@ -27,35 +27,55 @@ func (s *walletService) GetBalances(ctx context.Context, userID string) ([]*enti
 	return s.repo.GetByUserID(ctx, userID)
 }
 
-func (s *walletService) Deposit(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (s *walletService) Deposit(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	if err := validateAmount(amount); err != nil {
 		return nil, err
 	}
 	return s.repo.Deposit(ctx, userID, assetID, amount)
 }
 
-func (s *walletService) Withdraw(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (s *walletService) Withdraw(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	if err := validateAmount(amount); err != nil {
 		return nil, err
 	}
 	return s.repo.Withdraw(ctx, userID, assetID, amount)
 }
 
-func (s *walletService) HoldBalance(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (s *walletService) HoldBalance(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	if err := validateAmount(amount); err != nil {
 		return nil, err
 	}
 	return s.repo.Hold(ctx, userID, assetID, amount)
 }
 
-func (s *walletService) ReleaseBalance(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (s *walletService) ReleaseBalance(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	if err := validateAmount(amount); err != nil {
 		return nil, err
 	}
 	return s.repo.Release(ctx, userID, assetID, amount)
 }
 
-func (s *walletService) SettleTrade(ctx context.Context, userID, assetID string, amount decimal.Decimal) (*entities.Wallet, error) {
+func (s *walletService) SettleTrade(
+	ctx context.Context,
+	userID, assetID string,
+	amount decimal.Decimal,
+) (*entities.Wallet, error) {
 	if err := validateAmount(amount); err != nil {
 		return nil, err
 	}

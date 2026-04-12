@@ -11,3 +11,8 @@ packages:
     interfaces:
       WalletRepository:
       WalletService:
+  booker/modules/order/domain/interfaces:
+    interfaces:
+      OrderRepository:
+      OrderService:
+      WalletClient:

@@ -21,6 +21,9 @@ run-users-svc:
 run-wallet-svc:
 	go run . wallet-svc --config config.yml
 
+run-order-svc:
+	go run . order-svc --config config.yml
+
 # Database
 migrate-up:
 	go run . migrate --config config.yml up

@@ -10,6 +10,14 @@ import (
 
 var validate = validator.New()
 
+// ValidateStruct validates a struct using validator tags.
+func ValidateStruct(c *fiber.Ctx, dst any) error {
+	if err := validate.Struct(dst); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, formatValidationErrors(err))
+	}
+	return nil
+}
+
 // BindAndValidate parses the request body into dst and validates it.
 func BindAndValidate(c *fiber.Ctx, dst any) error {
 	if err := c.BodyParser(dst); err != nil {

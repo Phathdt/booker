@@ -125,6 +125,7 @@ func RunWalletSvc(c *urfavecli.Context) error {
 	}))
 	app.Use(httpserver.RequestIDMiddleware())
 	app.Use(httpserver.TracingMiddleware())
+	app.Use(httpserver.LoggingMiddleware())
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	walletHTTP.RegisterRoutes(app, walletService, tokenService)

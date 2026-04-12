@@ -94,6 +94,7 @@ services:
     build: .
     image: booker:local
     command: ["./main", "migrate", "--config", "config.yml", "up"]
+    env_file: .env
     environment:
       - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
     volumes:
@@ -115,6 +116,7 @@ services:
         "--http-port",
         "8081",
       ]
+    env_file: .env
     environment:
       - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
       - REDIS__URI=redis://:@redis-db:6379/0
@@ -163,6 +165,7 @@ services:
         "--http-port",
         "8082",
       ]
+    env_file: .env
     environment:
       - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
       - REDIS__URI=redis://:@redis-db:6379/0
@@ -184,3 +187,47 @@ services:
       - "traefik.http.routers.wallet.service=wallet-svc"
       # Service port
       - "traefik.http.services.wallet-svc.loadbalancer.server.port=8082"
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=:50052"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  order-svc:
+    image: booker:local
+    command:
+      [
+        "./main",
+        "order-svc",
+        "--config",
+        "config.yml",
+        "--port",
+        "50053",
+        "--http-port",
+        "8083",
+      ]
+    env_file: .env
+    environment:
+      - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
+      - REDIS__URI=redis://:@redis-db:6379/0
+      - NATS__URL=nats://nats:4222
+      - OTEL__ENDPOINT=otel-collector:4317
+      - WALLET_SERVICE__ADDRESS=wallet-svc:50052
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis-db:
+        condition: service_healthy
+      wallet-svc:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      # Order routes (all protected via ForwardAuth)
+      - "traefik.http.routers.orders.rule=PathPrefix(`/api/v1/orders`)"
+      - "traefik.http.routers.orders.entrypoints=web"
+      - "traefik.http.routers.orders.middlewares=forward-auth"
+      - "traefik.http.routers.orders.service=order-svc"
+      # Service port
+      - "traefik.http.services.order-svc.loadbalancer.server.port=8083"

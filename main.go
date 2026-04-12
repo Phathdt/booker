@@ -74,6 +74,31 @@ func main() {
 				Action: mycli.RunWalletSvc,
 			},
 			{
+				Name:    "order-svc",
+				Aliases: []string{"os"},
+				Usage:   "Start the order service (gRPC + REST)",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "config.yml",
+						Usage:   "Configuration file path",
+					},
+					&cli.IntFlag{
+						Name:    "port",
+						Aliases: []string{"p"},
+						Value:   50053,
+						Usage:   "gRPC listen port",
+					},
+					&cli.IntFlag{
+						Name:  "http-port",
+						Value: 8083,
+						Usage: "REST API port (0 = disabled)",
+					},
+				},
+				Action: mycli.RunOrderSvc,
+			},
+			{
 				Name:    "migrate",
 				Aliases: []string{"m"},
 				Usage:   "Run database migrations",

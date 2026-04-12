@@ -35,7 +35,10 @@ func TestWalletRepository_Integration(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed test assets
-	_, _ = containers.Database.Exec(ctx, "INSERT INTO assets (id, name, decimals) VALUES ('USDT', 'Tether', 6), ('BTC', 'Bitcoin', 8) ON CONFLICT DO NOTHING")
+	_, _ = containers.Database.Exec(
+		ctx,
+		"INSERT INTO assets (id, name, decimals) VALUES ('USDT', 'Tether', 6), ('BTC', 'Bitcoin', 8) ON CONFLICT DO NOTHING",
+	)
 
 	userID := createTestUser(t, containers)
 

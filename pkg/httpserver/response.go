@@ -32,7 +32,7 @@ func buildResponse(c *fiber.Ctx, data, errData any) Response {
 	resp := Response{
 		Data:      data,
 		Error:     errData,
-		RequestID: c.Locals("request_id", "").(string),
+		RequestID: localsString(c, "request_id"),
 	}
 
 	// Extract trace_id from OTel span context
@@ -42,4 +42,9 @@ func buildResponse(c *fiber.Ctx, data, errData any) Response {
 	}
 
 	return resp
+}
+
+func localsString(c *fiber.Ctx, key string) string {
+	v, _ := c.Locals(key).(string)
+	return v
 }

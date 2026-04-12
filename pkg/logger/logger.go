@@ -60,7 +60,9 @@ func New(format, level string) Logger {
 		handler = NewColoredTextHandler(os.Stdout, opts)
 	}
 
-	return &SlogLogger{slog: slog.New(handler)}
+	l := slog.New(handler)
+	slog.SetDefault(l)
+	return &SlogLogger{slog: l}
 }
 
 func parseLevel(level string) slog.Level {

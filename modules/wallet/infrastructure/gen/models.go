@@ -16,6 +16,20 @@ type Asset struct {
 	Decimals int32  `db:"decimals" json:"decimals"`
 }
 
+type Order struct {
+	ID        string          `db:"id" json:"id"`
+	UserID    string          `db:"user_id" json:"user_id"`
+	PairID    string          `db:"pair_id" json:"pair_id"`
+	Side      string          `db:"side" json:"side"`
+	Type      string          `db:"type" json:"type"`
+	Price     decimal.Decimal `db:"price" json:"price"`
+	Quantity  decimal.Decimal `db:"quantity" json:"quantity"`
+	FilledQty decimal.Decimal `db:"filled_qty" json:"filled_qty"`
+	Status    string          `db:"status" json:"status"`
+	CreatedAt time.Time       `db:"created_at" json:"created_at"`
+	UpdatedAt time.Time       `db:"updated_at" json:"updated_at"`
+}
+
 type TradingPair struct {
 	ID         string          `db:"id" json:"id"`
 	BaseAsset  string          `db:"base_asset" json:"base_asset"`

@@ -1,0 +1,45 @@
+syntax = "proto3";
+package order.v1;
+option go_package = "booker/proto/order/v1/gen";
+
+service OrderService {
+  rpc GetOrder(GetOrderRequest) returns (OrderResponse);
+  rpc ListUserOrders(ListUserOrdersRequest) returns (ListUserOrdersResponse);
+  rpc UpdateOrderFill(UpdateOrderFillRequest) returns (OrderResponse);
+}
+
+message GetOrderRequest {
+  string order_id = 1;
+}
+
+message ListUserOrdersRequest {
+  string user_id = 1;
+  string pair_id = 2;
+  string status = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+message UpdateOrderFillRequest {
+  string order_id = 1;
+  string filled_qty = 2;
+  string status = 3;
+}
+
+message OrderResponse {
+  string id = 1;
+  string user_id = 2;
+  string pair_id = 3;
+  string side = 4;
+  string type = 5;
+  string price = 6;
+  string quantity = 7;
+  string filled_qty = 8;
+  string status = 9;
+  string created_at = 10;
+  string updated_at = 11;
+}
+
+message ListUserOrdersResponse {
+  repeated OrderResponse orders = 1;
+}

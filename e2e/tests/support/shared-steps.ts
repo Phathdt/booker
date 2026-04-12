@@ -73,7 +73,7 @@ Then('I should be redirected to the trading page', async function (this: Browser
 
 Then('I should see a success message', async function (this: BrowserWorld) {
   logger.info('Verifying success toast');
-  const toast = this.page.locator('[data-sonner-toast]');
+  const toast = this.page.locator('[data-sonner-toast]').first();
   await expect(toast).toBeVisible({ timeout: TimeoutValue.ACTION });
   logger.info('Success toast displayed');
 });

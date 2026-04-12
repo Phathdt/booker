@@ -10,7 +10,7 @@ export class TradingPage {
   // ----- Locators -----
 
   private get heading() {
-    return this.page.getByRole('heading', { name: 'Trade' });
+    return this.page.getByRole('heading', { name: 'Trade', exact: true });
   }
 
   private get orderBookHeading() {
@@ -139,6 +139,20 @@ export class TradingPage {
     if (!hasEmptyState) {
       const rowCount = await rows.count();
       expect(rowCount).toBe(0);
+    }
+  }
+
+  async expectTickerBarVisible(): Promise<void> {
+    // Ticker bar contains "Last Price" and "24h Change" labels
+    const lastPrice = this.page.getByText('Last Price');
+    const change = this.page.getByText('24h Change');
+    // Either the ticker data or "No ticker data" placeholder should be visible
+    const noData = this.page.getByText('No ticker data');
+    const hasData = await lastPrice.isVisible({ timeout: TimeoutValue.ACTION }).catch(() => false);
+    if (!hasData) {
+      await expect(noData).toBeVisible({ timeout: TimeoutValue.ACTION });
+    } else {
+      await expect(change).toBeVisible();
     }
   }
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Big from "big.js";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,10 +12,14 @@ interface OrderFormProps {
 }
 
 function computeTotal(price: string, quantity: string): string {
-  const p = parseFloat(price);
-  const q = parseFloat(quantity);
-  if (isNaN(p) || isNaN(q) || p <= 0 || q <= 0) return "0.00";
-  return (p * q).toFixed(8);
+  try {
+    const p = new Big(price);
+    const q = new Big(quantity);
+    if (p.lte(0) || q.lte(0)) return "0.00";
+    return p.times(q).toFixed(8);
+  } catch {
+    return "0.00";
+  }
 }
 
 interface SideFormProps {

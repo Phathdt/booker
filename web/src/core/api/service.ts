@@ -3,24 +3,24 @@ import type { IHttpError } from "./types";
 
 export class Service {
   private endpoint: string;
+  private client: AxiosInstance;
 
   constructor(endpoint: string) {
     this.endpoint = endpoint;
-  }
-
-  private createClient(): AxiosInstance {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-    const instance = axios.create({
+    this.client = axios.create({
       baseURL: import.meta.env.VITE_API_BASE_URL || "",
-      headers,
+      headers: { "Content-Type": "application/json" },
     });
-    instance.interceptors.response.use(
+
+    this.client.interceptors.request.use((config) => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+
+    this.client.interceptors.response.use(
       (res) => res,
       (error) => {
         const httpError: IHttpError = {
@@ -36,7 +36,6 @@ export class Service {
         return Promise.reject(httpError);
       }
     );
-    return instance;
   }
 
   private resolve<T>(response: { data: { data: T } }): T {
@@ -44,17 +43,17 @@ export class Service {
   }
 
   async get<T>(url?: string, params?: object): Promise<T> {
-    const res = await this.createClient().get(url || this.endpoint, { params });
+    const res = await this.client.get(url || this.endpoint, { params });
     return this.resolve<T>(res);
   }
 
   async post<T>(payload: object, url?: string): Promise<T> {
-    const res = await this.createClient().post(url || this.endpoint, payload);
+    const res = await this.client.post(url || this.endpoint, payload);
     return this.resolve<T>(res);
   }
 
   async delete<T>(url: string): Promise<T> {
-    const res = await this.createClient().delete(url);
+    const res = await this.client.delete(url);
     return this.resolve<T>(res);
   }
 }

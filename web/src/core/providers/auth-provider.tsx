@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { IUser } from "@/core/api";
+import { authService, type IUser } from "@/core/api";
 
 interface AuthContextValue {
   user: IUser | null;
@@ -38,29 +38,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(false);
       return;
     }
-    // Lazy import to avoid circular deps
-    import("@/features/auth/data").then(({ AuthModel }) => {
-      AuthModel.getMe()
-        .then((u) => setUser(u))
-        .catch(() => {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-        })
-        .finally(() => setIsLoading(false));
-    });
+    authService
+      .getMe()
+      .then((u) => setUser(u))
+      .catch(() => {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { AuthModel } = await import("@/features/auth/data");
-    const res = await AuthModel.login(email, password);
+    const res = await authService.login(email, password);
     localStorage.setItem("access_token", res.access_token);
     localStorage.setItem("refresh_token", res.refresh_token);
     setUser(res.user);
   };
 
   const register = async (email: string, password: string) => {
-    const { AuthModel } = await import("@/features/auth/data");
-    const res = await AuthModel.register(email, password);
+    const res = await authService.register(email, password);
     localStorage.setItem("access_token", res.access_token);
     localStorage.setItem("refresh_token", res.refresh_token);
     setUser(res.user);
@@ -68,8 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
-      const { AuthModel } = await import("@/features/auth/data");
-      await AuthModel.logout();
+      await authService.logout();
     } catch {
       // ignore logout errors
     } finally {

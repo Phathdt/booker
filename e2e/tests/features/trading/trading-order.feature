@@ -57,3 +57,25 @@ Feature: Trading Order Management
     When I select a trading pair
     And I try to submit the buy order without filling any fields
     Then the buy order should not be submitted
+
+  @order @priority_high
+  Scenario: Cancel a pending order
+    Given I am logged in to the platform
+    And I am on the trading page
+    When I select a trading pair
+    And I fill in the buy order form with price "10000" and quantity "0.01"
+    And I submit the buy order
+    Then I should see a success message
+    And the order should appear in the open orders
+    When I cancel the first open order
+    Then I should see a success message
+    And the cancelled order should be removed from the open orders
+
+  @order @priority_high
+  Scenario: Place order with insufficient balance
+    Given I am logged in to the platform
+    And I am on the trading page
+    When I select a trading pair
+    And I fill in the buy order form with price "99999" and quantity "99999"
+    And I submit the buy order
+    Then I should see an error message

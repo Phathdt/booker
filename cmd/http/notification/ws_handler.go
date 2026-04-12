@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"log/slog"
 	"strings"
 
 	"booker/modules/notification/infrastructure/ws"
@@ -45,7 +46,9 @@ func WSHandler(hub *ws.Hub) fiber.Handler {
 	return websocket.New(func(c *websocket.Conn) {
 		userID, ok := c.Locals("user_id").(string)
 		if !ok || userID == "" {
-			_ = c.Close()
+			if err := c.Close(); err != nil {
+				slog.Warn("failed to close websocket connection", "error", err.Error())
+			}
 			return
 		}
 		hub.Register(userID, c)

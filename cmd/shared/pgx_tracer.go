@@ -24,11 +24,15 @@ func NewPgxTracer(log logger.Logger) *PgxTracer {
 }
 
 func (t *PgxTracer) TraceQueryStart(ctx context.Context, _ *pgx.Conn, data pgx.TraceQueryStartData) context.Context {
-	ctx, _ = pgxTracer.Start(ctx, "pgx.Query",
+	var span trace.Span
+	ctx, span = pgxTracer.Start(ctx, "pgx.Query",
 		trace.WithAttributes(
 			attribute.String("db.statement", data.SQL),
 		),
 	)
+	if span == nil {
+		t.log.With("error", "span creation returned nil").Warn("failed to start pgx trace span")
+	}
 	return ctx
 }
 

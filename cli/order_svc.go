@@ -25,7 +25,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/swagger"
 	urfavecli "github.com/urfave/cli/v2"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
@@ -33,8 +32,6 @@ import (
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
-
-	_ "booker/docs"
 )
 
 // RunOrderSvc starts the order service (Fiber REST + gRPC).
@@ -139,7 +136,6 @@ func RunOrderSvc(c *urfavecli.Context) error {
 	app.Use(httpserver.RequestIDMiddleware())
 	app.Use(httpserver.TracingMiddleware())
 	app.Use(httpserver.LoggingMiddleware())
-	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	orderHTTP.RegisterRoutes(app, orderService, tokenService)
 

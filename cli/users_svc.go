@@ -21,12 +21,9 @@ import (
 	bookerOtel "booker/pkg/otel"
 	pb "booker/proto/user/v1/gen"
 
-	_ "booker/docs" // swagger generated docs
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/swagger"
 	urfavecli "github.com/urfave/cli/v2"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
@@ -132,9 +129,6 @@ func RunUsersSvc(c *urfavecli.Context) error {
 	app.Use(httpserver.RequestIDMiddleware())
 	app.Use(httpserver.TracingMiddleware())
 	app.Use(httpserver.LoggingMiddleware())
-
-	// Swagger docs
-	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	// ForwardAuth endpoint for Traefik
 	app.Get("/auth/verify", func(fc *fiber.Ctx) error {

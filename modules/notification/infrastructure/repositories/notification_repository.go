@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"time"
 
 	"booker/modules/notification/domain"
@@ -96,7 +97,9 @@ func toEntities(rows []gen.Notification) []*entities.Notification {
 
 func toEntity(row gen.Notification) *entities.Notification {
 	metadata := make(map[string]string)
-	_ = json.Unmarshal(row.Metadata, &metadata)
+	if err := json.Unmarshal(row.Metadata, &metadata); err != nil {
+		slog.Warn("failed to unmarshal notification metadata", "id", row.ID, "error", err.Error())
+	}
 
 	return &entities.Notification{
 		ID:        row.ID,

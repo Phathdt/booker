@@ -62,7 +62,16 @@ func (c *NATSConsumer) processMessages(ctx context.Context, sub *nats.Subscripti
 		default:
 			msgs, err := sub.Fetch(10, nats.MaxWait(2*time.Second))
 			if err != nil {
-				// Timeout is expected when no messages available
+				if err == nats.ErrTimeout || err == context.DeadlineExceeded {
+					continue
+				}
+				c.log.With("stream", stream, "error", err.Error()).Error("failed to fetch messages")
+				// Backoff on persistent errors to avoid tight loop
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(time.Second):
+				}
 				continue
 			}
 			for _, msg := range msgs {

@@ -17,7 +17,7 @@ LIMIT $3;
 
 -- name: MarkNotificationAsRead :execrows
 UPDATE notifications SET is_read = true
-WHERE id = $1 AND user_id = $2 AND is_read = false;
+WHERE id = $1 AND user_id = $2;
 
 -- name: MarkAllNotificationsAsRead :execrows
 UPDATE notifications SET is_read = true

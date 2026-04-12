@@ -153,7 +153,7 @@ func (q *Queries) MarkAllNotificationsAsRead(ctx context.Context, userID string)
 
 const markNotificationAsRead = `-- name: MarkNotificationAsRead :execrows
 UPDATE notifications SET is_read = true
-WHERE id = $1 AND user_id = $2 AND is_read = false
+WHERE id = $1 AND user_id = $2
 `
 
 type MarkNotificationAsReadParams struct {

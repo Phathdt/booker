@@ -77,8 +77,11 @@ func (h *Hub) SendToUser(userID string, notification *entities.Notification) {
 	}
 
 	for _, sc := range conns {
-		if err := sc.writeMessage(websocket.TextMessage, data); err != nil {
-			slog.Warn("failed to send WS message", "user_id", userID, "error", err.Error())
-		}
+		sc := sc // capture loop variable
+		go func() {
+			if err := sc.writeMessage(websocket.TextMessage, data); err != nil {
+				slog.Warn("failed to send WS message", "user_id", userID, "error", err.Error())
+			}
+		}()
 	}
 }

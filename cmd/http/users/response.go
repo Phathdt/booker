@@ -3,15 +3,16 @@ package users
 import (
 	"time"
 
+	"booker/config"
 	"booker/modules/users/application/dto"
 	"booker/modules/users/domain/entities"
 )
 
-func toAuthResponse(u *entities.User, access string) dto.AuthResponse {
+func toAuthResponse(cfg *config.Config, u *entities.User, access string) dto.AuthResponse {
 	return dto.AuthResponse{
 		User:        toUserResponse(u),
 		AccessToken: access,
-		ExpiresIn:   int(15 * time.Minute / time.Second),
+		ExpiresIn:   int(cfg.JWT.AccessTTL.Seconds()),
 	}
 }
 

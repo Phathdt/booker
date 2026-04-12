@@ -17,6 +17,13 @@ export function clearAccessToken() {
   accessToken = null;
 }
 
+// Callback for auth failure — set by AuthProvider to handle logout without coupling to router
+let onAuthFailure: (() => void) | null = null;
+
+export function setOnAuthFailure(cb: () => void) {
+  onAuthFailure = cb;
+}
+
 // Silent refresh queue
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -101,7 +108,7 @@ export class Service {
         } catch (refreshError) {
           processQueue(refreshError, null);
           clearAccessToken();
-          window.location.href = "/login";
+          onAuthFailure?.();
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;

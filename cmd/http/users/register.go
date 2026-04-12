@@ -32,6 +32,6 @@ func Register(cfg *config.Config, uc *usecases.RegisterUseCase) fiber.Handler {
 		}
 
 		setRefreshTokenCookie(c, cfg, result.RefreshToken)
-		return httpserver.Created(c, toAuthResponse(result.User, result.AccessToken))
+		return httpserver.Created(c, toAuthResponse(cfg, result.User, result.AccessToken))
 	}
 }

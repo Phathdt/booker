@@ -32,6 +32,6 @@ func Login(cfg *config.Config, uc *usecases.LoginUseCase) fiber.Handler {
 		}
 
 		setRefreshTokenCookie(c, cfg, result.RefreshToken)
-		return httpserver.OK(c, toAuthResponse(result.User, result.AccessToken))
+		return httpserver.OK(c, toAuthResponse(cfg, result.User, result.AccessToken))
 	}
 }

@@ -1,11 +1,12 @@
 package users
 
 import (
-	"time"
+	"errors"
 
 	"booker/config"
 	"booker/modules/users/application/dto"
 	"booker/modules/users/application/usecases"
+	apperrors "booker/pkg/errors"
 	"booker/pkg/httpserver"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,14 +28,19 @@ func RefreshToken(cfg *config.Config, uc *usecases.RefreshTokenUseCase) fiber.Ha
 
 		result, err := uc.Execute(c.UserContext(), refreshToken)
 		if err != nil {
-			clearRefreshTokenCookie(c, cfg)
+			// Only clear cookie for auth-related errors (invalid/expired token, inactive user).
+			// Transient errors (e.g. DB/Redis) should not invalidate the session.
+			var appErr apperrors.AppError
+			if errors.As(err, &appErr) {
+				clearRefreshTokenCookie(c, cfg)
+			}
 			return err
 		}
 
 		setRefreshTokenCookie(c, cfg, result.RefreshToken)
 		return httpserver.OK(c, dto.TokenPairResponse{
 			AccessToken: result.AccessToken,
-			ExpiresIn:   int(15 * time.Minute / time.Second),
+			ExpiresIn:   int(cfg.JWT.AccessTTL.Seconds()),
 		})
 	}
 }

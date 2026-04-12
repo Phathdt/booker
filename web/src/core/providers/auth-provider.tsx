@@ -6,7 +6,11 @@ import {
   type ReactNode,
 } from "react";
 import { authService, type IUser } from "@/core/api";
-import { setAccessToken, clearAccessToken } from "@/core/api/service";
+import {
+  setAccessToken,
+  clearAccessToken,
+  setOnAuthFailure,
+} from "@/core/api/service";
 
 interface AuthContextValue {
   user: IUser | null;
@@ -32,6 +36,15 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Register auth failure callback so the service layer can trigger logout
+  // without being coupled to the router.
+  useEffect(() => {
+    setOnAuthFailure(() => {
+      clearAccessToken();
+      setUser(null);
+    });
+  }, []);
 
   // Restore session on page load via refresh cookie
   useEffect(() => {

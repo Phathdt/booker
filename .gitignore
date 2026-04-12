@@ -36,3 +36,7 @@ worktree.yml
 
 # Plans reports (local only)
 plans/reports/
+
+# Frontend
+web/node_modules/
+web/dist/

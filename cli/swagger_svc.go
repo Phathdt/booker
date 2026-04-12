@@ -65,19 +65,22 @@ func RunSwaggerSvc(c *urfavecli.Context) error {
 	})
 
 	httpAddr := fmt.Sprintf(":%d", httpPort)
+	errCh := make(chan error, 1)
 	go func() {
 		log.Info("Scalar API docs started", "address", httpAddr)
 		if err := app.Listen(httpAddr); err != nil {
-			log.Error("Swagger server failed", "error", err.Error())
+			errCh <- err
 		}
 	}()
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-	<-sigChan
 
-	log.Info("shutting down swagger service...")
-	_ = app.Shutdown()
-
-	return nil
+	select {
+	case err := <-errCh:
+		return fmt.Errorf("swagger server failed: %w", err)
+	case <-sigChan:
+		log.Info("shutting down swagger service...")
+		return app.Shutdown()
+	}
 }

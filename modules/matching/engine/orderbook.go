@@ -74,20 +74,21 @@ func (ob *OrderBook) Match(incoming *BookOrder) []*Trade {
 	opposite := ob.oppositeFor(incoming.Side)
 	var trades []*Trade
 
-	for opposite.len() > 0 && incoming.Remaining.IsPositive() {
-		bestLevel := opposite.best()
-		if bestLevel == nil {
+	// Collect price levels to process (avoids infinite loop on self-trade levels)
+	levels := opposite.snapshot()
+
+	for _, level := range levels {
+		if !incoming.Remaining.IsPositive() {
 			break
 		}
 
 		// Check if prices cross
-		if !pricesCross(incoming, bestLevel.price) {
+		if !pricesCross(incoming, level.price) {
 			break
 		}
 
 		// Walk FIFO queue at this price level
-		filled := false
-		elem := bestLevel.orders.Front()
+		elem := level.orders.Front()
 		for elem != nil && incoming.Remaining.IsPositive() {
 			resting := elem.Value.(*BookOrder)
 			next := elem.Next()
@@ -97,7 +98,6 @@ func (ob *OrderBook) Match(incoming *BookOrder) []*Trade {
 				elem = next
 				continue
 			}
-			filled = true
 
 			fillQty := decimal.Min(incoming.Remaining, resting.Remaining)
 			tradePrice := resting.Price // resting order's price (maker price)
@@ -114,7 +114,7 @@ func (ob *OrderBook) Match(incoming *BookOrder) []*Trade {
 			resting.Remaining = resting.Remaining.Sub(fillQty)
 
 			if resting.Remaining.IsZero() {
-				bestLevel.orders.Remove(elem)
+				level.orders.Remove(elem)
 				delete(ob.index, resting.ID)
 			}
 
@@ -122,13 +122,8 @@ func (ob *OrderBook) Match(incoming *BookOrder) []*Trade {
 		}
 
 		// Remove empty price level
-		if bestLevel.orders.Len() == 0 {
-			opposite.remove(bestLevel.price)
-		}
-
-		// If no fills happened at this level (all self-trade), move to next level
-		if !filled {
-			break
+		if level.orders.Len() == 0 {
+			opposite.remove(level.price)
 		}
 	}
 
@@ -195,6 +190,12 @@ func newSortedLevels(desc bool) *sortedLevels {
 
 func (sl *sortedLevels) len() int {
 	return len(sl.sorted)
+}
+
+func (sl *sortedLevels) snapshot() []*priceLevel {
+	cp := make([]*priceLevel, len(sl.sorted))
+	copy(cp, sl.sorted)
+	return cp
 }
 
 func (sl *sortedLevels) best() *priceLevel {

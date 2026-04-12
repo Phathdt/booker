@@ -99,6 +99,19 @@ func main() {
 				Action: mycli.RunOrderSvc,
 			},
 			{
+				Name:    "swagger-svc",
+				Aliases: []string{"sw"},
+				Usage:   "Start the Swagger UI service (REST only)",
+				Flags: []cli.Flag{
+					&cli.IntFlag{
+						Name:  "http-port",
+						Value: 8090,
+						Usage: "REST API port for Swagger UI",
+					},
+				},
+				Action: mycli.RunSwaggerSvc,
+			},
+			{
 				Name:    "migrate",
 				Aliases: []string{"m"},
 				Usage:   "Run database migrations",

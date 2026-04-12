@@ -193,6 +193,24 @@ services:
       timeout: 5s
       retries: 5
 
+  swagger-svc:
+    image: booker:local
+    command: ["./main", "swagger-svc", "--http-port", "8090"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.swagger.rule=PathPrefix(`/swagger`)"
+      - "traefik.http.routers.swagger.entrypoints=web"
+      - "traefik.http.routers.swagger.service=swagger-svc"
+      - "traefik.http.services.swagger-svc.loadbalancer.server.port=8090"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8090/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
   order-svc:
     image: booker:local
     command:

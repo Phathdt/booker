@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"encoding/json"
 	"log/slog"
 	"sync"
@@ -30,10 +31,12 @@ func NewHub() *Hub {
 	}
 }
 
-// Run starts the hub event loop.
-func (h *Hub) Run() {
+// Run starts the hub event loop. Exits when ctx is cancelled.
+func (h *Hub) Run(ctx context.Context) {
 	for {
 		select {
+		case <-ctx.Done():
+			return
 		case client := <-h.register:
 			h.mu.Lock()
 			h.clients[client] = true
@@ -113,10 +116,14 @@ func (h *Hub) broadcast(channel, pair string, msg WSMessage) {
 	}
 
 	h.mu.RLock()
-	clients := h.subs[subKey{channel: channel, pair: pair}]
+	src := h.subs[subKey{channel: channel, pair: pair}]
+	targets := make([]*Client, 0, len(src))
+	for c := range src {
+		targets = append(targets, c)
+	}
 	h.mu.RUnlock()
 
-	for client := range clients {
+	for _, client := range targets {
 		select {
 		case client.send <- payload:
 		default:

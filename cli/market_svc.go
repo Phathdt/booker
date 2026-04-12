@@ -88,7 +88,7 @@ func RunMarketSvc(c *urfavecli.Context) error {
 
 	// WebSocket Hub
 	hub := ws.NewHub()
-	go hub.Run()
+	go hub.Run(ctx)
 
 	// NATS consumer
 	nc, js, err := shared.InitNATS(cfg.NATS.URL)

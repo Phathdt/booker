@@ -73,7 +73,11 @@ func (c *TradeConsumer) processTrade(event *pkgnats.TradeEvent) {
 		return
 	}
 
-	ts, _ := time.Parse(time.RFC3339, event.ExecutedAt)
+	ts, err := time.Parse(time.RFC3339, event.ExecutedAt)
+	if err != nil {
+		slog.Error("invalid trade timestamp", "trade_id", event.TradeID, "executed_at", event.ExecutedAt)
+		ts = time.Now()
+	}
 	tsMs := ts.UnixMilli()
 
 	// Update ticker

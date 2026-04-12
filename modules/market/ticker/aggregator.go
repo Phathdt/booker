@@ -92,49 +92,33 @@ func (a *Aggregator) GetTicker() *Ticker {
 		Timestamp: time.Now().UnixMilli(),
 	}
 
-	first := true
-	for i := range a.buckets {
-		b := &a.buckets[i]
-		if !b.Active || b.Minute <= cutoff {
-			continue
-		}
-
-		if first {
-			t.Open = b.Open
-			t.High = b.High
-			t.Low = b.Low
-			first = false
-		}
-
-		// Track oldest bucket for open price
-		if b.Minute < now {
-			// Find the actual oldest
-		}
-
-		if b.High.GreaterThan(t.High) {
-			t.High = b.High
-		}
-		if t.Low.IsZero() || b.Low.LessThan(t.Low) {
-			t.Low = b.Low
-		}
-		t.Volume = t.Volume.Add(b.Volume)
-	}
-
-	// Close = last trade price
-	t.Close = a.lastPrice
-
-	// Find actual open (oldest active bucket)
+	// Single pass: find oldest bucket (for open), track high/low/volume
 	oldestMinute := int64(0)
 	for i := range a.buckets {
 		b := &a.buckets[i]
 		if !b.Active || b.Minute <= cutoff {
 			continue
 		}
+
+		// Track oldest for open price
 		if oldestMinute == 0 || b.Minute < oldestMinute {
 			oldestMinute = b.Minute
 			t.Open = b.Open
 		}
+
+		// High/Low
+		if t.High.IsZero() || b.High.GreaterThan(t.High) {
+			t.High = b.High
+		}
+		if t.Low.IsZero() || b.Low.LessThan(t.Low) {
+			t.Low = b.Low
+		}
+
+		t.Volume = t.Volume.Add(b.Volume)
 	}
+
+	// Close = last trade price
+	t.Close = a.lastPrice
 
 	// Change percent
 	if !t.Open.IsZero() {

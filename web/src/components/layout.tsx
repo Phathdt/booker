@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/core/providers";
 import { cn } from "@/lib/utils";
+import { NotificationBell } from "@/features/notifications";
 
 interface LayoutProps {
   children: ReactNode;
@@ -49,6 +50,7 @@ export function Layout({ children }: LayoutProps) {
           </nav>
 
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <span className="text-sm text-muted-foreground">{user?.email}</span>
             <Button variant="outline" size="sm" onClick={handleLogout}>
               Logout

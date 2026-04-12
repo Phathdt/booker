@@ -52,3 +52,46 @@ export interface IOrder {
   created_at: string;
   updated_at: string;
 }
+
+export interface ITradingPair {
+  id: string;
+  base_asset: string;
+  quote_asset: string;
+  min_qty: string;
+  tick_size: string;
+  status: string;
+}
+
+export interface ITicker {
+  pair: string;
+  open: string;
+  high: string;
+  low: string;
+  close: string;
+  volume: string;
+  change_pct: string;
+  last_price: string;
+  ts: number;
+}
+
+export interface IMarketTrade {
+  id: string;
+  pair_id: string;
+  price: string;
+  quantity: string;
+  buyer_id: string;
+  seller_id: string;
+  executed_at: string;
+}
+
+export interface INotification {
+  id: string;
+  user_id: string;
+  event_key: string;
+  type: string;
+  title: string;
+  body: string;
+  is_read: boolean;
+  metadata: Record<string, string>;
+  created_at: string;
+}

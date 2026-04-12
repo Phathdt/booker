@@ -1,0 +1,123 @@
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useMutationCreateOrder } from "../data/mutations";
+import { cn } from "@/lib/utils";
+
+interface OrderFormProps {
+  pairId: string;
+}
+
+function computeTotal(price: string, quantity: string): string {
+  const p = parseFloat(price);
+  const q = parseFloat(quantity);
+  if (isNaN(p) || isNaN(q) || p <= 0 || q <= 0) return "0.00";
+  return (p * q).toFixed(8);
+}
+
+interface SideFormProps {
+  side: "buy" | "sell";
+  pairId: string;
+}
+
+function SideForm({ side, pairId }: SideFormProps) {
+  const [price, setPrice] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const { mutate, isPending } = useMutationCreateOrder();
+
+  const total = computeTotal(price, quantity);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!price || !quantity) return;
+    mutate(
+      { pair_id: pairId, side, type: "limit", price, quantity },
+      {
+        onSuccess: () => {
+          setPrice("");
+          setQuantity("");
+        },
+      }
+    );
+  };
+
+  const isBuy = side === "buy";
+  const buttonClass = isBuy
+    ? "w-full bg-green-600 hover:bg-green-700 text-white"
+    : "w-full bg-red-600 hover:bg-red-700 text-white";
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="space-y-1.5">
+        <Label htmlFor={`${side}-price`}>Price (USDT)</Label>
+        <Input
+          id={`${side}-price`}
+          type="number"
+          placeholder="0.00"
+          step="any"
+          min="0"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          required
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor={`${side}-quantity`}>
+          Quantity ({pairId.split("_")[0]})
+        </Label>
+        <Input
+          id={`${side}-quantity`}
+          type="number"
+          placeholder="0.00000000"
+          step="any"
+          min="0"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          required
+        />
+      </div>
+      <div className="rounded-md bg-muted px-3 py-2 text-sm">
+        <span className="text-muted-foreground">Total: </span>
+        <span className="font-mono font-medium">{total} USDT</span>
+      </div>
+      <Button
+        type="submit"
+        disabled={isPending}
+        className={cn(buttonClass)}
+      >
+        {isPending
+          ? "Placing..."
+          : `${isBuy ? "Buy" : "Sell"} ${pairId.split("_")[0]}`}
+      </Button>
+    </form>
+  );
+}
+
+export function OrderForm({ pairId }: OrderFormProps) {
+  return (
+    <Tabs defaultValue="buy">
+      <TabsList className="w-full">
+        <TabsTrigger
+          value="buy"
+          className="flex-1 data-[state=active]:bg-green-600 data-[state=active]:text-white"
+        >
+          Buy
+        </TabsTrigger>
+        <TabsTrigger
+          value="sell"
+          className="flex-1 data-[state=active]:bg-red-600 data-[state=active]:text-white"
+        >
+          Sell
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="buy" className="pt-3">
+        <SideForm side="buy" pairId={pairId} />
+      </TabsContent>
+      <TabsContent value="sell" className="pt-3">
+        <SideForm side="sell" pairId={pairId} />
+      </TabsContent>
+    </Tabs>
+  );
+}

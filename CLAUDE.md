@@ -89,5 +89,30 @@ make docker-down        # Stop all services
 - **Response format**: `{ data, error, trace_id, request_id }`
 - **Proto**: Inter-service gRPC only, no REST annotations
 - **Errors**: `pkg/errors.AppError` → mapped to HTTP status in Fiber error handler, gRPC codes in gRPC handler
-- **Testing**: Mockery mocks for unit tests, testcontainers for integration tests
+- **Testing**: Three-layer test strategy (see Testing section below)
 - **Decimal**: `shopspring/decimal` for financial values, `NUMERIC` in Postgres
+
+## Testing
+
+All features require three layers of testing before merging:
+
+### Unit Tests (Go)
+- Run: `make test-unit`
+- Mockery mocks for service/repository interfaces
+- Located alongside source: `*_test.go` files
+- Must cover business logic in `application/services/` and `application/usecases/`
+
+### Integration Tests (Go + Docker)
+- Run: `make test-integration`
+- Use testcontainers for real Postgres + Redis
+- Located in `test/` and `*_integration_test.go` files
+- Must cover repository implementations and cross-service gRPC calls
+
+### E2E Tests (Cucumber + TypeScript + Playwright)
+- Run: `cd e2e && yarn test`
+- Located in `e2e/` directory
+- Cucumber BDD features in `e2e/tests/features/{auth,trading,wallet}/`
+- Page objects in `e2e/page-objects/`
+- Tags: `@smoke`, `@auth`, `@trading`, `@wallet`
+- Requires services running via `make docker-up` (accessible at `booker.localhost` / `api.booker.localhost`)
+- Test user: seeded via `make seed` (trader1@booker.dev / password123)

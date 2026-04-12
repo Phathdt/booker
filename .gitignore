@@ -40,3 +40,10 @@ plans/reports/
 # Frontend
 web/node_modules/
 web/dist/
+
+# E2E tests
+e2e/node_modules/
+e2e/dist/
+e2e/test-results/
+e2e/.env
+e2e/.env.local

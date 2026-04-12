@@ -20,6 +20,7 @@ import (
 	"booker/modules/users/infrastructure/token"
 	"booker/pkg/httpserver"
 	"booker/pkg/interceptors"
+	pkgnats "booker/pkg/nats"
 	bookerOtel "booker/pkg/otel"
 	pb "booker/proto/order/v1/gen"
 
@@ -83,6 +84,20 @@ func RunOrderSvc(c *urfavecli.Context) error {
 	}
 	defer walletConn.Close()
 
+	// NATS JetStream (optional)
+	var orderPublisher pkgnats.OrderPublisher
+	nc, js, natsErr := shared.InitNATS(cfg.NATS.URL)
+	if natsErr != nil {
+		log.With("error", natsErr.Error()).Warn("failed to init NATS, order events disabled")
+	} else {
+		defer nc.Close()
+		if err := pkgnats.EnsureStreams(js); err != nil {
+			log.With("error", err.Error()).Warn("failed to ensure NATS streams")
+		}
+		orderPublisher = pkgnats.NewOrderPublisher(js)
+		log.Info("NATS JetStream connected")
+	}
+
 	// Matching gRPC client connection (optional — graceful if unavailable)
 	var matchingClient interfaces.MatchingClient
 	if cfg.MatchingService.Address != "" {
@@ -101,7 +116,7 @@ func RunOrderSvc(c *urfavecli.Context) error {
 	// Wire order module
 	orderRepo := orderRepos.NewOrderRepository(db)
 	walletClient := orderInfra.NewWalletClient(walletConn)
-	orderService := orderServices.NewOrderService(orderRepo, walletClient, matchingClient)
+	orderService := orderServices.NewOrderService(orderRepo, walletClient, matchingClient, orderPublisher)
 
 	// Token service for auth middleware
 	tokenService := token.NewJWTTokenService(redisClient, cfg.JWT)

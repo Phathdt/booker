@@ -3,40 +3,32 @@ package cli
 import (
 	"context"
 	"fmt"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	walletGRPC "booker/cmd/grpc/wallet"
-	walletHTTP "booker/cmd/http/wallet"
+	notifHTTP "booker/cmd/http/notification"
 	"booker/cmd/shared"
 	"booker/config"
+	notifServices "booker/modules/notification/application/services"
+	"booker/modules/notification/infrastructure/consumer"
+	notifRepos "booker/modules/notification/infrastructure/repositories"
+	"booker/modules/notification/infrastructure/ws"
 	"booker/modules/users/infrastructure/token"
-	walletServices "booker/modules/wallet/application/services"
-	walletRepos "booker/modules/wallet/infrastructure/repositories"
 	"booker/pkg/httpserver"
-	"booker/pkg/interceptors"
 	pkgnats "booker/pkg/nats"
 	bookerOtel "booker/pkg/otel"
-	pb "booker/proto/wallet/v1/gen"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	urfavecli "github.com/urfave/cli/v2"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/health"
-	healthpb "google.golang.org/grpc/health/grpc_health_v1"
-	"google.golang.org/grpc/reflection"
 )
 
-// RunWalletSvc starts the wallet service (Fiber REST + gRPC).
-func RunWalletSvc(c *urfavecli.Context) error {
+// RunNotificationSvc starts the notification service (Fiber REST + WebSocket + NATS consumers).
+func RunNotificationSvc(c *urfavecli.Context) error {
 	configPath := c.String("config")
-	grpcPort := c.Int("port")
 	httpPort := c.Int("http-port")
 
 	cfg, err := config.LoadConfig(configPath)
@@ -48,7 +40,7 @@ func RunWalletSvc(c *urfavecli.Context) error {
 	ctx := context.Background()
 
 	otelShutdown, err := bookerOtel.Setup(ctx, bookerOtel.Config{
-		ServiceName: "wallet-svc",
+		ServiceName: "notification-svc",
 		Endpoint:    cfg.OTel.Endpoint,
 		Insecure:    cfg.OTel.Insecure,
 	})
@@ -71,62 +63,37 @@ func RunWalletSvc(c *urfavecli.Context) error {
 	}
 	defer redisClient.Close()
 
-	// NATS JetStream (optional)
-	var walletPublisher pkgnats.WalletPublisher
+	// Wire notification module
+	notifRepo := notifRepos.NewNotificationRepository(db)
+	wsHub := ws.NewHub()
+	notifService := notifServices.NewNotificationService(notifRepo, wsHub)
+
+	// NATS JetStream consumers
+	var natsConsumer *consumer.NATSConsumer
 	nc, js, natsErr := shared.InitNATS(cfg.NATS.URL)
 	if natsErr != nil {
-		log.With("error", natsErr.Error()).Warn("failed to init NATS, wallet events disabled")
+		log.With("error", natsErr.Error()).Warn("NATS unavailable, real-time event consumption disabled")
 	} else {
 		defer nc.Close()
 		if err := pkgnats.EnsureStreams(js); err != nil {
 			log.With("error", err.Error()).Warn("failed to ensure NATS streams")
 		}
-		walletPublisher = pkgnats.NewWalletPublisher(js)
 		log.Info("NATS JetStream connected")
-	}
 
-	// Wire wallet module
-	walletRepo := walletRepos.NewWalletRepository(db)
-	walletService := walletServices.NewWalletService(walletRepo, walletPublisher)
+		eventHandler := consumer.NewEventHandler(notifService)
+		natsConsumer = consumer.NewNATSConsumer(js, eventHandler, log)
+		consumerCtx, consumerCancel := context.WithCancel(ctx)
+		defer consumerCancel()
+		natsConsumer.Start(consumerCtx)
+	}
 
 	// Token service for auth middleware
 	tokenService := token.NewJWTTokenService(redisClient, cfg.JWT)
 
-	// --- gRPC server (inter-service) ---
-	grpcServer := grpc.NewServer(
-		grpc.StatsHandler(otelgrpc.NewServerHandler()),
-		grpc.ChainUnaryInterceptor(
-			interceptors.LoggingUnaryInterceptor(log),
-		),
-	)
-	pb.RegisterWalletServiceServer(grpcServer, walletGRPC.NewWalletServer(walletService))
-
-	healthServer := health.NewServer()
-	healthpb.RegisterHealthServer(grpcServer, healthServer)
-	healthServer.SetServingStatus("wallet.v1.WalletService", healthpb.HealthCheckResponse_SERVING)
-	reflection.Register(grpcServer)
-
-	if grpcPort == 0 {
-		grpcPort = 50052
-	}
-	grpcAddr := fmt.Sprintf(":%d", grpcPort)
-	lis, err := net.Listen("tcp", grpcAddr)
-	if err != nil {
-		return fmt.Errorf("failed to listen on %s: %w", grpcAddr, err)
-	}
-
-	errCh := make(chan error, 2)
-	go func() {
-		log.With("address", grpcAddr).Info("Wallet gRPC started (inter-service)")
-		if err := grpcServer.Serve(lis); err != nil {
-			errCh <- fmt.Errorf("gRPC server failed: %w", err)
-		}
-	}()
-
-	// --- Fiber REST server (external) ---
+	// --- Fiber REST + WebSocket server ---
 	app := fiber.New(fiber.Config{
 		ErrorHandler: httpserver.ErrorHandler,
-		AppName:      "booker-wallet-svc",
+		AppName:      "booker-notification-svc",
 	})
 
 	app.Use(recover.New())
@@ -139,31 +106,40 @@ func RunWalletSvc(c *urfavecli.Context) error {
 	app.Use(httpserver.TracingMiddleware())
 	app.Use(httpserver.LoggingMiddleware())
 
-	walletHTTP.RegisterRoutes(app, walletService, tokenService)
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "ok"})
+	})
 
+	notifHTTP.RegisterRoutes(app, notifService, tokenService, wsHub)
+
+	if httpPort == 0 {
+		httpPort = 8086
+	}
 	httpAddr := fmt.Sprintf(":%d", httpPort)
+	errCh := make(chan error, 1)
 	go func() {
-		log.With("address", httpAddr).Info("Wallet REST API started (Fiber)")
+		log.With("address", httpAddr).Info("Notification service started (REST + WebSocket)")
 		if err := app.Listen(httpAddr); err != nil {
 			errCh <- fmt.Errorf("Fiber server failed: %w", err)
 		}
 	}()
 
-	// Wait for shutdown signal or server error
+	// Graceful shutdown
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 	select {
 	case <-sigChan:
-		log.Info("shutting down wallet service...")
+		log.Info("shutting down notification service...")
 	case err := <-errCh:
 		log.With("error", err.Error()).Error("server error, shutting down...")
 	}
 
-	healthServer.SetServingStatus("wallet.v1.WalletService", healthpb.HealthCheckResponse_NOT_SERVING)
+	if natsConsumer != nil {
+		natsConsumer.Stop()
+	}
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_ = app.ShutdownWithContext(shutdownCtx)
-	grpcServer.GracefulStop()
 
 	return nil
 }

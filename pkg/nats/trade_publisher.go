@@ -35,19 +35,6 @@ func NewTradePublisher(js nats.JetStreamContext) TradePublisher {
 	return &jetStreamPublisher{js: js}
 }
 
-// EnsureStream creates the TRADES stream if it doesn't exist.
-func EnsureStream(js nats.JetStreamContext) error {
-	_, err := js.AddStream(&nats.StreamConfig{
-		Name:     "TRADES",
-		Subjects: []string{"trades.>"},
-		Storage:  nats.FileStorage,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to create TRADES stream: %w", err)
-	}
-	return nil
-}
-
 func (p *jetStreamPublisher) PublishTrade(ctx context.Context, event *TradeEvent) error {
 	data, err := json.Marshal(event)
 	if err != nil {

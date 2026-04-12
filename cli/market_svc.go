@@ -96,8 +96,8 @@ func RunMarketSvc(c *urfavecli.Context) error {
 		log.With("error", err.Error()).Warn("failed to init NATS, real-time updates disabled")
 	} else {
 		defer nc.Close()
-		if err := pkgnats.EnsureStream(js); err != nil {
-			log.With("error", err.Error()).Warn("failed to ensure TRADES stream")
+		if err := pkgnats.EnsureStreams(js); err != nil {
+			log.With("error", err.Error()).Warn("failed to ensure NATS streams")
 		}
 
 		tradeConsumer := consumer.NewTradeConsumer(tickers, recentTrades, hub)

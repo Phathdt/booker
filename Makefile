@@ -30,6 +30,9 @@ run-matching-svc:
 run-market-svc:
 	go run . market-svc --config config.yml
 
+run-notification-svc:
+	go run . notification-svc --config config.yml
+
 run-swagger-svc:
 	go run . swagger-svc
 

@@ -32,7 +32,7 @@ func newTestService(t *testing.T) (*mocks.MockOrderRepository, *mocks.MockWallet
 	// Default: matching client submit always succeeds (fire-and-forget)
 	matching.EXPECT().SubmitOrder(mock.Anything, mock.Anything).Return(nil).Maybe()
 	matching.EXPECT().CancelOrder(mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
-	svc := NewOrderService(repo, wallet, matching)
+	svc := NewOrderService(repo, wallet, matching, nil)
 	return repo, wallet, svc
 }
 

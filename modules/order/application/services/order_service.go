@@ -3,11 +3,13 @@ package services
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"booker/modules/order/application/dto"
 	"booker/modules/order/domain"
 	"booker/modules/order/domain/entities"
 	"booker/modules/order/domain/interfaces"
+	pkgnats "booker/pkg/nats"
 
 	"github.com/shopspring/decimal"
 )
@@ -16,14 +18,21 @@ type orderService struct {
 	repo           interfaces.OrderRepository
 	walletClient   interfaces.WalletClient
 	matchingClient interfaces.MatchingClient
+	orderPublisher pkgnats.OrderPublisher
 }
 
 func NewOrderService(
 	repo interfaces.OrderRepository,
 	walletClient interfaces.WalletClient,
 	matchingClient interfaces.MatchingClient,
+	orderPublisher pkgnats.OrderPublisher,
 ) interfaces.OrderService {
-	return &orderService{repo: repo, walletClient: walletClient, matchingClient: matchingClient}
+	return &orderService{
+		repo:           repo,
+		walletClient:   walletClient,
+		matchingClient: matchingClient,
+		orderPublisher: orderPublisher,
+	}
 }
 
 func (s *orderService) CreateOrder(
@@ -164,6 +173,7 @@ func (s *orderService) CancelOrder(ctx context.Context, userID, orderID string) 
 		return nil, domain.ErrOrderNotCancellable
 	}
 
+	s.publishOrderEvent(ctx, cancelled)
 	return cancelled, nil
 }
 
@@ -225,5 +235,27 @@ func (s *orderService) UpdateOrderFill(
 		return nil, domain.ErrOrderNotFillable
 	}
 
+	s.publishOrderEvent(ctx, order)
 	return order, nil
+}
+
+func (s *orderService) publishOrderEvent(ctx context.Context, order *entities.Order) {
+	if s.orderPublisher == nil {
+		return
+	}
+	event := &pkgnats.OrderEvent{
+		OrderID:   order.ID,
+		UserID:    order.UserID,
+		PairID:    order.PairID,
+		Side:      order.Side,
+		Price:     order.Price.String(),
+		Quantity:  order.Quantity.String(),
+		FilledQty: order.FilledQty.String(),
+		Status:    order.Status,
+		UpdatedAt: order.UpdatedAt.Format(time.RFC3339),
+	}
+	if err := s.orderPublisher.PublishOrderUpdate(ctx, event); err != nil {
+		slog.ErrorContext(ctx, "failed to publish order event",
+			"order_id", order.ID, "error", err.Error())
+	}
 }

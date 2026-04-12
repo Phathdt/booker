@@ -132,10 +132,10 @@ export class TradingPage {
 
   async expectNoOpenOrders(): Promise<void> {
     const openOrdersSection = this.page.locator('section, div').filter({ has: this.openOrdersHeading });
-    const emptyState = openOrdersSection.getByText(/no open orders/i);
+    const emptyState = openOrdersSection.getByText(/no orders found/i);
     const rows = openOrdersSection.locator('table tbody tr');
     // Either empty state text is shown or the table has no rows
-    const hasEmptyState = await emptyState.isVisible().catch(() => false);
+    const hasEmptyState = await emptyState.isVisible();
     if (!hasEmptyState) {
       const rowCount = await rows.count();
       expect(rowCount).toBe(0);
@@ -144,11 +144,11 @@ export class TradingPage {
 
   async expectOrderExecuted(): Promise<void> {
     // After matching, the trade history or executed state should be reflected.
-    // Orders that matched should no longer appear in open orders, or a trade
-    // entry should appear. We check that the open orders table does not contain
-    // the matched order by verifying the count decreased or is empty.
+    // Orders that matched should no longer appear in open orders.
     await this.page.waitForTimeout(TimeoutValue.STRATEGIC_PART_DELAY);
     // Verify we are still on the trading page (no error redirect)
     await this.expectOnTradingPage();
+    // Verify open orders are cleared (matched orders removed)
+    await this.expectNoOpenOrders();
   }
 }

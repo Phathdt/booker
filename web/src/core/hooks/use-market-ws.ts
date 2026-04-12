@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { IMarketTrade, ITicker } from "@/core/api/types";
+import { getWsBaseUrl } from "./ws-utils";
 
-// WebSocket message shapes from market-svc
 interface WsTickerMessage {
   type: "ticker";
   pair: string;
@@ -32,16 +32,6 @@ type WsMessage = WsTickerMessage | WsTradeMessage;
 
 const MAX_TRADES = 50;
 const RECONNECT_DELAY_MS = 3000;
-
-function getWsBaseUrl(): string {
-  const apiBase = import.meta.env.VITE_API_BASE_URL as string | undefined;
-  if (apiBase) {
-    return apiBase.replace(/^http:/, "ws:").replace(/^https:/, "wss:").replace(/\/$/, "");
-  }
-  const { protocol, host } = window.location;
-  const wsProtocol = protocol === "https:" ? "wss:" : "ws:";
-  return `${wsProtocol}//${host}`;
-}
 
 export interface UseMarketWSResult {
   ticker: ITicker | null;

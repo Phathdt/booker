@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getAccessToken } from "@/core/api/service";
 import type { INotification } from "@/core/api/types";
+import { NOTIFICATION_QUERY_KEYS } from "@/features/notifications/data/queries/notification";
+import { getWsBaseUrl } from "./ws-utils";
 
 interface WsNotificationMessage {
   type: string;
@@ -9,16 +11,6 @@ interface WsNotificationMessage {
 }
 
 const RECONNECT_DELAY_MS = 3000;
-
-function getWsBaseUrl(): string {
-  const apiBase = import.meta.env.VITE_API_BASE_URL as string | undefined;
-  if (apiBase) {
-    return apiBase.replace(/^http:/, "ws:").replace(/^https:/, "wss:").replace(/\/$/, "");
-  }
-  const { protocol, host } = window.location;
-  const wsProtocol = protocol === "https:" ? "wss:" : "ws:";
-  return `${wsProtocol}//${host}`;
-}
 
 export interface UseNotificationWSResult {
   lastNotification: INotification | null;
@@ -81,8 +73,8 @@ export function useNotificationWS(): UseNotificationWSResult {
 
           if (msg.data) {
             setLastNotification(msg.data);
-            queryClient.invalidateQueries({ queryKey: ["notifications"] });
-            queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+            queryClient.invalidateQueries({ queryKey: [NOTIFICATION_QUERY_KEYS.LIST] });
+            queryClient.invalidateQueries({ queryKey: [NOTIFICATION_QUERY_KEYS.UNREAD_COUNT] });
           }
         } catch {
           // Ignore malformed messages

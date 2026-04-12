@@ -237,6 +237,85 @@ func TestDetermineOrderStatus_OverFilled(t *testing.T) {
 	assert.Equal(t, "filled", DetermineOrderStatus(decimal.NewFromFloat(1.5), decimal.NewFromFloat(1)))
 }
 
+func TestSettleTrade_PairNotFound(t *testing.T) {
+	ctx := context.Background()
+
+	eng := engine.NewEngine("BTC_USDT", 64)
+	eng.Start(ctx)
+	t.Cleanup(func() { eng.Stop() })
+
+	engines := map[string]*engine.Engine{"BTC_USDT": eng}
+	tradeRepo := mocks.NewMockTradeRepository(t)
+	orderClient := mocks.NewMockOrderClient(t)
+	walletClient := mocks.NewMockMatchingWalletClient(t)
+
+	// Service has BTC_USDT engine but pairs map is EMPTY
+	// This means trades will be generated but settleTrade won't find the pair
+	pairs := map[string]*PairInfo{}
+
+	svc := NewMatchingService(engines, tradeRepo, orderClient, walletClient, nil, pairs)
+
+	// Add a sell order
+	sell := newBookOrder("a1", "seller", engine.SideSell, 50000, 0.5)
+	eng.Submit(sell)
+
+	// Submit buy order to trigger trade generation
+	buy := newBookOrder("b1", "buyer", engine.SideBuy, 50000, 0.5)
+	trades, err := svc.SubmitOrder(ctx, buy)
+
+	// SubmitOrder itself should succeed (match is found)
+	// But settleTrade will find pair not in map and log error
+	assert.NoError(t, err)
+	assert.Len(t, trades, 1)
+}
+
+func TestSubmitOrder_MultipleMatches(t *testing.T) {
+	engines, tradeRepo, orderClient, walletClient, svc := setupTestService(t)
+
+	// Add multiple sell orders at different prices
+	sell1 := newBookOrder("s1", "seller1", engine.SideSell, 49900, 0.2)
+	sell2 := newBookOrder("s2", "seller2", engine.SideSell, 49950, 0.3)
+	engines["BTC_USDT"].Submit(sell1)
+	engines["BTC_USDT"].Submit(sell2)
+
+	qty1 := decimal.NewFromFloat(0.2)
+	qty2 := decimal.NewFromFloat(0.3)
+
+	// Expect wallet calls for all trades
+	walletClient.EXPECT().SettleTrade(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Times(4)
+	walletClient.EXPECT().Deposit(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Times(4)
+
+	// Expect order fill updates
+	orderClient.EXPECT().UpdateOrderFill(mock.Anything, mock.Anything, mock.Anything, "partial").Return(nil).Times(4)
+
+	// Expect trade persistence
+	tradeRepo.EXPECT().Create(mock.Anything, mock.Anything).Return(&entities.Trade{}, nil).Times(2)
+
+	// Buy 0.5 total — should match against both sells
+	buy := newBookOrder("b1", "buyer", engine.SideBuy, 50000, 0.5)
+	trades, err := svc.SubmitOrder(context.Background(), buy)
+
+	require.NoError(t, err)
+	require.Len(t, trades, 2)
+	assert.True(t, trades[0].Quantity.Equal(qty1))
+	assert.True(t, trades[1].Quantity.Equal(qty2))
+}
+
+func TestCancelOrder_ThenSubmitSameID(t *testing.T) {
+	engines, _, _, _, svc := setupTestService(t)
+
+	order := newBookOrder("b1", "buyer", engine.SideBuy, 49000, 1)
+	engines["BTC_USDT"].Submit(order)
+
+	// Cancel the order
+	err := svc.CancelOrder(context.Background(), "BTC_USDT", "b1")
+	assert.NoError(t, err)
+
+	// Try to cancel again — should fail
+	err = svc.CancelOrder(context.Background(), "BTC_USDT", "b1")
+	assert.Equal(t, domain.ErrOrderNotInBook, err)
+}
+
 type failingPublisher struct{}
 
 func (p *failingPublisher) PublishTrade(_ context.Context, _ *pkgnats.TradeEvent) error {

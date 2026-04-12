@@ -137,3 +137,105 @@ func TestWalletService_GetBalances(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, wallets, 2)
 }
+
+// --- Deposit Error Path Tests ---
+
+func TestWalletService_Deposit_RepositoryError(t *testing.T) {
+	repo := mocks.NewMockWalletRepository(t)
+	svc := NewWalletService(repo, nil)
+
+	amount := decimal.NewFromFloat(100)
+	repo.EXPECT().Deposit(mock.Anything, "user-1", "USDT", amount).
+		Return(nil, domain.ErrInsufficientBalance)
+
+	w, err := svc.Deposit(context.Background(), "user-1", "USDT", amount)
+	assert.Nil(t, w)
+	assert.Equal(t, domain.ErrInsufficientBalance, err)
+}
+
+// --- Withdraw Error Path Tests ---
+
+func TestWalletService_Withdraw_RepositoryError(t *testing.T) {
+	repo := mocks.NewMockWalletRepository(t)
+	svc := NewWalletService(repo, nil)
+
+	amount := decimal.NewFromFloat(50)
+	repo.EXPECT().Withdraw(mock.Anything, "user-1", "USDT", amount).
+		Return(nil, domain.ErrInsufficientBalance)
+
+	w, err := svc.Withdraw(context.Background(), "user-1", "USDT", amount)
+	assert.Nil(t, w)
+	assert.Equal(t, domain.ErrInsufficientBalance, err)
+}
+
+func TestWalletService_Withdraw_NegativeAmount(t *testing.T) {
+	repo := mocks.NewMockWalletRepository(t)
+	svc := NewWalletService(repo, nil)
+
+	w, err := svc.Withdraw(context.Background(), "user-1", "USDT", decimal.NewFromFloat(-50))
+	assert.Nil(t, w)
+	assert.Equal(t, domain.ErrInvalidAmount, err)
+}
+
+// --- ReleaseBalance Tests ---
+
+func TestWalletService_ReleaseBalance_InvalidAmount(t *testing.T) {
+	repo := mocks.NewMockWalletRepository(t)
+	svc := NewWalletService(repo, nil)
+
+	w, err := svc.ReleaseBalance(context.Background(), "user-1", "USDT", decimal.Zero)
+	assert.Nil(t, w)
+	assert.Equal(t, domain.ErrInvalidAmount, err)
+}
+
+func TestWalletService_ReleaseBalance_RepositoryError(t *testing.T) {
+	repo := mocks.NewMockWalletRepository(t)
+	svc := NewWalletService(repo, nil)
+
+	amount := decimal.NewFromFloat(50)
+	repo.EXPECT().Release(mock.Anything, "user-1", "USDT", amount).
+		Return(nil, domain.ErrInsufficientBalance)
+
+	w, err := svc.ReleaseBalance(context.Background(), "user-1", "USDT", amount)
+	assert.Nil(t, w)
+	assert.Equal(t, domain.ErrInsufficientBalance, err)
+}
+
+// --- SettleTrade Tests ---
+
+func TestWalletService_SettleTrade_InvalidAmount(t *testing.T) {
+	repo := mocks.NewMockWalletRepository(t)
+	svc := NewWalletService(repo, nil)
+
+	w, err := svc.SettleTrade(context.Background(), "user-1", "USDT", decimal.NewFromFloat(-100))
+	assert.Nil(t, w)
+	assert.Equal(t, domain.ErrInvalidAmount, err)
+}
+
+func TestWalletService_SettleTrade_RepositoryError(t *testing.T) {
+	repo := mocks.NewMockWalletRepository(t)
+	svc := NewWalletService(repo, nil)
+
+	amount := decimal.NewFromFloat(100)
+	repo.EXPECT().Settle(mock.Anything, "user-1", "USDT", amount).
+		Return(nil, domain.ErrInsufficientBalance)
+
+	w, err := svc.SettleTrade(context.Background(), "user-1", "USDT", amount)
+	assert.Nil(t, w)
+	assert.Equal(t, domain.ErrInsufficientBalance, err)
+}
+
+// --- HoldBalance Error Path Tests ---
+
+func TestWalletService_HoldBalance_RepositoryError(t *testing.T) {
+	repo := mocks.NewMockWalletRepository(t)
+	svc := NewWalletService(repo, nil)
+
+	amount := decimal.NewFromFloat(100)
+	repo.EXPECT().Hold(mock.Anything, "user-1", "USDT", amount).
+		Return(nil, domain.ErrInsufficientBalance)
+
+	w, err := svc.HoldBalance(context.Background(), "user-1", "USDT", amount)
+	assert.Nil(t, w)
+	assert.Equal(t, domain.ErrInsufficientBalance, err)
+}

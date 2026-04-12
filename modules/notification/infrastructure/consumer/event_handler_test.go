@@ -3,6 +3,7 @@ package consumer
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"booker/modules/notification/domain/entities"
@@ -356,4 +357,149 @@ func TestHandle_UnknownSubject(t *testing.T) {
 
 	err := handler.Handle(context.Background(), msg)
 	assert.NoError(t, err)
+}
+
+// --- Trade Event Error Handling ---
+
+func TestHandleTradeEvent_BuyerNotificationError(t *testing.T) {
+	svc, handler := newTestEventHandler(t)
+
+	event := pkgnats.TradeEvent{
+		TradeID:  "trade-1",
+		PairID:   "BTC-USDT",
+		BuyerID:  "buyer-1",
+		SellerID: "seller-1",
+		Price:    "50000",
+		Quantity: "0.5",
+	}
+	data, _ := json.Marshal(event)
+	msg := &nats.Msg{
+		Subject: "trades.BTC-USDT.executed",
+		Data:    data,
+	}
+
+	// First call fails for buyer, second succeeds for seller
+	svc.EXPECT().CreateNotification(mock.Anything, mock.MatchedBy(func(n *entities.Notification) bool {
+		return n.UserID == "buyer-1"
+	})).Return(false, fmt.Errorf("buyer notification failed")).Once()
+
+	svc.EXPECT().CreateNotification(mock.Anything, mock.MatchedBy(func(n *entities.Notification) bool {
+		return n.UserID == "seller-1"
+	})).Return(true, nil).Once()
+
+	err := handler.Handle(context.Background(), msg)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "trade notification errors")
+}
+
+func TestHandleTradeEvent_SellerNotificationError(t *testing.T) {
+	svc, handler := newTestEventHandler(t)
+
+	event := pkgnats.TradeEvent{
+		TradeID:  "trade-1",
+		PairID:   "BTC-USDT",
+		BuyerID:  "buyer-1",
+		SellerID: "seller-1",
+		Price:    "50000",
+		Quantity: "0.5",
+	}
+	data, _ := json.Marshal(event)
+	msg := &nats.Msg{
+		Subject: "trades.BTC-USDT.executed",
+		Data:    data,
+	}
+
+	// First call succeeds for buyer, second fails for seller
+	svc.EXPECT().CreateNotification(mock.Anything, mock.MatchedBy(func(n *entities.Notification) bool {
+		return n.UserID == "buyer-1"
+	})).Return(true, nil).Once()
+
+	svc.EXPECT().CreateNotification(mock.Anything, mock.MatchedBy(func(n *entities.Notification) bool {
+		return n.UserID == "seller-1"
+	})).Return(false, fmt.Errorf("seller notification failed")).Once()
+
+	err := handler.Handle(context.Background(), msg)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "trade notification errors")
+}
+
+func TestHandleTradeEvent_BothNotificationsError(t *testing.T) {
+	svc, handler := newTestEventHandler(t)
+
+	event := pkgnats.TradeEvent{
+		TradeID:  "trade-1",
+		PairID:   "BTC-USDT",
+		BuyerID:  "buyer-1",
+		SellerID: "seller-1",
+		Price:    "50000",
+		Quantity: "0.5",
+	}
+	data, _ := json.Marshal(event)
+	msg := &nats.Msg{
+		Subject: "trades.BTC-USDT.executed",
+		Data:    data,
+	}
+
+	// Both calls fail
+	svc.EXPECT().CreateNotification(mock.Anything, mock.Anything).
+		Return(false, fmt.Errorf("notification failed")).Times(2)
+
+	err := handler.Handle(context.Background(), msg)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "trade notification errors")
+}
+
+// --- Order Event Error Handling ---
+
+func TestHandleOrderEvent_Filled_NotificationError(t *testing.T) {
+	svc, handler := newTestEventHandler(t)
+
+	event := pkgnats.OrderEvent{
+		OrderID:   "order-1",
+		UserID:    "user-1",
+		PairID:    "BTC-USDT",
+		Side:      "buy",
+		Price:     "50000",
+		Quantity:  "1",
+		FilledQty: "1",
+		Status:    "filled",
+		UpdatedAt: "2026-04-12T10:00:00Z",
+	}
+	data, _ := json.Marshal(event)
+	msg := &nats.Msg{
+		Subject: "orders.user-1.filled",
+		Data:    data,
+	}
+
+	svc.EXPECT().CreateNotification(mock.Anything, mock.Anything).
+		Return(false, fmt.Errorf("notification error"))
+
+	err := handler.Handle(context.Background(), msg)
+	assert.Error(t, err)
+}
+
+// --- Wallet Event Error Handling ---
+
+func TestHandleWalletEvent_Deposit_NotificationError(t *testing.T) {
+	svc, handler := newTestEventHandler(t)
+
+	event := pkgnats.WalletEvent{
+		UserID:    "user-1",
+		Asset:     "BTC",
+		Amount:    "0.5",
+		Action:    "deposit",
+		TxID:      "tx-1",
+		CreatedAt: "2026-04-12T10:00:00Z",
+	}
+	data, _ := json.Marshal(event)
+	msg := &nats.Msg{
+		Subject: "wallets.user-1.deposit",
+		Data:    data,
+	}
+
+	svc.EXPECT().CreateNotification(mock.Anything, mock.Anything).
+		Return(false, fmt.Errorf("notification error"))
+
+	err := handler.Handle(context.Background(), msg)
+	assert.Error(t, err)
 }

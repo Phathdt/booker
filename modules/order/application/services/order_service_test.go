@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"booker/modules/order/application/dto"
 	"booker/modules/order/domain"
 	"booker/modules/order/domain/entities"
 	"booker/modules/order/domain/interfaces"
 	"booker/modules/order/domain/interfaces/mocks"
+	pkgnats "booker/pkg/nats"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -568,4 +570,180 @@ func TestUpdateOrderFill_BackwardFill(t *testing.T) {
 	order, err := svc.UpdateOrderFill(context.Background(), "order-1", filledQty, "partial")
 	assert.Nil(t, order)
 	assert.Equal(t, domain.ErrFillQtyBackward, err)
+}
+
+func TestUpdateOrderFill_OrderNotFound(t *testing.T) {
+	repo, _, svc := newTestService(t)
+
+	filledQty := decimal.NewFromFloat(0.5)
+	repo.EXPECT().GetByID(mock.Anything, "order-1").
+		Return(nil, domain.ErrOrderNotFound)
+
+	order, err := svc.UpdateOrderFill(context.Background(), "order-1", filledQty, "partial")
+	assert.Nil(t, order)
+	assert.Equal(t, domain.ErrOrderNotFound, err)
+}
+
+func TestUpdateOrderFill_EqualFill(t *testing.T) {
+	repo, _, svc := newTestService(t)
+
+	filledQty := decimal.NewFromFloat(0.5)
+	repo.EXPECT().GetByID(mock.Anything, "order-1").
+		Return(&entities.Order{ID: "order-1", FilledQty: decimal.NewFromFloat(0.5), Status: "partial"}, nil)
+	repo.EXPECT().UpdateFilledQty(mock.Anything, "order-1", filledQty, "filled").
+		Return(&entities.Order{ID: "order-1", FilledQty: filledQty, Status: "filled"}, nil)
+
+	order, err := svc.UpdateOrderFill(context.Background(), "order-1", filledQty, "filled")
+	assert.NoError(t, err)
+	assert.Equal(t, "filled", order.Status)
+}
+
+// --- CreateOrder with matching client failure ---
+
+func TestCreateOrder_SubmitOrderFails(t *testing.T) {
+	repo, wallet, _ := newTestService(t)
+
+	// Use a separate matching mock that fails
+	matchingFail := mocks.NewMockMatchingClient(t)
+	matchingFail.EXPECT().SubmitOrder(mock.Anything, mock.Anything).
+		Return(fmt.Errorf("matching engine down"))
+
+	svc := NewOrderService(repo, wallet, matchingFail, nil)
+
+	req := validCreateDTO()
+	holdAmount := req.Price.Mul(req.Quantity)
+
+	repo.EXPECT().GetTradingPair(mock.Anything, "BTC_USDT").Return(testPair, nil)
+	wallet.EXPECT().HoldBalance(mock.Anything, "user-1", "USDT", holdAmount).Return(nil)
+	repo.EXPECT().Create(mock.Anything, mock.Anything).Return(&entities.Order{
+		ID: "order-1", UserID: "user-1", PairID: "BTC_USDT", Side: "buy",
+		Price: req.Price, Quantity: req.Quantity, Status: "new",
+	}, nil)
+
+	// Should still return successfully (fire-and-forget)
+	order, err := svc.CreateOrder(context.Background(), "user-1", req)
+	assert.NoError(t, err)
+	assert.Equal(t, "order-1", order.ID)
+}
+
+// --- CancelOrder with matching client failure ---
+
+func TestCancelOrder_MatchingClientFails(t *testing.T) {
+	repo, wallet, _ := newTestService(t)
+
+	// Use a separate matching mock that fails
+	matchingFail := mocks.NewMockMatchingClient(t)
+	matchingFail.EXPECT().CancelOrder(mock.Anything, mock.Anything, mock.Anything).
+		Return(fmt.Errorf("matching engine down"))
+
+	svc := NewOrderService(repo, wallet, matchingFail, nil)
+
+	order := &entities.Order{
+		ID: "order-1", UserID: "user-1", PairID: "BTC_USDT", Side: "buy",
+		Price: decimal.NewFromFloat(50000), Quantity: decimal.NewFromFloat(0.5),
+		FilledQty: decimal.Zero, Status: "new",
+	}
+	releaseAmount := order.Price.Mul(order.RemainingQty())
+
+	repo.EXPECT().GetByIDAndUser(mock.Anything, "order-1", "user-1").Return(order, nil)
+	repo.EXPECT().GetTradingPair(mock.Anything, "BTC_USDT").Return(testPair, nil)
+	wallet.EXPECT().ReleaseBalance(mock.Anything, "user-1", "USDT", releaseAmount).Return(nil)
+	repo.EXPECT().Cancel(mock.Anything, "order-1", "user-1").Return(&entities.Order{
+		ID: "order-1", Status: "cancelled",
+	}, nil)
+
+	// Should still return successfully (fire-and-forget)
+	result, err := svc.CancelOrder(context.Background(), "user-1", "order-1")
+	assert.NoError(t, err)
+	assert.Equal(t, "cancelled", result.Status)
+}
+
+// --- PublishOrderEvent with publisher ---
+
+type testPublisher struct {
+	published bool
+	err       error
+}
+
+func (p *testPublisher) PublishOrderUpdate(ctx context.Context, event *pkgnats.OrderEvent) error {
+	if p.err != nil {
+		return p.err
+	}
+	p.published = true
+	return nil
+}
+
+func TestCancelOrder_WithPublisher(t *testing.T) {
+	repo, wallet, _ := newTestService(t)
+
+	publisher := &testPublisher{}
+	svc := NewOrderService(repo, wallet, nil, publisher)
+
+	order := &entities.Order{
+		ID: "order-1", UserID: "user-1", PairID: "BTC_USDT", Side: "buy",
+		Price: decimal.NewFromFloat(50000), Quantity: decimal.NewFromFloat(0.5),
+		FilledQty: decimal.Zero, Status: "new",
+	}
+	releaseAmount := order.Price.Mul(order.RemainingQty())
+
+	cancelledOrder := &entities.Order{
+		ID: "order-1", UserID: "user-1", Status: "cancelled",
+		CreatedAt: time.Now(), UpdatedAt: time.Now(),
+	}
+
+	repo.EXPECT().GetByIDAndUser(mock.Anything, "order-1", "user-1").Return(order, nil)
+	repo.EXPECT().GetTradingPair(mock.Anything, "BTC_USDT").Return(testPair, nil)
+	wallet.EXPECT().ReleaseBalance(mock.Anything, "user-1", "USDT", releaseAmount).Return(nil)
+	repo.EXPECT().Cancel(mock.Anything, "order-1", "user-1").Return(cancelledOrder, nil)
+
+	result, err := svc.CancelOrder(context.Background(), "user-1", "order-1")
+	assert.NoError(t, err)
+	assert.Equal(t, "cancelled", result.Status)
+	assert.True(t, publisher.published)
+}
+
+func TestUpdateOrderFill_WithPublisher(t *testing.T) {
+	repo, _, _ := newTestService(t)
+
+	publisher := &testPublisher{}
+	svc := NewOrderService(repo, nil, nil, publisher)
+
+	filledQty := decimal.NewFromFloat(0.5)
+	updatedOrder := &entities.Order{
+		ID: "order-1", FilledQty: filledQty, Status: "partial",
+		CreatedAt: time.Now(), UpdatedAt: time.Now(),
+	}
+
+	repo.EXPECT().GetByID(mock.Anything, "order-1").
+		Return(&entities.Order{ID: "order-1", FilledQty: decimal.NewFromFloat(0.3), Status: "partial"}, nil)
+	repo.EXPECT().UpdateFilledQty(mock.Anything, "order-1", filledQty, "partial").
+		Return(updatedOrder, nil)
+
+	order, err := svc.UpdateOrderFill(context.Background(), "order-1", filledQty, "partial")
+	assert.NoError(t, err)
+	assert.Equal(t, "partial", order.Status)
+	assert.True(t, publisher.published)
+}
+
+func TestPublishOrderEvent_FailedPublish(t *testing.T) {
+	repo, _, _ := newTestService(t)
+
+	publisher := &testPublisher{err: fmt.Errorf("nats down")}
+	svc := NewOrderService(repo, nil, nil, publisher)
+
+	filledQty := decimal.NewFromFloat(0.5)
+	updatedOrder := &entities.Order{
+		ID: "order-1", FilledQty: filledQty, Status: "partial",
+		CreatedAt: time.Now(), UpdatedAt: time.Now(),
+	}
+
+	repo.EXPECT().GetByID(mock.Anything, "order-1").
+		Return(&entities.Order{ID: "order-1", FilledQty: decimal.NewFromFloat(0.3), Status: "partial"}, nil)
+	repo.EXPECT().UpdateFilledQty(mock.Anything, "order-1", filledQty, "partial").
+		Return(updatedOrder, nil)
+
+	// Should not return error even if publish fails (best-effort)
+	order, err := svc.UpdateOrderFill(context.Background(), "order-1", filledQty, "partial")
+	assert.NoError(t, err)
+	assert.Equal(t, "partial", order.Status)
 }

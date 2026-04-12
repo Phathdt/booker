@@ -215,4 +215,168 @@ func TestOrderRepository_Integration(t *testing.T) {
 		_, err = repo.UpdateFilledQty(ctx, fresh.ID, decimal.NewFromFloat(2), "filled")
 		assert.Equal(t, domain.ErrOrderNotFillable, err)
 	})
+
+	t.Run("GetTradingPair with cancelled context", func(t *testing.T) {
+		cancelCtx, cancel := context.WithCancel(ctx)
+		cancel()
+		_, err := repo.GetTradingPair(cancelCtx, "BTC_USDT")
+		assert.Error(t, err)
+	})
+
+	t.Run("Create with cancelled context", func(t *testing.T) {
+		cancelCtx, cancel := context.WithCancel(ctx)
+		cancel()
+		_, err := repo.Create(cancelCtx, &entities.Order{
+			UserID: userID, PairID: "BTC_USDT", Side: "buy", Type: "limit",
+			Price: decimal.NewFromFloat(50000), Quantity: decimal.NewFromFloat(1),
+		})
+		assert.Error(t, err)
+	})
+
+	t.Run("GetByID with cancelled context", func(t *testing.T) {
+		cancelCtx, cancel := context.WithCancel(ctx)
+		cancel()
+		_, err := repo.GetByID(cancelCtx, createdOrderID)
+		assert.Error(t, err)
+	})
+
+	t.Run("GetByIDAndUser with cancelled context", func(t *testing.T) {
+		cancelCtx, cancel := context.WithCancel(ctx)
+		cancel()
+		_, err := repo.GetByIDAndUser(cancelCtx, createdOrderID, userID)
+		assert.Error(t, err)
+	})
+
+	t.Run("List with cancelled context", func(t *testing.T) {
+		cancelCtx, cancel := context.WithCancel(ctx)
+		cancel()
+		_, err := repo.List(cancelCtx, userID, nil, nil, 10, 0)
+		assert.Error(t, err)
+	})
+
+	t.Run("Cancel with cancelled context", func(t *testing.T) {
+		cancelCtx, cancel := context.WithCancel(ctx)
+		cancel()
+		_, err := repo.Cancel(cancelCtx, createdOrderID, userID)
+		assert.Error(t, err)
+	})
+
+	t.Run("UpdateFilledQty with cancelled context", func(t *testing.T) {
+		cancelCtx, cancel := context.WithCancel(ctx)
+		cancel()
+		_, err := repo.UpdateFilledQty(cancelCtx, createdOrderID, decimal.NewFromFloat(0.5), "partial")
+		assert.Error(t, err)
+	})
+
+	t.Run("Cancel order not found", func(t *testing.T) {
+		_, err := repo.Cancel(ctx, uuid.New().String(), userID)
+		assert.Equal(t, domain.ErrOrderNotCancellable, err)
+	})
+
+	t.Run("Cancel by wrong user", func(t *testing.T) {
+		wrongUser := createTestUser(t, containers)
+		fresh, err := repo.Create(ctx, &entities.Order{
+			UserID: userID, PairID: "BTC_USDT", Side: "buy", Type: "limit",
+			Price: decimal.NewFromFloat(50000), Quantity: decimal.NewFromFloat(1),
+		})
+		require.NoError(t, err)
+
+		_, err = repo.Cancel(ctx, fresh.ID, wrongUser)
+		assert.Equal(t, domain.ErrOrderNotCancellable, err)
+	})
+
+	t.Run("UpdateFilledQty not found", func(t *testing.T) {
+		_, err := repo.UpdateFilledQty(ctx, uuid.New().String(), decimal.NewFromFloat(0.5), "partial")
+		assert.Equal(t, domain.ErrOrderNotFillable, err)
+	})
+
+	t.Run("List multiple filters combined", func(t *testing.T) {
+		// Create another pair and orders with different statuses
+		// First ensure ETH asset exists
+		_, _ = containers.Database.Exec(ctx,
+			"INSERT INTO assets (id, name, decimals) VALUES ('ETH', 'Ethereum', 18) ON CONFLICT DO NOTHING",
+		)
+		_, err := containers.Database.Exec(ctx,
+			"INSERT INTO trading_pairs (id, base_asset, quote_asset, status, min_qty, tick_size) VALUES ('ETH_USDT', 'ETH', 'USDT', 'active', 0.0001, 0.01) ON CONFLICT DO NOTHING",
+		)
+		require.NoError(t, err)
+
+		ethOrder, err := repo.Create(ctx, &entities.Order{
+			UserID: userID, PairID: "ETH_USDT", Side: "buy", Type: "limit",
+			Price: decimal.NewFromFloat(3000), Quantity: decimal.NewFromFloat(1),
+		})
+		require.NoError(t, err)
+
+		pairID := "ETH_USDT"
+		status := "new"
+		orders, err := repo.List(ctx, userID, &pairID, &status, 10, 0)
+		require.NoError(t, err)
+		assert.NotEmpty(t, orders)
+		for _, o := range orders {
+			assert.Equal(t, "ETH_USDT", o.PairID)
+			assert.Equal(t, "new", o.Status)
+		}
+
+		// Cancel the ETH order
+		_, _ = repo.Cancel(ctx, ethOrder.ID, userID)
+
+		// Filter for cancelled should only show cancelled
+		cancelledStatus := "cancelled"
+		orders, err = repo.List(ctx, userID, &pairID, &cancelledStatus, 10, 0)
+		require.NoError(t, err)
+		for _, o := range orders {
+			assert.Equal(t, "cancelled", o.Status)
+		}
+	})
+
+	t.Run("Create multiple orders and list with limit", func(t *testing.T) {
+		newUser := createTestUser(t, containers)
+		// Create 5 orders
+		for i := 0; i < 5; i++ {
+			_, err := repo.Create(ctx, &entities.Order{
+				UserID: newUser, PairID: "BTC_USDT", Side: "buy", Type: "limit",
+				Price:    decimal.NewFromFloat(50000 + float64(i*100)),
+				Quantity: decimal.NewFromFloat(0.1),
+			})
+			require.NoError(t, err)
+		}
+
+		// Test pagination with limit 2
+		orders1, err := repo.List(ctx, newUser, nil, nil, 2, 0)
+		require.NoError(t, err)
+		assert.Len(t, orders1, 2)
+
+		orders2, err := repo.List(ctx, newUser, nil, nil, 2, 2)
+		require.NoError(t, err)
+		assert.Len(t, orders2, 2)
+
+		// Verify they are different orders
+		assert.NotEqual(t, orders1[0].ID, orders2[0].ID)
+	})
+
+	t.Run("UpdateFilledQty partial fills", func(t *testing.T) {
+		fresh, err := repo.Create(ctx, &entities.Order{
+			UserID: userID, PairID: "BTC_USDT", Side: "buy", Type: "limit",
+			Price: decimal.NewFromFloat(50000), Quantity: decimal.NewFromFloat(10),
+		})
+		require.NoError(t, err)
+
+		// First partial fill
+		filled1, err := repo.UpdateFilledQty(ctx, fresh.ID, decimal.NewFromFloat(3), "partial")
+		require.NoError(t, err)
+		assert.Equal(t, "partial", filled1.Status)
+		assert.True(t, filled1.FilledQty.Equal(decimal.NewFromFloat(3)))
+
+		// Second partial fill
+		filled2, err := repo.UpdateFilledQty(ctx, fresh.ID, decimal.NewFromFloat(7), "partial")
+		require.NoError(t, err)
+		assert.Equal(t, "partial", filled2.Status)
+		assert.True(t, filled2.FilledQty.Equal(decimal.NewFromFloat(7)))
+
+		// Complete fill
+		filled3, err := repo.UpdateFilledQty(ctx, fresh.ID, decimal.NewFromFloat(10), "filled")
+		require.NoError(t, err)
+		assert.Equal(t, "filled", filled3.Status)
+		assert.True(t, filled3.FilledQty.Equal(decimal.NewFromFloat(10)))
+	})
 }

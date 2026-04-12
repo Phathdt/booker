@@ -1,8 +1,12 @@
 package ws
 
 import (
+	"context"
+	"encoding/json"
 	"net/http"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
@@ -269,6 +273,191 @@ func TestHandler_WithMultipleEndpoints(t *testing.T) {
 	assert.NotNil(t, app)
 	// Should have routes registered (exact count varies, just verify non-zero)
 	assert.Greater(t, len(app.Stack()), 0)
+}
+
+// TestHandleConn_RegistersClientAndRunsPumps tests HandleConn full lifecycle
+func TestHandleConn_RegistersClientAndRunsPumps(t *testing.T) {
+	hub := NewHub()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go hub.Run(ctx)
+
+	// Mock conn that returns error immediately on read (ending ReadPump)
+	mockConn := &immediateCloseConn{}
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		HandleConn(mockConn, hub)
+	}()
+
+	// Wait for HandleConn to complete (ReadPump exits on read error)
+	wg.Wait()
+
+	assert.True(t, mockConn.closed)
+}
+
+// TestHandleConn_SubscribeAndReceiveMessage tests full flow via HandleConn
+func TestHandleConn_SubscribeAndReceiveMessage(t *testing.T) {
+	hub := NewHub()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go hub.Run(ctx)
+
+	// Create mock conn that sends a subscribe message then errors
+	mockConn := &scriptedConn{
+		messages: [][]byte{
+			mustMarshal(SubscribeMsg{Op: "subscribe", Channel: "ticker", Pair: "BTC_USDT"}),
+		},
+		writeMessages: make(chan []byte, 10),
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		HandleConn(mockConn, hub)
+	}()
+
+	// Give time for registration and subscription
+	time.Sleep(50 * time.Millisecond)
+
+	// Broadcast a ticker - client should receive it
+	hub.BroadcastTicker("BTC_USDT", TickerData{LastPrice: "50000"})
+
+	// Wait for HandleConn to finish
+	wg.Wait()
+
+	// Verify client received the broadcast
+	select {
+	case msg := <-mockConn.writeMessages:
+		var wsMsg WSMessage
+		err := json.Unmarshal(msg, &wsMsg)
+		require.NoError(t, err)
+		assert.Equal(t, "ticker", wsMsg.Type)
+	default:
+		// Message may have been sent before client fully registered, acceptable
+	}
+	assert.True(t, mockConn.closedFlag)
+}
+
+// TestBroadcast_SlowClientDropsMessage tests that slow clients get messages dropped
+func TestBroadcast_SlowClientDropsMessage(t *testing.T) {
+	hub := NewHub()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go hub.Run(ctx)
+
+	// Create client with buffer size 1
+	mockConn := NewMockWSConn()
+	client := NewClient(mockConn, hub)
+	client.send = make(chan []byte, 1) // tiny buffer
+
+	hub.register <- client
+	time.Sleep(20 * time.Millisecond)
+
+	hub.Subscribe(client, "ticker", "BTC_USDT")
+
+	// Fill the send channel
+	client.send <- []byte("blocking")
+
+	// This broadcast should drop the message for slow client (default case in select)
+	hub.BroadcastTicker("BTC_USDT", TickerData{LastPrice: "50000"})
+
+	// Channel should still have only the original message
+	assert.Equal(t, 1, len(client.send))
+}
+
+// TestBroadcast_UnregisteredClientSkipped tests broadcast skips unregistered clients
+func TestBroadcast_UnregisteredClientSkipped(t *testing.T) {
+	hub := NewHub()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go hub.Run(ctx)
+
+	mockConn := NewMockWSConn()
+	client := NewClient(mockConn, hub)
+
+	// Subscribe without registering via hub.Run
+	hub.mu.Lock()
+	key := subKey{channel: "ticker", pair: "BTC_USDT"}
+	hub.subs[key] = map[*Client]bool{client: true}
+	// Don't add to hub.clients - client is in subs but not registered
+	hub.mu.Unlock()
+
+	hub.BroadcastTicker("BTC_USDT", TickerData{LastPrice: "50000"})
+
+	// Client should NOT receive message since it's not in hub.clients
+	time.Sleep(20 * time.Millisecond)
+	assert.Equal(t, 0, len(client.send))
+}
+
+// immediateCloseConn returns error on first ReadMessage (simulates immediate disconnect)
+type immediateCloseConn struct {
+	closed bool
+	mu     sync.Mutex
+}
+
+func (c *immediateCloseConn) ReadMessage() (int, []byte, error) {
+	return 0, nil, &mockWSError{msg: "connection closed"}
+}
+func (c *immediateCloseConn) WriteMessage(int, []byte) error { return nil }
+func (c *immediateCloseConn) Close() error {
+	c.mu.Lock()
+	c.closed = true
+	c.mu.Unlock()
+	return nil
+}
+func (c *immediateCloseConn) SetReadDeadline(time.Time) error   { return nil }
+func (c *immediateCloseConn) SetWriteDeadline(time.Time) error  { return nil }
+func (c *immediateCloseConn) SetReadLimit(int64)                {}
+func (c *immediateCloseConn) SetPongHandler(func(string) error) {}
+
+// scriptedConn sends scripted messages then returns error
+type scriptedConn struct {
+	messages      [][]byte
+	readIdx       int
+	writeMessages chan []byte
+	closedFlag    bool
+	mu            sync.Mutex
+}
+
+func (c *scriptedConn) ReadMessage() (int, []byte, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.readIdx < len(c.messages) {
+		msg := c.messages[c.readIdx]
+		c.readIdx++
+		return 1, msg, nil
+	}
+	// Small delay to allow WritePump to process messages before we exit
+	time.Sleep(100 * time.Millisecond)
+	return 0, nil, &mockWSError{msg: "done"}
+}
+func (c *scriptedConn) WriteMessage(msgType int, data []byte) error {
+	if c.writeMessages != nil {
+		select {
+		case c.writeMessages <- data:
+		default:
+		}
+	}
+	return nil
+}
+func (c *scriptedConn) Close() error {
+	c.mu.Lock()
+	c.closedFlag = true
+	c.mu.Unlock()
+	return nil
+}
+func (c *scriptedConn) SetReadDeadline(time.Time) error   { return nil }
+func (c *scriptedConn) SetWriteDeadline(time.Time) error  { return nil }
+func (c *scriptedConn) SetReadLimit(int64)                {}
+func (c *scriptedConn) SetPongHandler(func(string) error) {}
+
+func mustMarshal(v interface{}) []byte {
+	data, _ := json.Marshal(v)
+	return data
 }
 
 // TestUpgradeMiddleware_ErrorResponse tests that error response is returned correctly

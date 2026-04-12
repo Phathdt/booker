@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	tc "booker/test/testcontainers"
@@ -80,6 +81,39 @@ func TestUserRepository_Integration(t *testing.T) {
 		cancel()
 		_, _, err := repo.List(cancelCtx, 10, 0)
 		assert.Error(t, err)
+	})
+
+	t.Run("List returns total count", func(t *testing.T) {
+		// Create multiple users
+		for i := 0; i < 5; i++ {
+			hash, _ := bcrypt.GenerateFromPassword([]byte("password123"), 12)
+			_, _ = repo.Create(ctx, fmt.Sprintf("list-test-%d@example.com", i), string(hash), "user")
+		}
+
+		users, total, err := repo.List(ctx, 2, 0)
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, total, int64(5))
+		assert.Len(t, users, 2) // limit is 2
+	})
+
+	t.Run("List with offset", func(t *testing.T) {
+		hash, _ := bcrypt.GenerateFromPassword([]byte("password123"), 12)
+		_, _ = repo.Create(ctx, "offset-test-1@example.com", string(hash), "user")
+		_, _ = repo.Create(ctx, "offset-test-2@example.com", string(hash), "user")
+
+		// First page
+		page1, total, err := repo.List(ctx, 1, 0)
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, total, int64(2))
+		assert.Len(t, page1, 1)
+
+		// Second page
+		page2, _, err := repo.List(ctx, 1, 1)
+		require.NoError(t, err)
+		assert.Len(t, page2, 1)
+
+		// Verify different users
+		assert.NotEqual(t, page1[0].ID, page2[0].ID)
 	})
 
 	t.Run("Update", func(t *testing.T) {

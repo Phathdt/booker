@@ -9,16 +9,21 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
+// JetStreamSubscriber defines the interface for JetStream subscription operations
+type JetStreamSubscriber interface {
+	PullSubscribe(subject, durable string, opts ...nats.SubOpt) (*nats.Subscription, error)
+}
+
 // NATSConsumer subscribes to JetStream streams and processes events.
 type NATSConsumer struct {
-	js      nats.JetStreamContext
+	js      JetStreamSubscriber
 	handler *EventHandler
 	log     logger.Logger
 	subs    []*nats.Subscription
 	cancel  context.CancelFunc
 }
 
-func NewNATSConsumer(js nats.JetStreamContext, handler *EventHandler, log logger.Logger) *NATSConsumer {
+func NewNATSConsumer(js JetStreamSubscriber, handler *EventHandler, log logger.Logger) *NATSConsumer {
 	return &NATSConsumer{
 		js:      js,
 		handler: handler,
@@ -74,18 +79,23 @@ func (c *NATSConsumer) processMessages(ctx context.Context, sub *nats.Subscripti
 				}
 				continue
 			}
-			for _, msg := range msgs {
-				if err := c.handler.Handle(ctx, msg); err != nil {
-					c.log.With("stream", stream, "error", err.Error()).Error("failed to handle event")
-					// NakWithDelay to avoid tight retry loop on transient failures
-					if nakErr := msg.NakWithDelay(5 * time.Second); nakErr != nil {
-						c.log.With("stream", stream, "error", nakErr.Error()).Warn("failed to nak message")
-					}
-				} else {
-					if ackErr := msg.Ack(); ackErr != nil {
-						c.log.With("stream", stream, "error", ackErr.Error()).Warn("failed to ack message")
-					}
-				}
+			c.handleFetchedMessages(ctx, msgs, stream)
+		}
+	}
+}
+
+// handleFetchedMessages processes a batch of messages from the subscription.
+func (c *NATSConsumer) handleFetchedMessages(ctx context.Context, msgs []*nats.Msg, stream string) {
+	for _, msg := range msgs {
+		if err := c.handler.Handle(ctx, msg); err != nil {
+			c.log.With("stream", stream, "error", err.Error()).Error("failed to handle event")
+			// NakWithDelay to avoid tight retry loop on transient failures
+			if nakErr := msg.NakWithDelay(5 * time.Second); nakErr != nil {
+				c.log.With("stream", stream, "error", nakErr.Error()).Warn("failed to nak message")
+			}
+		} else {
+			if ackErr := msg.Ack(); ackErr != nil {
+				c.log.With("stream", stream, "error", ackErr.Error()).Warn("failed to ack message")
 			}
 		}
 	}

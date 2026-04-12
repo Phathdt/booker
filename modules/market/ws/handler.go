@@ -15,12 +15,17 @@ func UpgradeMiddleware() fiber.Handler {
 	}
 }
 
+// HandleConn manages the lifecycle of a single WebSocket connection.
+func HandleConn(conn WSConn, hub *Hub) {
+	client := NewClient(conn, hub)
+	hub.Register(client)
+	go client.WritePump()
+	client.ReadPump()
+}
+
 // Handler returns a Fiber handler for WebSocket connections.
 func Handler(hub *Hub) fiber.Handler {
 	return websocket.New(func(c *websocket.Conn) {
-		client := NewClient(c, hub)
-		hub.Register(client)
-		go client.WritePump()
-		client.ReadPump()
+		HandleConn(c, hub)
 	})
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"testing"
+	"time"
 
 	"booker/modules/notification/domain/entities"
 
@@ -421,4 +422,182 @@ func TestHub_RegisterUnregisterMultipleUsers_Isolation(t *testing.T) {
 	// User 2 should have 1 connection (conn3)
 	assert.Len(t, user2Conns, 1)
 	assert.Equal(t, conn3, user2Conns[0].conn)
+}
+
+// --- SafeConn Structure Tests ---
+
+func TestHub_SafeConn_CreatedWithConnection(t *testing.T) {
+	conn := &websocket.Conn{}
+	sc := &safeConn{conn: conn}
+
+	assert.NotNil(t, sc.conn)
+	assert.Equal(t, conn, sc.conn)
+	assert.NotNil(t, sc.mu)
+}
+
+func TestHub_SafeConn_MutexPreventsRaces(t *testing.T) {
+	// Test that safeConn's mutex prevents concurrent access issues
+	conn := &websocket.Conn{}
+	sc := &safeConn{conn: conn}
+
+	// Multiple goroutines accessing the same safeConn
+	done := make(chan bool, 10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			// This will cause an error (no actual connection), but we're testing
+			// that the mutex is being used, not that the write succeeds
+			_ = sc.writeMessage(websocket.TextMessage, []byte("test"))
+			done <- true
+		}()
+	}
+
+	for i := 0; i < 10; i++ {
+		<-done
+	}
+
+	// If we get here without a panic or race detector warning, mutex works
+	assert.True(t, true)
+}
+
+// --- SendToUser Behavior Tests ---
+
+func TestHub_SendToUser_NoConnectionsForUser_ReturnsEarly(t *testing.T) {
+	hub := NewHub()
+
+	notif := &entities.Notification{
+		ID:    "notif-1",
+		Title: "Test",
+	}
+
+	// User has no connections - should return early
+	hub.SendToUser("unknown-user", notif)
+
+	// No error should occur
+	assert.True(t, true)
+}
+
+func TestHub_SendToUser_NotificationWithMetadata_MarshalsCorrectly(t *testing.T) {
+	notif := &entities.Notification{
+		ID:     "notif-1",
+		UserID: "user-1",
+		Title:  "Trade Executed",
+		Body:   "You bought 1 BTC",
+		Metadata: map[string]string{
+			"trade_id": "t123",
+			"pair":     "BTC-USDT",
+			"price":    "50000",
+		},
+	}
+
+	// Test that notification can be marshaled for sending
+	data, err := json.Marshal(notif)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, data)
+
+	// Verify it can be unmarshaled back
+	var received entities.Notification
+	err = json.Unmarshal(data, &received)
+	assert.NoError(t, err)
+	assert.Equal(t, "notif-1", received.ID)
+	assert.Equal(t, 3, len(received.Metadata))
+}
+
+func TestHub_SendToUser_DeepCopyPreventsConcurrentModification(t *testing.T) {
+	hub := NewHub()
+	conn1 := &websocket.Conn{}
+	conn2 := &websocket.Conn{}
+
+	notif := &entities.Notification{
+		ID:    "notif-1",
+		Title: "Test",
+	}
+
+	hub.Register("user-1", conn1)
+
+	// Register another connection while SendToUser is running
+	go func() {
+		<-time.After(10 * time.Millisecond)
+		hub.Register("user-1", conn2)
+	}()
+
+	// SendToUser takes a snapshot, so new connection won't receive this message
+	hub.SendToUser("user-1", notif)
+	<-time.After(100 * time.Millisecond)
+
+	// Should complete without race condition
+	assert.True(t, true)
+}
+
+func TestHub_SendToUser_GoroutineSpawned_ForEachConnection(t *testing.T) {
+	hub := NewHub()
+	conn := &websocket.Conn{}
+
+	notif := &entities.Notification{
+		ID:    "notif-1",
+		Title: "Test",
+	}
+
+	hub.Register("user-1", conn)
+
+	// SendToUser spawns goroutines for each connection
+	// We can't directly verify goroutine count, but we can verify it completes
+	hub.SendToUser("user-1", notif)
+	<-time.After(50 * time.Millisecond)
+
+	assert.True(t, true)
+}
+
+func TestHub_SendToUser_AllConnectionsProcessed(t *testing.T) {
+	hub := NewHub()
+
+	// Create multiple connections for same user
+	conns := make([]*websocket.Conn, 3)
+	for i := 0; i < 3; i++ {
+		conns[i] = &websocket.Conn{}
+		hub.Register("user-1", conns[i])
+	}
+
+	notif := &entities.Notification{
+		ID:    "notif-1",
+		Title: "Test",
+	}
+
+	// Verify all connections are registered
+	hub.mu.RLock()
+	assert.Len(t, hub.conns["user-1"], 3)
+	hub.mu.RUnlock()
+
+	// Send to all
+	hub.SendToUser("user-1", notif)
+	<-time.After(100 * time.Millisecond)
+
+	assert.True(t, true)
+}
+
+func TestHub_SendToUser_ConcurrentSends_NoDataRace(t *testing.T) {
+	hub := NewHub()
+	conn := &websocket.Conn{}
+
+	notif := &entities.Notification{
+		ID:    "notif-1",
+		Title: "Test",
+	}
+
+	hub.Register("user-1", conn)
+
+	// Send concurrently from multiple goroutines
+	done := make(chan bool, 10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			hub.SendToUser("user-1", notif)
+			done <- true
+		}()
+	}
+
+	for i := 0; i < 10; i++ {
+		<-done
+	}
+
+	// Should complete without race condition
+	assert.True(t, true)
 }

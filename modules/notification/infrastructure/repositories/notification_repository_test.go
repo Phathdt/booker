@@ -93,17 +93,13 @@ func TestNotificationRepository_Integration(t *testing.T) {
 		assert.GreaterOrEqual(t, count, int64(2))
 	})
 
-	// We need an ID for MarkAsRead. Fetch it from ListByUser.
-	var notificationID string
-
 	t.Run("MarkAsRead", func(t *testing.T) {
 		cursor := time.Now().Add(time.Minute)
 		notifications, err := repo.ListByUser(ctx, userID, cursor, 1, false)
 		require.NoError(t, err)
 		require.NotEmpty(t, notifications)
-		notificationID = notifications[0].ID
 
-		err = repo.MarkAsRead(ctx, notificationID, userID)
+		err = repo.MarkAsRead(ctx, notifications[0].ID, userID)
 		require.NoError(t, err)
 
 		// Verify unread count decreased
@@ -118,7 +114,23 @@ func TestNotificationRepository_Integration(t *testing.T) {
 	})
 
 	t.Run("MarkAsRead wrong user", func(t *testing.T) {
-		err := repo.MarkAsRead(ctx, notificationID, uuid.New().String())
+		// Create a self-contained notification for this test
+		_, err := repo.Create(ctx, &entities.Notification{
+			UserID:   userID,
+			EventKey: "wrong_user_test_" + uuid.New().String(),
+			Type:     entities.TypeDepositConfirmed,
+			Title:    "Test Notification",
+			Body:     "For wrong user test",
+			Metadata: map[string]string{},
+		})
+		require.NoError(t, err)
+
+		cursor := time.Now().Add(time.Minute)
+		notifications, err := repo.ListByUser(ctx, userID, cursor, 1, true)
+		require.NoError(t, err)
+		require.NotEmpty(t, notifications)
+
+		err = repo.MarkAsRead(ctx, notifications[0].ID, uuid.New().String())
 		assert.Equal(t, domain.ErrNotificationNotFound, err)
 	})
 

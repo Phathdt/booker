@@ -15,10 +15,10 @@ import (
 )
 
 // createTestUser inserts a user directly for FK constraint, returns UUID.
-func createTestUser(t *testing.T, containers *tc.TestContainers) string {
+func createTestUser(t *testing.T, ctx context.Context, containers *tc.TestContainers) string {
 	t.Helper()
 	id := uuid.New().String()
-	_, err := containers.Database.Exec(context.Background(),
+	_, err := containers.Database.Exec(ctx,
 		"INSERT INTO users (id, email, password, role) VALUES ($1, $2, 'hash', 'user')",
 		id, id+"@test.com",
 	)
@@ -26,23 +26,24 @@ func createTestUser(t *testing.T, containers *tc.TestContainers) string {
 	return id
 }
 
-func seedAssetsAndPairs(t *testing.T, containers *tc.TestContainers) {
+func seedAssetsAndPairs(t *testing.T, ctx context.Context, containers *tc.TestContainers) {
 	t.Helper()
-	ctx := context.Background()
-	_, _ = containers.Database.Exec(
+	_, err := containers.Database.Exec(
 		ctx,
 		"INSERT INTO assets (id, name, decimals) VALUES ('BTC', 'Bitcoin', 8), ('USDT', 'Tether', 6) ON CONFLICT DO NOTHING",
 	)
-	_, _ = containers.Database.Exec(
+	require.NoError(t, err)
+	_, err = containers.Database.Exec(
 		ctx,
 		"INSERT INTO trading_pairs (id, base_asset, quote_asset, status, min_qty, tick_size) VALUES ('BTC_USDT', 'BTC', 'USDT', 'active', 0.00001, 0.01) ON CONFLICT DO NOTHING",
 	)
+	require.NoError(t, err)
 }
 
-func createTestOrder(t *testing.T, containers *tc.TestContainers, userID, pairID, side string) string {
+func createTestOrder(t *testing.T, ctx context.Context, containers *tc.TestContainers, userID, pairID, side string) string {
 	t.Helper()
 	id := uuid.New().String()
-	_, err := containers.Database.Exec(context.Background(),
+	_, err := containers.Database.Exec(ctx,
 		"INSERT INTO orders (id, user_id, pair_id, side, type, price, quantity, filled_qty, status) VALUES ($1, $2, $3, $4, 'limit', 50000, 1, 0, 'new')",
 		id, userID, pairID, side,
 	)
@@ -59,11 +60,11 @@ func TestTradeRepository_Integration(t *testing.T) {
 	repo := NewTradeRepository(containers.Database)
 	ctx := context.Background()
 
-	seedAssetsAndPairs(t, containers)
-	buyerID := createTestUser(t, containers)
-	sellerID := createTestUser(t, containers)
-	buyOrderID := createTestOrder(t, containers, buyerID, "BTC_USDT", "buy")
-	sellOrderID := createTestOrder(t, containers, sellerID, "BTC_USDT", "sell")
+	seedAssetsAndPairs(t, ctx, containers)
+	buyerID := createTestUser(t, ctx, containers)
+	sellerID := createTestUser(t, ctx, containers)
+	buyOrderID := createTestOrder(t, ctx, containers, buyerID, "BTC_USDT", "buy")
+	sellOrderID := createTestOrder(t, ctx, containers, sellerID, "BTC_USDT", "sell")
 
 	var createdTradeID string
 
@@ -106,8 +107,8 @@ func TestTradeRepository_Integration(t *testing.T) {
 
 	t.Run("ListByPair", func(t *testing.T) {
 		// Create a second trade with new orders
-		buyOrder2 := createTestOrder(t, containers, buyerID, "BTC_USDT", "buy")
-		sellOrder2 := createTestOrder(t, containers, sellerID, "BTC_USDT", "sell")
+		buyOrder2 := createTestOrder(t, ctx, containers, buyerID, "BTC_USDT", "buy")
+		sellOrder2 := createTestOrder(t, ctx, containers, sellerID, "BTC_USDT", "sell")
 		_, err := repo.Create(ctx, &entities.Trade{
 			PairID:      "BTC_USDT",
 			BuyOrderID:  buyOrder2,

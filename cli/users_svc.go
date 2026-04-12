@@ -121,11 +121,19 @@ func RunUsersSvc(c *urfavecli.Context) error {
 	})
 
 	app.Use(recover.New())
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: cfg.CorsOrigins,
-		AllowMethods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
-		AllowHeaders: "Origin,Content-Type,Accept,Authorization,X-Request-Id",
-	}))
+	corsConfig := cors.Config{
+		AllowMethods:     "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Request-Id",
+		AllowCredentials: true,
+	}
+	if cfg.CorsOrigins == "*" {
+		// AllowCredentials + wildcard is invalid per CORS spec.
+		// Reflect the request Origin header instead.
+		corsConfig.AllowOriginsFunc = func(origin string) bool { return true }
+	} else {
+		corsConfig.AllowOrigins = cfg.CorsOrigins
+	}
+	app.Use(cors.New(corsConfig))
 	app.Use(httpserver.RequestIDMiddleware())
 	app.Use(httpserver.TracingMiddleware())
 	app.Use(httpserver.LoggingMiddleware())
@@ -146,7 +154,7 @@ func RunUsersSvc(c *urfavecli.Context) error {
 	})
 
 	// Register REST routes
-	usersHTTP.RegisterRoutes(app, userService, tokenService, registerUC, loginUC, refreshTokenUC, logoutUC)
+	usersHTTP.RegisterRoutes(app, cfg, userService, tokenService, registerUC, loginUC, refreshTokenUC, logoutUC)
 
 	httpserver.LogRoutes(app, "users-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)

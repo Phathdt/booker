@@ -12,7 +12,4 @@ type LoginDTO struct {
 	Password string `json:"password" validate:"required"`
 }
 
-// RefreshTokenDTO holds refresh token input.
-type RefreshTokenDTO struct {
-	RefreshToken string `json:"refresh_token" validate:"required"`
-}
+// RefreshTokenDTO is no longer used — refresh token is read from HTTP-only cookie.

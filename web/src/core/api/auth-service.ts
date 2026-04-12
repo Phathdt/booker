@@ -1,6 +1,6 @@
 import { Service } from "./service";
 import { AUTH_ENDPOINT } from "./endpoint";
-import type { IAuthResponse, IUser } from "./types";
+import type { IAuthResponse, IRefreshResponse, IUser } from "./types";
 
 const service = new Service(AUTH_ENDPOINT.LOGIN);
 
@@ -25,5 +25,9 @@ export const authService = {
 
   getMe(): Promise<IUser> {
     return service.get<IUser>(AUTH_ENDPOINT.ME);
+  },
+
+  refresh(): Promise<IRefreshResponse> {
+    return service.post<IRefreshResponse>({}, AUTH_ENDPOINT.REFRESH);
   },
 };

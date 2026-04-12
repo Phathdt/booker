@@ -1,6 +1,7 @@
 package users
 
 import (
+	"booker/config"
 	"booker/modules/users/application/dto"
 	"booker/modules/users/application/usecases"
 	"booker/pkg/httpserver"
@@ -18,7 +19,7 @@ import (
 // @Failure      400   {object}  httpserver.Response{error=object}
 // @Failure      401   {object}  httpserver.Response{error=object}
 // @Router       /api/v1/auth/login [post]
-func Login(uc *usecases.LoginUseCase) fiber.Handler {
+func Login(cfg *config.Config, uc *usecases.LoginUseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req dto.LoginDTO
 		if err := httpserver.BindAndValidate(c, &req); err != nil {
@@ -30,6 +31,7 @@ func Login(uc *usecases.LoginUseCase) fiber.Handler {
 			return err
 		}
 
-		return httpserver.OK(c, toAuthResponse(result.User, result.AccessToken, result.RefreshToken))
+		setRefreshTokenCookie(c, cfg, result.RefreshToken)
+		return httpserver.OK(c, toAuthResponse(cfg, result.User, result.AccessToken))
 	}
 }

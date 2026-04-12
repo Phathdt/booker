@@ -75,9 +75,12 @@ make test-unit          # Run unit tests only (fast)
 make test-integration   # Run integration tests (needs Docker)
 make test-coverage      # Generate coverage report
 make format             # Format Go + YAML files
-make docker-build       # Build Docker image
-make docker-up          # Start all services
-make docker-down        # Stop all services
+make docker-build          # Build Docker image
+make docker-up             # Start all services
+make docker-down           # Stop all services
+make docker-infra          # Restart infra (postgres, redis, nats, otel, tempo, loki, grafana, traefik)
+make docker-services       # Restart app services (all Go services + web)
+make docker-services-build # Rebuild image and recreate app services
 ```
 
 ## Conventions

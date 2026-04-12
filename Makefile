@@ -6,7 +6,7 @@ endif
 
 .PHONY: build run-users-svc migrate-up migrate-down migrate-status seed \
        sqlc-generate proto-generate proto-lint swagger \
-       docker-build docker-up docker-down docker-logs \
+       docker-build docker-up docker-down docker-logs docker-infra docker-services \
        test lint format format-check mock hooks
 
 # Build
@@ -74,6 +74,16 @@ docker-down:
 
 docker-logs:
 	docker compose logs -f
+
+docker-infra:
+	docker compose restart postgres-db redis-db nats otel-collector tempo loki grafana traefik
+
+docker-services:
+	docker compose restart migrate users-svc wallet-svc order-svc matching-svc market-svc notification-svc swagger-svc web
+
+docker-services-build:
+	docker compose build migrate
+	docker compose up -d --force-recreate migrate users-svc wallet-svc order-svc matching-svc market-svc notification-svc swagger-svc web
 
 # Format
 format:

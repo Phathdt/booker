@@ -74,7 +74,7 @@ make test               # Run all tests
 make test-unit          # Run unit tests only (fast)
 make test-integration   # Run integration tests (needs Docker)
 make test-coverage      # Generate coverage report
-make format             # Format Go + YAML files
+make format             # Format Go + YAML files (run before commit)
 make docker-build          # Build Docker image
 make docker-up             # Start all services
 make docker-down           # Stop all services

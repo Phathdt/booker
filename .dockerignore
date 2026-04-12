@@ -3,7 +3,8 @@
 .env.*
 .claude_sessions/
 plans/
-docs/
+docs/*.md
+docs/**/*.md
 *.md
 .idea/
 .vscode/

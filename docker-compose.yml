@@ -131,6 +131,12 @@ services:
         condition: service_healthy
     labels:
       - "traefik.enable=true"
+      # CORS headers middleware
+      - "traefik.http.middlewares.cors-headers.headers.accessControlAllowOriginList=http://booker.localhost"
+      - "traefik.http.middlewares.cors-headers.headers.accessControlAllowMethods=GET,POST,PUT,DELETE,PATCH,OPTIONS"
+      - "traefik.http.middlewares.cors-headers.headers.accessControlAllowHeaders=Origin,Content-Type,Accept,Authorization,X-Request-Id"
+      - "traefik.http.middlewares.cors-headers.headers.accessControlAllowCredentials=true"
+      - "traefik.http.middlewares.cors-headers.headers.accessControlMaxAge=3600"
       # ForwardAuth middleware
       - "traefik.http.middlewares.forward-auth.forwardauth.address=http://users-svc:8081/auth/verify"
       - "traefik.http.middlewares.forward-auth.forwardauth.trustForwardHeader=true"
@@ -138,16 +144,17 @@ services:
       # Public auth routes (no auth required)
       - "traefik.http.routers.auth-public.rule=Host(`api.booker.localhost`) && (PathPrefix(`/api/v1/auth/register`) || PathPrefix(`/api/v1/auth/login`) || PathPrefix(`/api/v1/auth/refresh`))"
       - "traefik.http.routers.auth-public.entrypoints=web"
+      - "traefik.http.routers.auth-public.middlewares=cors-headers"
       - "traefik.http.routers.auth-public.service=users-svc"
       # Protected auth routes
       - "traefik.http.routers.auth-protected.rule=Host(`api.booker.localhost`) && (PathPrefix(`/api/v1/auth/logout`) || PathPrefix(`/api/v1/auth/me`))"
       - "traefik.http.routers.auth-protected.entrypoints=web"
-      - "traefik.http.routers.auth-protected.middlewares=forward-auth"
+      - "traefik.http.routers.auth-protected.middlewares=cors-headers,forward-auth"
       - "traefik.http.routers.auth-protected.service=users-svc"
       # Users routes (protected)
       - "traefik.http.routers.users.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/users`)"
       - "traefik.http.routers.users.entrypoints=web"
-      - "traefik.http.routers.users.middlewares=forward-auth"
+      - "traefik.http.routers.users.middlewares=cors-headers,forward-auth"
       - "traefik.http.routers.users.service=users-svc"
       # Service port
       - "traefik.http.services.users-svc.loadbalancer.server.port=8081"
@@ -183,12 +190,12 @@ services:
       # Wallet routes (all protected via ForwardAuth)
       - "traefik.http.routers.wallet.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/wallet`)"
       - "traefik.http.routers.wallet.entrypoints=web"
-      - "traefik.http.routers.wallet.middlewares=forward-auth"
+      - "traefik.http.routers.wallet.middlewares=cors-headers,forward-auth"
       - "traefik.http.routers.wallet.service=wallet-svc"
       # Service port
       - "traefik.http.services.wallet-svc.loadbalancer.server.port=8082"
     healthcheck:
-      test: ["CMD", "grpc_health_probe", "-addr=:50052"]
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:8082/healthz"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -206,7 +213,7 @@ services:
       - "traefik.http.routers.swagger.service=swagger-svc"
       - "traefik.http.services.swagger-svc.loadbalancer.server.port=8090"
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8090/healthz"]
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:8090/healthz"]
       interval: 5s
       timeout: 5s
       retries: 3
@@ -245,12 +252,12 @@ services:
       # Order routes (all protected via ForwardAuth)
       - "traefik.http.routers.orders.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/orders`)"
       - "traefik.http.routers.orders.entrypoints=web"
-      - "traefik.http.routers.orders.middlewares=forward-auth"
+      - "traefik.http.routers.orders.middlewares=cors-headers,forward-auth"
       - "traefik.http.routers.orders.service=order-svc"
       # Service port
       - "traefik.http.services.order-svc.loadbalancer.server.port=8083"
     healthcheck:
-      test: ["CMD", "grpc_health_probe", "-addr=:50053"]
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:8083/healthz"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -276,7 +283,7 @@ services:
       order-svc:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "grpc_health_probe", "-addr=:50054"]
+      test: ["CMD", "nc", "-z", "0.0.0.0", "50054"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -301,6 +308,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.market.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/market`)"
       - "traefik.http.routers.market.entrypoints=web"
+      - "traefik.http.routers.market.middlewares=cors-headers"
       - "traefik.http.routers.market.service=market-svc"
       - "traefik.http.routers.market-ws.rule=Host(`api.booker.localhost`) && Path(`/ws`)"
       - "traefik.http.routers.market-ws.entrypoints=web"
@@ -331,7 +339,7 @@ services:
       # Notification REST routes (protected via ForwardAuth)
       - "traefik.http.routers.notifications.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/notifications`) && !Path(`/api/v1/notifications/ws`)"
       - "traefik.http.routers.notifications.entrypoints=web"
-      - "traefik.http.routers.notifications.middlewares=forward-auth"
+      - "traefik.http.routers.notifications.middlewares=cors-headers,forward-auth"
       - "traefik.http.routers.notifications.service=notification-svc"
       # Notification WebSocket (auth handled in-app via token)
       - "traefik.http.routers.notifications-ws.rule=Host(`api.booker.localhost`) && Path(`/api/v1/notifications/ws`)"

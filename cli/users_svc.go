@@ -138,6 +138,10 @@ func RunUsersSvc(c *urfavecli.Context) error {
 	app.Use(httpserver.TracingMiddleware())
 	app.Use(httpserver.LoggingMiddleware())
 
+	app.Get("/healthz", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "ok"})
+	})
+
 	// ForwardAuth endpoint for Traefik
 	app.Get("/auth/verify", func(fc *fiber.Ctx) error {
 		authHeader := fc.Get("Authorization")

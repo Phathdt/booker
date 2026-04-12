@@ -97,16 +97,22 @@ func RunNotificationSvc(c *urfavecli.Context) error {
 	})
 
 	app.Use(recover.New())
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: cfg.CorsOrigins,
-		AllowMethods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
-		AllowHeaders: "Origin,Content-Type,Accept,Authorization,X-Request-Id",
-	}))
+	corsConfig := cors.Config{
+		AllowMethods:     "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Request-Id",
+		AllowCredentials: true,
+	}
+	if cfg.CorsOrigins == "*" {
+		corsConfig.AllowOriginsFunc = func(origin string) bool { return true }
+	} else {
+		corsConfig.AllowOrigins = cfg.CorsOrigins
+	}
+	app.Use(cors.New(corsConfig))
 	app.Use(httpserver.RequestIDMiddleware())
 	app.Use(httpserver.TracingMiddleware())
 	app.Use(httpserver.LoggingMiddleware())
 
-	app.Get("/health", func(c *fiber.Ctx) error {
+	app.Get("/healthz", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 

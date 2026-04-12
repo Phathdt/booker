@@ -21,7 +21,7 @@ BEGIN
         VALUES (
             uuid_generate_v4(),
             'trader' || i || '@booker.dev',
-            '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+            '$2a$10$u8N1SibhTTsqSMfrn0kS5Oja46nvr60VvFW5K5SEa0wPTASuSvow6',
             'user',
             'active'
         )

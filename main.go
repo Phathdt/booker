@@ -138,6 +138,25 @@ func main() {
 				Action: mycli.RunMarketSvc,
 			},
 			{
+				Name:    "notification-svc",
+				Aliases: []string{"ns"},
+				Usage:   "Start the notification service (REST + WebSocket)",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "config.yml",
+						Usage:   "Configuration file path",
+					},
+					&cli.IntFlag{
+						Name:  "http-port",
+						Value: 8086,
+						Usage: "REST + WebSocket port",
+					},
+				},
+				Action: mycli.RunNotificationSvc,
+			},
+			{
 				Name:    "swagger-svc",
 				Aliases: []string{"sw"},
 				Usage:   "Start the Swagger UI service (REST only)",

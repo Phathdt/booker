@@ -16,6 +16,18 @@ type Asset struct {
 	Decimals int32  `db:"decimals" json:"decimals"`
 }
 
+type Notification struct {
+	ID        string    `db:"id" json:"id"`
+	UserID    string    `db:"user_id" json:"user_id"`
+	EventKey  string    `db:"event_key" json:"event_key"`
+	Type      string    `db:"type" json:"type"`
+	Title     string    `db:"title" json:"title"`
+	Body      string    `db:"body" json:"body"`
+	Metadata  []byte    `db:"metadata" json:"metadata"`
+	IsRead    bool      `db:"is_read" json:"is_read"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+}
+
 type Order struct {
 	ID        string          `db:"id" json:"id"`
 	UserID    string          `db:"user_id" json:"user_id"`

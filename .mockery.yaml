@@ -25,3 +25,8 @@ packages:
         config:
           mockname: MockMatchingWalletClient
       OrderClient:
+  booker/modules/notification/domain/interfaces:
+    interfaces:
+      NotificationRepository:
+      NotificationService:
+      Broadcaster:

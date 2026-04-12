@@ -1,6 +1,7 @@
 package wallet
 
 import (
+	_ "booker/modules/wallet/application/dto" // swagger
 	"booker/modules/wallet/domain/interfaces"
 	"booker/pkg/httpserver"
 

@@ -14,6 +14,40 @@ definitions:
       user:
         $ref: '#/definitions/dto.UserResponse'
     type: object
+  dto.CreateOrderDTO:
+    properties:
+      pair_id:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: number
+      side:
+        enum:
+        - buy
+        - sell
+        type: string
+      type:
+        enum:
+        - limit
+        type: string
+    required:
+    - pair_id
+    - price
+    - quantity
+    - side
+    - type
+    type: object
+  dto.DepositDTO:
+    properties:
+      amount:
+        type: number
+      asset_id:
+        type: string
+    required:
+    - amount
+    - asset_id
+    type: object
   dto.LoginDTO:
     properties:
       email:
@@ -28,6 +62,49 @@ definitions:
     properties:
       message:
         example: logged out
+        type: string
+    type: object
+  dto.OrderListResponse:
+    properties:
+      orders:
+        items:
+          $ref: '#/definitions/dto.OrderResponse'
+        type: array
+    type: object
+  dto.OrderResponse:
+    properties:
+      created_at:
+        example: "2026-04-12T00:00:00Z"
+        type: string
+      filled_qty:
+        example: "0"
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      pair_id:
+        example: BTC_USDT
+        type: string
+      price:
+        example: "50000.00"
+        type: string
+      quantity:
+        example: "0.5"
+        type: string
+      side:
+        example: buy
+        type: string
+      status:
+        example: new
+        type: string
+      type:
+        example: limit
+        type: string
+      updated_at:
+        example: "2026-04-12T00:00:00Z"
+        type: string
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
         type: string
     type: object
   dto.RefreshTokenDTO:
@@ -91,6 +168,44 @@ definitions:
       updated_at:
         example: "2026-04-12T00:00:00Z"
         type: string
+    type: object
+  dto.WalletListResponse:
+    properties:
+      wallets:
+        items:
+          $ref: '#/definitions/dto.WalletResponse'
+        type: array
+    type: object
+  dto.WalletResponse:
+    properties:
+      asset_id:
+        example: USDT
+        type: string
+      available:
+        example: "1000.00"
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      locked:
+        example: "0.00"
+        type: string
+      updated_at:
+        example: "2026-04-12T00:00:00Z"
+        type: string
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
+        type: string
+    type: object
+  dto.WithdrawDTO:
+    properties:
+      amount:
+        type: number
+      asset_id:
+        type: string
+    required:
+    - amount
+    - asset_id
     type: object
   httpserver.Response:
     properties:
@@ -292,6 +407,208 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /api/v1/orders:
+    get:
+      parameters:
+      - description: Filter by trading pair (e.g. BTC_USDT)
+        in: query
+        name: pair_id
+        type: string
+      - description: Filter by status (new, partial, filled, cancelled)
+        in: query
+        name: status
+        type: string
+      - description: Page size (default 20, max 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset (default 0, max 10000)
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.OrderListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List orders for current user
+      tags:
+      - orders
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create order request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateOrderDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.OrderResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new limit order
+      tags:
+      - orders
+  /api/v1/orders/{id}:
+    delete:
+      parameters:
+      - description: Order ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.OrderResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Cancel an order
+      tags:
+      - orders
+    get:
+      parameters:
+      - description: Order ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.OrderResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get a single order by ID
+      tags:
+      - orders
   /api/v1/users:
     get:
       parameters:
@@ -370,6 +687,156 @@ paths:
       summary: Get user by ID
       tags:
       - users
+  /api/v1/wallet:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.WalletListResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get all wallet balances for current user
+      tags:
+      - wallet
+  /api/v1/wallet/{asset_id}:
+    get:
+      parameters:
+      - description: Asset ID (e.g. BTC, USDT)
+        in: path
+        name: asset_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.WalletResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get wallet balance for a specific asset
+      tags:
+      - wallet
+  /api/v1/wallet/deposit:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Deposit request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DepositDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.WalletResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Deposit funds to wallet
+      tags:
+      - wallet
+  /api/v1/wallet/withdraw:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Withdraw request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.WithdrawDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.WalletResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpserver.Response'
+            - properties:
+                error:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Withdraw funds from wallet
+      tags:
+      - wallet
 securityDefinitions:
   BearerAuth:
     description: Enter "Bearer {token}"

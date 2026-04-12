@@ -54,7 +54,7 @@ proto-lint:
 	buf lint
 
 swagger:
-	swag init --parseDependency --parseInternal -g main.go
+	swag init --parseDependency --parseInternal -g main.go --exclude worktrees
 
 # Docker
 docker-build:

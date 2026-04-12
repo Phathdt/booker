@@ -30,6 +30,18 @@ type Order struct {
 	UpdatedAt time.Time       `db:"updated_at" json:"updated_at"`
 }
 
+type Trade struct {
+	ID          string          `db:"id" json:"id"`
+	PairID      string          `db:"pair_id" json:"pair_id"`
+	BuyOrderID  string          `db:"buy_order_id" json:"buy_order_id"`
+	SellOrderID string          `db:"sell_order_id" json:"sell_order_id"`
+	Price       decimal.Decimal `db:"price" json:"price"`
+	Quantity    decimal.Decimal `db:"quantity" json:"quantity"`
+	BuyerID     string          `db:"buyer_id" json:"buyer_id"`
+	SellerID    string          `db:"seller_id" json:"seller_id"`
+	ExecutedAt  time.Time       `db:"executed_at" json:"executed_at"`
+}
+
 type TradingPair struct {
 	ID         string          `db:"id" json:"id"`
 	BaseAsset  string          `db:"base_asset" json:"base_asset"`

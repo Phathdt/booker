@@ -1,0 +1,41 @@
+syntax = "proto3";
+package matching.v1;
+option go_package = "booker/proto/matching/v1/gen";
+
+service MatchingService {
+  rpc SubmitOrder(SubmitOrderRequest) returns (SubmitOrderResponse);
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse);
+}
+
+message SubmitOrderRequest {
+  string order_id = 1;
+  string user_id = 2;
+  string pair_id = 3;
+  string side = 4;
+  string price = 5;
+  string quantity = 6;
+}
+
+message SubmitOrderResponse {
+  string order_id = 1;
+  string status = 2;
+  repeated TradeResult trades = 3;
+}
+
+message CancelOrderRequest {
+  string order_id = 1;
+  string pair_id = 2;
+}
+
+message CancelOrderResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message TradeResult {
+  string trade_id = 1;
+  string buy_order_id = 2;
+  string sell_order_id = 3;
+  string price = 4;
+  string quantity = 5;
+}

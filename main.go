@@ -99,6 +99,26 @@ func main() {
 				Action: mycli.RunOrderSvc,
 			},
 			{
+				Name:    "matching-svc",
+				Aliases: []string{"ms"},
+				Usage:   "Start the matching engine service (gRPC only)",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "config",
+						Aliases: []string{"c"},
+						Value:   "config.yml",
+						Usage:   "Configuration file path",
+					},
+					&cli.IntFlag{
+						Name:    "port",
+						Aliases: []string{"p"},
+						Value:   50054,
+						Usage:   "gRPC listen port",
+					},
+				},
+				Action: mycli.RunMatchingSvc,
+			},
+			{
 				Name:    "swagger-svc",
 				Aliases: []string{"sw"},
 				Usage:   "Start the Swagger UI service (REST only)",

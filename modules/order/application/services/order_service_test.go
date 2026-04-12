@@ -28,7 +28,11 @@ var testPair = &interfaces.TradingPair{
 func newTestService(t *testing.T) (*mocks.MockOrderRepository, *mocks.MockWalletClient, interfaces.OrderService) {
 	repo := mocks.NewMockOrderRepository(t)
 	wallet := mocks.NewMockWalletClient(t)
-	svc := NewOrderService(repo, wallet)
+	matching := mocks.NewMockMatchingClient(t)
+	// Default: matching client submit always succeeds (fire-and-forget)
+	matching.EXPECT().SubmitOrder(mock.Anything, mock.Anything).Return(nil).Maybe()
+	matching.EXPECT().CancelOrder(mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
+	svc := NewOrderService(repo, wallet, matching)
 	return repo, wallet, svc
 }
 

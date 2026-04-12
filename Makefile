@@ -24,6 +24,9 @@ run-wallet-svc:
 run-order-svc:
 	go run . order-svc --config config.yml
 
+run-matching-svc:
+	go run . matching-svc --config config.yml
+
 run-swagger-svc:
 	go run . swagger-svc
 

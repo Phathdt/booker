@@ -14,6 +14,7 @@ import (
 	"booker/cmd/shared"
 	"booker/config"
 	orderServices "booker/modules/order/application/services"
+	interfaces "booker/modules/order/domain/interfaces"
 	orderInfra "booker/modules/order/infrastructure"
 	orderRepos "booker/modules/order/infrastructure/repositories"
 	"booker/modules/users/infrastructure/token"
@@ -82,10 +83,25 @@ func RunOrderSvc(c *urfavecli.Context) error {
 	}
 	defer walletConn.Close()
 
+	// Matching gRPC client connection (optional — graceful if unavailable)
+	var matchingClient interfaces.MatchingClient
+	if cfg.MatchingService.Address != "" {
+		matchingConn, err := grpc.NewClient(cfg.MatchingService.Address,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		)
+		if err != nil {
+			log.With("error", err.Error()).Warn("failed to connect to matching-svc, orders will not be matched")
+		} else {
+			defer matchingConn.Close()
+			matchingClient = orderInfra.NewMatchingClient(matchingConn)
+		}
+	}
+
 	// Wire order module
 	orderRepo := orderRepos.NewOrderRepository(db)
 	walletClient := orderInfra.NewWalletClient(walletConn)
-	orderService := orderServices.NewOrderService(orderRepo, walletClient)
+	orderService := orderServices.NewOrderService(orderRepo, walletClient, matchingClient)
 
 	// Token service for auth middleware
 	tokenService := token.NewJWTTokenService(redisClient, cfg.JWT)

@@ -117,6 +117,42 @@ export class TradingPage {
     return rows.count();
   }
 
+  async getActiveOrderCount(): Promise<number> {
+    // Count only orders with status "new" or "partial" (orders that can be cancelled)
+    const openOrdersSection = this.page.locator('section, div').filter({ has: this.openOrdersHeading });
+    const rows = openOrdersSection.locator('table tbody tr');
+
+    let count = 0;
+    const rowCount = await rows.count();
+    for (let i = 0; i < rowCount; i++) {
+      const row = rows.nth(i);
+      const statusBadge = row.locator('[class*="badge"]');
+      const statusText = await statusBadge.textContent();
+      if (statusText === 'new' || statusText === 'partial') {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  async getFilledOrderCount(): Promise<number> {
+    // Count only orders with status "filled"
+    const openOrdersSection = this.page.locator('section, div').filter({ has: this.openOrdersHeading });
+    const rows = openOrdersSection.locator('table tbody tr');
+
+    let count = 0;
+    const rowCount = await rows.count();
+    for (let i = 0; i < rowCount; i++) {
+      const row = rows.nth(i);
+      const statusBadge = row.locator('[class*="badge"]');
+      const statusText = await statusBadge.textContent();
+      if (statusText === 'filled') {
+        count++;
+      }
+    }
+    return count;
+  }
+
   // ----- Assertions -----
 
   async expectOnTradingPage(): Promise<void> {
@@ -157,12 +193,13 @@ export class TradingPage {
   }
 
   async expectOrderExecuted(): Promise<void> {
-    // After matching, the trade history or executed state should be reflected.
-    // Orders that matched should no longer appear in open orders.
+    // After matching, both orders should be filled (status: "filled").
+    // They remain in the table but are no longer active (can't be cancelled).
     await this.page.waitForTimeout(TimeoutValue.STRATEGIC_PART_DELAY);
     // Verify we are still on the trading page (no error redirect)
     await this.expectOnTradingPage();
-    // Verify open orders are cleared (matched orders removed)
-    await this.expectNoOpenOrders();
+    // Verify no active (new/partial) orders remain — all should be filled
+    const activeOrderCount = await this.getActiveOrderCount();
+    expect(activeOrderCount).toBe(0);
   }
 }

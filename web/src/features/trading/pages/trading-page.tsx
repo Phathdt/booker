@@ -1,15 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PairSelector, TRADING_PAIRS } from "../containers/pair-selector";
+import { PairSelector } from "../containers/pair-selector";
 import { OrderForm } from "../containers/order-form";
 import { OpenOrders } from "../containers/open-orders";
 import { OrderBook } from "../containers/order-book";
 import { TickerBar } from "../containers/ticker-bar";
 import { TradeHistory } from "../containers/trade-history";
+import { useQueryPairs } from "../data/queries";
 
 export function TradingPage() {
-  const [selectedPair, setSelectedPair] = useState(TRADING_PAIRS[0].id);
+  const { data, isLoading } = useQueryPairs();
+  const pairs = data?.pairs ?? [];
+
+  const [selectedPair, setSelectedPair] = useState<string>("");
+
+  // Default to first pair once loaded
+  useEffect(() => {
+    if (!selectedPair && pairs.length > 0) {
+      setSelectedPair(pairs[0].id);
+    }
+  }, [pairs, selectedPair]);
+
+  if (isLoading && !selectedPair) {
+    return (
+      <Layout>
+        <div className="flex h-64 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

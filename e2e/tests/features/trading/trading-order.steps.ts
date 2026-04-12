@@ -70,7 +70,7 @@ When('I try to submit the buy order without filling any fields', async function 
 When('I cancel the first open order', async function (this: BrowserWorld) {
   logger.info('Cancelling the first open order');
   const tradingPage = new TradingPage(this.page);
-  this.data.openOrderCountBeforeCancel = await tradingPage.getOpenOrderCount();
+  this.data.activeOrderCountBeforeCancel = await tradingPage.getActiveOrderCount();
   await tradingPage.cancelFirstOpenOrder();
   await this.page.waitForTimeout(TimeoutValue.STRATEGIC_PART_DELAY);
 });
@@ -115,13 +115,11 @@ Then('the buy order should not be submitted', async function (this: BrowserWorld
 Then('the cancelled order should be removed from the open orders', async function (this: BrowserWorld) {
   logger.info('Verifying cancelled order removed from open orders');
   const tradingPage = new TradingPage(this.page);
-  const countBefore = this.data.openOrderCountBeforeCancel as number;
-  if (countBefore <= 1) {
-    await tradingPage.expectNoOpenOrders();
-  } else {
-    const countAfter = await tradingPage.getOpenOrderCount();
-    expect(countAfter).toBeLessThan(countBefore);
-  }
+  const activeCountBefore = this.data.activeOrderCountBeforeCancel as number;
+  // After cancelling, the cancelled order becomes inactive (no cancel button),
+  // so active order count should decrease by 1
+  const activeCountAfter = await tradingPage.getActiveOrderCount();
+  expect(activeCountAfter).toBe(activeCountBefore - 1);
 });
 
 Then('I should see an error message', async function (this: BrowserWorld) {

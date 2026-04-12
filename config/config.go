@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -89,7 +90,9 @@ func LoadConfig(path string) (*Config, error) {
 		"cors__origins":            "CORS__ORIGINS",
 	}
 	for key, env := range envBindings {
-		_ = v.BindEnv(key, env)
+		if err := v.BindEnv(key, env); err != nil {
+			slog.Warn("failed to bind env var", "key", key, "env", env, "error", err.Error())
+		}
 	}
 
 	var cfg Config

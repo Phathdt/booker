@@ -78,9 +78,13 @@ func (c *NATSConsumer) processMessages(ctx context.Context, sub *nats.Subscripti
 				if err := c.handler.Handle(ctx, msg); err != nil {
 					c.log.With("stream", stream, "error", err.Error()).Error("failed to handle event")
 					// NakWithDelay to avoid tight retry loop on transient failures
-					_ = msg.NakWithDelay(5 * time.Second)
+					if nakErr := msg.NakWithDelay(5 * time.Second); nakErr != nil {
+						c.log.With("stream", stream, "error", nakErr.Error()).Warn("failed to nak message")
+					}
 				} else {
-					_ = msg.Ack()
+					if ackErr := msg.Ack(); ackErr != nil {
+						c.log.With("stream", stream, "error", ackErr.Error()).Warn("failed to ack message")
+					}
 				}
 			}
 		}
@@ -93,6 +97,8 @@ func (c *NATSConsumer) Stop() {
 		c.cancel()
 	}
 	for _, sub := range c.subs {
-		_ = sub.Drain()
+		if err := sub.Drain(); err != nil {
+			c.log.With("error", err.Error()).Warn("failed to drain NATS subscription")
+		}
 	}
 }

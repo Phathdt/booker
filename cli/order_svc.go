@@ -206,7 +206,6 @@ func RunOrderSvc(c *urfavecli.Context) error {
 		log.Error("http shutdown error", "error", err)
 	}
 	grpcServer.GracefulStop()
-	walletConn.Close()
 
 	return nil
 }

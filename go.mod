@@ -1,6 +1,6 @@
 module booker
 
-go 1.26.0
+go 1.26.1
 
 require (
 	github.com/go-playground/validator/v10 v10.30.2

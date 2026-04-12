@@ -5,6 +5,8 @@ import { PairSelector, TRADING_PAIRS } from "../containers/pair-selector";
 import { OrderForm } from "../containers/order-form";
 import { OpenOrders } from "../containers/open-orders";
 import { OrderBook } from "../containers/order-book";
+import { TickerBar } from "../containers/ticker-bar";
+import { TradeHistory } from "../containers/trade-history";
 
 export function TradingPage() {
   const [selectedPair, setSelectedPair] = useState(TRADING_PAIRS[0].id);
@@ -12,11 +14,14 @@ export function TradingPage() {
   return (
     <Layout>
       <div className="space-y-4">
-        {/* Header row with pair selector */}
+        {/* Header row with pair selector + ticker */}
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-bold tracking-tight">Trade</h1>
           <PairSelector value={selectedPair} onChange={setSelectedPair} />
         </div>
+
+        {/* Ticker bar */}
+        <TickerBar pairId={selectedPair} />
 
         {/* Top section: order book + order form */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -27,7 +32,7 @@ export function TradingPage() {
                 <CardTitle className="text-base">Order Book</CardTitle>
               </CardHeader>
               <CardContent>
-                <OrderBook />
+                <OrderBook pairId={selectedPair} />
               </CardContent>
             </Card>
           </div>
@@ -45,15 +50,26 @@ export function TradingPage() {
           </div>
         </div>
 
-        {/* Bottom section: open orders */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Open Orders</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <OpenOrders pairId={selectedPair} />
-          </CardContent>
-        </Card>
+        {/* Bottom section: trade history + open orders */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Recent Trades</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <TradeHistory pairId={selectedPair} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Open Orders</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <OpenOrders pairId={selectedPair} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </Layout>
   );

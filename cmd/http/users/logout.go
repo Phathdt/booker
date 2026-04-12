@@ -1,6 +1,7 @@
 package users
 
 import (
+	"booker/config"
 	"booker/modules/users/application/dto"
 	"booker/modules/users/application/usecases"
 	"booker/pkg/httpserver"
@@ -15,7 +16,7 @@ import (
 // @Success      200  {object}  httpserver.Response{data=dto.MessageResponse}
 // @Failure      401  {object}  httpserver.Response{error=object}
 // @Router       /api/v1/auth/logout [post]
-func Logout(uc *usecases.LogoutUseCase) fiber.Handler {
+func Logout(cfg *config.Config, uc *usecases.LogoutUseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userID, ok := c.Locals("user_id").(string)
 		if !ok || userID == "" {
@@ -24,6 +25,7 @@ func Logout(uc *usecases.LogoutUseCase) fiber.Handler {
 		if err := uc.Execute(c.UserContext(), userID); err != nil {
 			return err
 		}
+		clearRefreshTokenCookie(c, cfg)
 		return httpserver.OK(c, dto.MessageResponse{Message: "logged out"})
 	}
 }

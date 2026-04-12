@@ -11,18 +11,18 @@ type UserResponse struct {
 }
 
 // AuthResponse represents the response for register/login.
+// Refresh token is delivered via HTTP-only cookie, not in the response body.
 type AuthResponse struct {
-	User         UserResponse `json:"user"`
-	AccessToken  string       `json:"access_token"  example:"eyJhbGciOiJIUzI1NiIs..."`
-	RefreshToken string       `json:"refresh_token" example:"eyJhbGciOiJIUzI1NiIs..."`
-	ExpiresIn    int          `json:"expires_in"    example:"900"`
+	User        UserResponse `json:"user"`
+	AccessToken string       `json:"access_token" example:"eyJhbGciOiJIUzI1NiIs..."`
+	ExpiresIn   int          `json:"expires_in"   example:"900"`
 }
 
 // TokenPairResponse represents the response for token refresh.
+// Refresh token is delivered via HTTP-only cookie, not in the response body.
 type TokenPairResponse struct {
-	AccessToken  string `json:"access_token"  example:"eyJhbGciOiJIUzI1NiIs..."`
-	RefreshToken string `json:"refresh_token" example:"eyJhbGciOiJIUzI1NiIs..."`
-	ExpiresIn    int    `json:"expires_in"    example:"900"`
+	AccessToken string `json:"access_token" example:"eyJhbGciOiJIUzI1NiIs..."`
+	ExpiresIn   int    `json:"expires_in"   example:"900"`
 }
 
 // MessageResponse represents a simple message response.

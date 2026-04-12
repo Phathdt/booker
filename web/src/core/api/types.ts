@@ -22,7 +22,11 @@ export interface IUser {
 export interface IAuthResponse {
   user: IUser;
   access_token: string;
-  refresh_token: string;
+  expires_in: number;
+}
+
+export interface IRefreshResponse {
+  access_token: string;
   expires_in: number;
 }
 

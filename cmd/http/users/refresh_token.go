@@ -3,6 +3,7 @@ package users
 import (
 	"time"
 
+	"booker/config"
 	"booker/modules/users/application/dto"
 	"booker/modules/users/application/usecases"
 	"booker/pkg/httpserver"
@@ -11,31 +12,29 @@ import (
 )
 
 // RefreshToken godoc
-// @Summary      Refresh access token
+// @Summary      Refresh access token using HTTP-only cookie
 // @Tags         auth
-// @Accept       json
 // @Produce      json
-// @Param        body  body      dto.RefreshTokenDTO  true  "Refresh token request"
 // @Success      200   {object}  httpserver.Response{data=dto.TokenPairResponse}
-// @Failure      400   {object}  httpserver.Response{error=object}
 // @Failure      401   {object}  httpserver.Response{error=object}
 // @Router       /api/v1/auth/refresh [post]
-func RefreshToken(uc *usecases.RefreshTokenUseCase) fiber.Handler {
+func RefreshToken(cfg *config.Config, uc *usecases.RefreshTokenUseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var req dto.RefreshTokenDTO
-		if err := httpserver.BindAndValidate(c, &req); err != nil {
-			return err
+		refreshToken := c.Cookies(refreshTokenCookie)
+		if refreshToken == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "missing refresh token")
 		}
 
-		result, err := uc.Execute(c.UserContext(), req.RefreshToken)
+		result, err := uc.Execute(c.UserContext(), refreshToken)
 		if err != nil {
+			clearRefreshTokenCookie(c, cfg)
 			return err
 		}
 
+		setRefreshTokenCookie(c, cfg, result.RefreshToken)
 		return httpserver.OK(c, dto.TokenPairResponse{
-			AccessToken:  result.AccessToken,
-			RefreshToken: result.RefreshToken,
-			ExpiresIn:    int(15 * time.Minute / time.Second),
+			AccessToken: result.AccessToken,
+			ExpiresIn:   int(15 * time.Minute / time.Second),
 		})
 	}
 }

@@ -1,5 +1,35 @@
-import axios, { type AxiosInstance } from "axios";
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
 import type { IHttpError } from "./types";
+import { AUTH_ENDPOINT } from "./endpoint";
+
+// In-memory access token (never in localStorage)
+let accessToken: string | null = null;
+
+export function getAccessToken(): string | null {
+  return accessToken;
+}
+
+export function setAccessToken(token: string | null) {
+  accessToken = token;
+}
+
+export function clearAccessToken() {
+  accessToken = null;
+}
+
+// Silent refresh queue
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (err: unknown) => void;
+}> = [];
+
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach(({ resolve, reject }) =>
+    error ? reject(error) : resolve(token!)
+  );
+  failedQueue = [];
+}
 
 export class Service {
   private endpoint: string;
@@ -10,30 +40,72 @@ export class Service {
     this.client = axios.create({
       baseURL: import.meta.env.VITE_API_BASE_URL || "",
       headers: { "Content-Type": "application/json" },
+      withCredentials: true,
     });
 
+    // Attach access token from memory
     this.client.interceptors.request.use((config) => {
-      const token = localStorage.getItem("access_token");
+      const token = getAccessToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
     });
 
+    // Silent refresh on 401
     this.client.interceptors.response.use(
       (res) => res,
-      (error) => {
-        const httpError: IHttpError = {
-          httpCode: error.response?.status ?? 500,
-          message:
-            error.response?.data?.error?.message ?? "Something went wrong",
+      async (error) => {
+        const original = error.config as InternalAxiosRequestConfig & {
+          _retry?: boolean;
         };
-        if (error.response?.status === 401) {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          window.location.href = "/login";
+
+        // Don't retry refresh endpoint itself, non-401 errors, or already retried
+        if (
+          error.response?.status !== 401 ||
+          original._retry ||
+          original.url === AUTH_ENDPOINT.REFRESH
+        ) {
+          const httpError: IHttpError = {
+            httpCode: error.response?.status ?? 500,
+            message:
+              error.response?.data?.error?.message ?? "Something went wrong",
+          };
+          return Promise.reject(httpError);
         }
-        return Promise.reject(httpError);
+
+        // Queue concurrent requests while refreshing
+        if (isRefreshing) {
+          return new Promise<string>((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          }).then((token) => {
+            original.headers.Authorization = `Bearer ${token}`;
+            return this.client(original);
+          });
+        }
+
+        original._retry = true;
+        isRefreshing = true;
+
+        try {
+          const { data } = await this.client.post<{
+            data: { access_token: string };
+          }>(AUTH_ENDPOINT.REFRESH);
+
+          const newToken = data.data.access_token;
+          setAccessToken(newToken);
+          processQueue(null, newToken);
+
+          original.headers.Authorization = `Bearer ${newToken}`;
+          return this.client(original);
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          clearAccessToken();
+          window.location.href = "/login";
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
       }
     );
   }

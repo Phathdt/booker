@@ -1,6 +1,7 @@
 package users
 
 import (
+	"booker/config"
 	"booker/modules/users/application/usecases"
 	"booker/modules/users/domain/interfaces"
 	"booker/pkg/httpserver"
@@ -11,6 +12,7 @@ import (
 // RegisterRoutes sets up all user/auth HTTP routes on the Fiber app.
 func RegisterRoutes(
 	app *fiber.App,
+	cfg *config.Config,
 	userSvc interfaces.UserService,
 	tokenSvc interfaces.TokenService,
 	registerUC *usecases.RegisterUseCase,
@@ -22,13 +24,13 @@ func RegisterRoutes(
 
 	// Public auth routes
 	auth := api.Group("/auth")
-	auth.Post("/register", Register(registerUC))
-	auth.Post("/login", Login(loginUC))
-	auth.Post("/refresh", RefreshToken(refreshTokenUC))
+	auth.Post("/register", Register(cfg, registerUC))
+	auth.Post("/login", Login(cfg, loginUC))
+	auth.Post("/refresh", RefreshToken(cfg, refreshTokenUC))
 
 	// Protected auth routes
 	authProtected := auth.Group("", httpserver.AuthMiddleware(tokenSvc))
-	authProtected.Post("/logout", Logout(logoutUC))
+	authProtected.Post("/logout", Logout(cfg, logoutUC))
 	authProtected.Get("/me", GetMe(userSvc))
 
 	// Protected user routes

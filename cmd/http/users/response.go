@@ -7,12 +7,11 @@ import (
 	"booker/modules/users/domain/entities"
 )
 
-func toAuthResponse(u *entities.User, access, refresh string) dto.AuthResponse {
+func toAuthResponse(u *entities.User, access string) dto.AuthResponse {
 	return dto.AuthResponse{
-		User:         toUserResponse(u),
-		AccessToken:  access,
-		RefreshToken: refresh,
-		ExpiresIn:    int(15 * time.Minute / time.Second),
+		User:        toUserResponse(u),
+		AccessToken: access,
+		ExpiresIn:   int(15 * time.Minute / time.Second),
 	}
 }
 

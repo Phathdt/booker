@@ -9,6 +9,8 @@ import (
 )
 
 type Config struct {
+	Env string `mapstructure:"env"` // "production" or "development"
+
 	Database DatabaseConfig `mapstructure:"database"`
 	Redis    RedisConfig    `mapstructure:"redis"`
 	NATS     NATSConfig     `mapstructure:"nats"`
@@ -66,6 +68,7 @@ func LoadConfig(path string) (*Config, error) {
 	v.SetConfigFile(path)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "__"))
 	v.AutomaticEnv()
+	v.SetDefault("env", "development")
 	v.SetDefault("cors__origins", "*")
 
 	if err := v.ReadInConfig(); err != nil {
@@ -82,6 +85,7 @@ func LoadConfig(path string) (*Config, error) {
 		"wallet_service.address":   "WALLET_SERVICE__ADDRESS",
 		"matching_service.address": "MATCHING_SERVICE__ADDRESS",
 		"order_service.address":    "ORDER_SERVICE__ADDRESS",
+		"env":                      "ENV",
 		"cors__origins":            "CORS__ORIGINS",
 	}
 	for key, env := range envBindings {

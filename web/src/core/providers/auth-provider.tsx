@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { authService, type IUser } from "@/core/api";
+import { setAccessToken, clearAccessToken } from "@/core/api/service";
 
 interface AuthContextValue {
   user: IUser | null;
@@ -32,33 +33,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Restore session on page load via refresh cookie
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
     authService
-      .getMe()
+      .refresh()
+      .then((res) => {
+        setAccessToken(res.access_token);
+        // Now fetch user profile with the fresh access token
+        return authService.getMe();
+      })
       .then((u) => setUser(u))
       .catch(() => {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
+        clearAccessToken();
       })
       .finally(() => setIsLoading(false));
   }, []);
 
   const login = async (email: string, password: string) => {
     const res = await authService.login(email, password);
-    localStorage.setItem("access_token", res.access_token);
-    localStorage.setItem("refresh_token", res.refresh_token);
+    setAccessToken(res.access_token);
     setUser(res.user);
   };
 
   const register = async (email: string, password: string) => {
     const res = await authService.register(email, password);
-    localStorage.setItem("access_token", res.access_token);
-    localStorage.setItem("refresh_token", res.refresh_token);
+    setAccessToken(res.access_token);
     setUser(res.user);
   };
 
@@ -68,8 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch {
       // ignore logout errors
     } finally {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
+      clearAccessToken();
       setUser(null);
     }
   };

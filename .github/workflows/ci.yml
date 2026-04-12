@@ -33,6 +33,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - uses: bufbuild/buf-setup-action@v1
+      - name: Generate protobuf
+        run: buf dep update && buf generate
       - name: Build
         run: go build -o /dev/null .
 
@@ -45,6 +48,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - uses: bufbuild/buf-setup-action@v1
+      - name: Generate protobuf
+        run: buf dep update && buf generate
       - name: Run unit tests
         run: go test ./modules/... -v -short -count=1
 
@@ -57,5 +63,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - uses: bufbuild/buf-setup-action@v1
+      - name: Generate protobuf
+        run: buf dep update && buf generate
       - name: Run integration tests
         run: go test ./test/... -v -timeout 300s

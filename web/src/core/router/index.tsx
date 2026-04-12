@@ -13,6 +13,9 @@ const LoginPage = lazy(() =>
 const TradingPage = lazy(() =>
   import("@/features/trading/pages").then((m) => ({ default: m.TradingPage }))
 );
+const OrderDetailPage = lazy(() =>
+  import("@/features/trading/pages").then((m) => ({ default: m.OrderDetailPage }))
+);
 const WalletPage = lazy(() =>
   import("@/features/wallet/pages").then((m) => ({ default: m.WalletPage }))
 );
@@ -36,6 +39,14 @@ export function AppRouter() {
             element={
               <ProtectedRoute>
                 <TradingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/:id"
+            element={
+              <ProtectedRoute>
+                <OrderDetailPage />
               </ProtectedRoute>
             }
           />

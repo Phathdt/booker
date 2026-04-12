@@ -5,11 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-export const TRADING_PAIRS = [
-  { id: "BTC_USDT", label: "BTC / USDT" },
-  { id: "ETH_USDT", label: "ETH / USDT" },
-];
+import { useQueryPairs } from "../data/queries";
 
 interface PairSelectorProps {
   value: string;
@@ -17,15 +13,18 @@ interface PairSelectorProps {
 }
 
 export function PairSelector({ value, onChange }: PairSelectorProps) {
+  const { data, isLoading } = useQueryPairs();
+  const pairs = data?.pairs ?? [];
+
   return (
-    <Select value={value} onValueChange={(v) => v && onChange(v)}>
+    <Select value={value} onValueChange={(v) => v && onChange(v)} disabled={isLoading}>
       <SelectTrigger className="w-40">
-        <SelectValue placeholder="Select pair" />
+        <SelectValue placeholder={isLoading ? "Loading..." : "Select pair"} />
       </SelectTrigger>
       <SelectContent>
-        {TRADING_PAIRS.map((pair) => (
+        {pairs.map((pair) => (
           <SelectItem key={pair.id} value={pair.id}>
-            {pair.label}
+            {pair.base_asset} / {pair.quote_asset}
           </SelectItem>
         ))}
       </SelectContent>

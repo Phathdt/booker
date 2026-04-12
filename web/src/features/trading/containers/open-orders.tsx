@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -79,7 +80,14 @@ export function OpenOrders({ pairId }: OpenOrdersProps) {
             <TableCell className="text-xs text-muted-foreground">
               {formatDate(order.created_at)}
             </TableCell>
-            <TableCell className="font-medium">{order.pair_id}</TableCell>
+            <TableCell className="font-medium">
+              <Link
+                to={`/orders/${order.id}`}
+                className="hover:underline"
+              >
+                {order.pair_id}
+              </Link>
+            </TableCell>
             <TableCell>
               <span
                 className={

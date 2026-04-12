@@ -98,7 +98,7 @@ func RunNotificationSvc(c *urfavecli.Context) error {
 
 	app.Use(recover.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
+		AllowOrigins: cfg.CorsOrigins,
 		AllowMethods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
 		AllowHeaders: "Origin,Content-Type,Accept,Authorization,X-Request-Id",
 	}))
@@ -115,6 +115,7 @@ func RunNotificationSvc(c *urfavecli.Context) error {
 	if httpPort == 0 {
 		httpPort = 8086
 	}
+	httpserver.LogRoutes(app, "notification-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)
 	errCh := make(chan error, 1)
 	go func() {
@@ -139,7 +140,9 @@ func RunNotificationSvc(c *urfavecli.Context) error {
 	}
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_ = app.ShutdownWithContext(shutdownCtx)
+	if err := app.ShutdownWithContext(shutdownCtx); err != nil {
+		log.Error("http shutdown error", "error", err)
+	}
 
 	return nil
 }

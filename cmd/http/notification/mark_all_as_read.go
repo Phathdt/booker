@@ -10,7 +10,10 @@ import (
 // MarkAllAsRead marks all notifications as read for the authenticated user.
 func MarkAllAsRead(svc interfaces.NotificationService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		userID := c.Locals("user_id").(string)
+		userID, ok := c.Locals("user_id").(string)
+		if !ok || userID == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
+		}
 
 		count, err := svc.MarkAllAsRead(c.UserContext(), userID)
 		if err != nil {

@@ -37,6 +37,7 @@ func (c *Client) ReadPump() {
 		c.conn.Close()
 	}()
 
+	c.conn.SetReadLimit(4096)
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error {
 		c.conn.SetReadDeadline(time.Now().Add(pongWait))

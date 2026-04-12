@@ -31,7 +31,10 @@ func ListOrders(orderSvc interfaces.OrderService) fiber.Handler {
 			return err
 		}
 
-		userID := c.Locals("user_id").(string)
+		userID, ok := c.Locals("user_id").(string)
+		if !ok || userID == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
+		}
 		orders, err := orderSvc.ListOrders(c.UserContext(), userID, &req)
 		if err != nil {
 			return err

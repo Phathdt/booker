@@ -131,7 +131,7 @@ func RunWalletSvc(c *urfavecli.Context) error {
 
 	app.Use(recover.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
+		AllowOrigins: cfg.CorsOrigins,
 		AllowMethods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
 		AllowHeaders: "Origin,Content-Type,Accept,Authorization,X-Request-Id",
 	}))
@@ -141,6 +141,7 @@ func RunWalletSvc(c *urfavecli.Context) error {
 
 	walletHTTP.RegisterRoutes(app, walletService, tokenService)
 
+	httpserver.LogRoutes(app, "wallet-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)
 	go func() {
 		log.With("address", httpAddr).Info("Wallet REST API started (Fiber)")
@@ -162,7 +163,9 @@ func RunWalletSvc(c *urfavecli.Context) error {
 	healthServer.SetServingStatus("wallet.v1.WalletService", healthpb.HealthCheckResponse_NOT_SERVING)
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_ = app.ShutdownWithContext(shutdownCtx)
+	if err := app.ShutdownWithContext(shutdownCtx); err != nil {
+		log.Error("http shutdown error", "error", err)
+	}
 	grpcServer.GracefulStop()
 
 	return nil

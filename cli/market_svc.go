@@ -116,7 +116,7 @@ func RunMarketSvc(c *urfavecli.Context) error {
 
 	app.Use(recover.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
+		AllowOrigins: cfg.CorsOrigins,
 		AllowMethods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
 		AllowHeaders: "Origin,Content-Type,Accept,Authorization,X-Request-Id",
 	}))
@@ -126,6 +126,7 @@ func RunMarketSvc(c *urfavecli.Context) error {
 
 	marketHTTP.RegisterRoutes(app, tickers, recentTrades, pairInfos, hub)
 
+	httpserver.LogRoutes(app, "market-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)
 	errCh := make(chan error, 1)
 	go func() {
@@ -148,7 +149,9 @@ func RunMarketSvc(c *urfavecli.Context) error {
 	cancel()
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
-	_ = app.ShutdownWithContext(shutdownCtx)
+	if err := app.ShutdownWithContext(shutdownCtx); err != nil {
+		log.Error("http shutdown error", "error", err)
+	}
 
 	return nil
 }

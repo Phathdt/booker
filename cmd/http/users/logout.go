@@ -17,7 +17,10 @@ import (
 // @Router       /api/v1/auth/logout [post]
 func Logout(uc *usecases.LogoutUseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		userID := c.Locals("user_id").(string)
+		userID, ok := c.Locals("user_id").(string)
+		if !ok || userID == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
+		}
 		if err := uc.Execute(c.UserContext(), userID); err != nil {
 			return err
 		}

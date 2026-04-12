@@ -17,7 +17,10 @@ import (
 // @Router       /api/v1/auth/me [get]
 func GetMe(userSvc interfaces.UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		userID := c.Locals("user_id").(string)
+		userID, ok := c.Locals("user_id").(string)
+		if !ok || userID == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
+		}
 		user, err := userSvc.GetByID(c.UserContext(), userID)
 		if err != nil {
 			return err

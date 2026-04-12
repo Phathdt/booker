@@ -206,6 +206,65 @@ func (_c *MockOrderService_GetOrder_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// GetOrderInternal provides a mock function with given fields: ctx, orderID
+func (_m *MockOrderService) GetOrderInternal(ctx context.Context, orderID string) (*entities.Order, error) {
+	ret := _m.Called(ctx, orderID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrderInternal")
+	}
+
+	var r0 *entities.Order
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*entities.Order, error)); ok {
+		return rf(ctx, orderID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *entities.Order); ok {
+		r0 = rf(ctx, orderID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.Order)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, orderID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockOrderService_GetOrderInternal_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrderInternal'
+type MockOrderService_GetOrderInternal_Call struct {
+	*mock.Call
+}
+
+// GetOrderInternal is a helper method to define mock.On call
+//   - ctx context.Context
+//   - orderID string
+func (_e *MockOrderService_Expecter) GetOrderInternal(ctx interface{}, orderID interface{}) *MockOrderService_GetOrderInternal_Call {
+	return &MockOrderService_GetOrderInternal_Call{Call: _e.mock.On("GetOrderInternal", ctx, orderID)}
+}
+
+func (_c *MockOrderService_GetOrderInternal_Call) Run(run func(ctx context.Context, orderID string)) *MockOrderService_GetOrderInternal_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockOrderService_GetOrderInternal_Call) Return(_a0 *entities.Order, _a1 error) *MockOrderService_GetOrderInternal_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockOrderService_GetOrderInternal_Call) RunAndReturn(run func(context.Context, string) (*entities.Order, error)) *MockOrderService_GetOrderInternal_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListOrders provides a mock function with given fields: ctx, userID, req
 func (_m *MockOrderService) ListOrders(ctx context.Context, userID string, req *dto.ListOrdersDTO) ([]*entities.Order, error) {
 	ret := _m.Called(ctx, userID, req)

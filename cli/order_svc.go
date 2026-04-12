@@ -160,7 +160,7 @@ func RunOrderSvc(c *urfavecli.Context) error {
 
 	app.Use(recover.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
+		AllowOrigins: cfg.CorsOrigins,
 		AllowMethods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
 		AllowHeaders: "Origin,Content-Type,Accept,Authorization,X-Request-Id",
 	}))
@@ -170,6 +170,7 @@ func RunOrderSvc(c *urfavecli.Context) error {
 
 	orderHTTP.RegisterRoutes(app, orderService, tokenService)
 
+	httpserver.LogRoutes(app, "order-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)
 	go func() {
 		log.With("address", httpAddr).Info("Order REST API started (Fiber)")
@@ -191,7 +192,9 @@ func RunOrderSvc(c *urfavecli.Context) error {
 	healthServer.SetServingStatus("order.v1.OrderService", healthpb.HealthCheckResponse_NOT_SERVING)
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_ = app.ShutdownWithContext(shutdownCtx)
+	if err := app.ShutdownWithContext(shutdownCtx); err != nil {
+		log.Error("http shutdown error", "error", err)
+	}
 	grpcServer.GracefulStop()
 	walletConn.Close()
 

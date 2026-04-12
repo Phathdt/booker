@@ -22,21 +22,11 @@ func NewWalletRepository(pool *pgxpool.Pool) interfaces.WalletRepository {
 }
 
 func (r *walletRepository) GetOrCreate(ctx context.Context, userID, assetID string) (*entities.Wallet, error) {
-	// Try insert first — returns row if created
 	row, err := r.q.GetOrCreateWallet(ctx, gen.GetOrCreateWalletParams{
 		UserID: userID, AssetID: assetID,
 	})
-	if err != nil && err != pgx.ErrNoRows {
+	if err != nil {
 		return nil, err
-	}
-	// Conflict (already exists) — fetch existing
-	if err == pgx.ErrNoRows {
-		row, err = r.q.GetWalletByUserAndAsset(ctx, gen.GetWalletByUserAndAssetParams{
-			UserID: userID, AssetID: assetID,
-		})
-		if err != nil {
-			return nil, domain.ErrWalletNotFound.Wrap(err)
-		}
 	}
 	return toEntity(row), nil
 }

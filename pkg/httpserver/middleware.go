@@ -53,6 +53,22 @@ func LoggingMiddleware() fiber.Handler {
 	}
 }
 
+// LogRoutes logs all registered routes on the Fiber app at startup.
+func LogRoutes(app *fiber.App, serviceName string) {
+	for _, routes := range app.Stack() {
+		for _, route := range routes {
+			if route.Path == "/" || route.Method == "HEAD" {
+				continue
+			}
+			slog.Info("route registered",
+				slog.String("service", serviceName),
+				slog.String("method", route.Method),
+				slog.String("path", route.Path),
+			)
+		}
+	}
+}
+
 // TracingMiddleware creates an OTel span for each HTTP request.
 func TracingMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {

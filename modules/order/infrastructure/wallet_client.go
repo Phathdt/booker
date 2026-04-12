@@ -54,7 +54,7 @@ func mapWalletError(err error) error {
 	case codes.InvalidArgument:
 		return domain.ErrInsufficientBalance
 	case codes.NotFound:
-		return domain.ErrInsufficientBalance
+		return domain.ErrWalletNotFound.Wrap(err)
 	case codes.Unavailable, codes.DeadlineExceeded:
 		return domain.ErrWalletServiceUnavailable.Wrap(err)
 	default:

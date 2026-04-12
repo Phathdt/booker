@@ -9,6 +9,7 @@ import (
 	"booker/modules/users/domain/entities"
 	"booker/modules/users/domain/interfaces/mocks"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"golang.org/x/crypto/bcrypt"
@@ -18,7 +19,7 @@ func TestUserService_Create_Success(t *testing.T) {
 	repo := mocks.NewMockUserRepository(t)
 	svc := NewUserService(repo)
 
-	repo.EXPECT().GetByEmail(mock.Anything, "test@example.com").Return(nil, domain.ErrUserNotFound)
+	repo.EXPECT().GetByEmail(mock.Anything, "test@example.com").Return(nil, pgx.ErrNoRows)
 	repo.EXPECT().Create(mock.Anything, "test@example.com", mock.AnythingOfType("string"), "user").
 		Return(&entities.User{
 			ID:    "uuid-1",
@@ -39,7 +40,7 @@ func TestUserService_Create_HashError(t *testing.T) {
 
 	// Password too long for bcrypt (>72 bytes triggers error)
 	longPassword := string(make([]byte, 100))
-	repo.EXPECT().GetByEmail(mock.Anything, "test@example.com").Return(nil, fmt.Errorf("not found"))
+	repo.EXPECT().GetByEmail(mock.Anything, "test@example.com").Return(nil, pgx.ErrNoRows)
 
 	user, err := svc.Create(context.Background(), "test@example.com", longPassword)
 	assert.Error(t, err)

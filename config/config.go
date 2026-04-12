@@ -16,6 +16,8 @@ type Config struct {
 	Logger   LoggerConfig   `mapstructure:"logger"`
 	OTel     OTelConfig     `mapstructure:"otel"`
 
+	CorsOrigins string `mapstructure:"cors__origins"`
+
 	// Service discovery
 	UsersService    ServiceConfig `mapstructure:"users_service"`
 	WalletService   ServiceConfig `mapstructure:"wallet_service"`
@@ -64,6 +66,7 @@ func LoadConfig(path string) (*Config, error) {
 	v.SetConfigFile(path)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "__"))
 	v.AutomaticEnv()
+	v.SetDefault("cors__origins", "*")
 
 	if err := v.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("read config: %w", err)
@@ -79,6 +82,7 @@ func LoadConfig(path string) (*Config, error) {
 		"wallet_service.address":   "WALLET_SERVICE__ADDRESS",
 		"matching_service.address": "MATCHING_SERVICE__ADDRESS",
 		"order_service.address":    "ORDER_SERVICE__ADDRESS",
+		"cors__origins":            "CORS__ORIGINS",
 	}
 	for key, env := range envBindings {
 		_ = v.BindEnv(key, env)
@@ -103,5 +107,23 @@ func LoadConfig(path string) (*Config, error) {
 		cfg.Logger.Format = "text"
 	}
 
+	if err := cfg.Validate(); err != nil {
+		return nil, err
+	}
+
 	return &cfg, nil
+}
+
+// Validate checks that required configuration fields are set.
+func (c *Config) Validate() error {
+	if c.Database.URI == "" {
+		return fmt.Errorf("DATABASE__URI is required")
+	}
+	if c.JWT.Secret == "" {
+		return fmt.Errorf("JWT__SECRET is required")
+	}
+	if c.Redis.URI == "" {
+		return fmt.Errorf("REDIS__URI is required")
+	}
+	return nil
 }

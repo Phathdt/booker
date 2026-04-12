@@ -11,7 +11,10 @@ import (
 // UnreadCount returns the count of unread notifications.
 func UnreadCount(svc interfaces.NotificationService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		userID := c.Locals("user_id").(string)
+		userID, ok := c.Locals("user_id").(string)
+		if !ok || userID == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
+		}
 
 		count, err := svc.CountUnread(c.UserContext(), userID)
 		if err != nil {

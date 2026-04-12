@@ -17,7 +17,10 @@ import (
 // @Router       /api/v1/wallet [get]
 func GetBalances(walletSvc interfaces.WalletService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		userID := c.Locals("user_id").(string)
+		userID, ok := c.Locals("user_id").(string)
+		if !ok || userID == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
+		}
 
 		wallets, err := walletSvc.GetBalances(c.UserContext(), userID)
 		if err != nil {

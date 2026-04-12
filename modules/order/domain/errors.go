@@ -40,8 +40,14 @@ var (
 	ErrInsufficientBalance = &apperrors.BaseAppError{
 		Code: "INSUFFICIENT_BALANCE", Msg: "Insufficient balance to place order", HttpStatus: http.StatusBadRequest,
 	}
+	ErrWalletNotFound = &apperrors.BaseAppError{
+		Code: "WALLET_NOT_FOUND", Msg: "Wallet not found", HttpStatus: http.StatusNotFound,
+	}
 	ErrWalletServiceUnavailable = &apperrors.BaseAppError{
 		Code: "WALLET_SERVICE_UNAVAILABLE", Msg: "Wallet service temporarily unavailable", HttpStatus: http.StatusServiceUnavailable,
+	}
+	ErrFillQtyBackward = &apperrors.BaseAppError{
+		Code: "FILL_QTY_BACKWARD", Msg: "New filled quantity must not be less than current filled quantity", HttpStatus: http.StatusBadRequest,
 	}
 	ErrInvalidFillQty = &apperrors.BaseAppError{
 		Code: "INVALID_FILL_QTY", Msg: "Fill quantity exceeds order quantity", HttpStatus: http.StatusBadRequest,

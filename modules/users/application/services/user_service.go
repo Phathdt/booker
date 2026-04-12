@@ -2,12 +2,14 @@ package services
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"booker/modules/users/domain"
 	"booker/modules/users/domain/entities"
 	"booker/modules/users/domain/interfaces"
 
+	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,9 +26,12 @@ func (s *userService) Create(ctx context.Context, email, password string) (*enti
 	email = strings.ToLower(strings.TrimSpace(email))
 
 	// Check if email already exists
-	existing, _ := s.repo.GetByEmail(ctx, email)
-	if existing != nil {
+	existing, err := s.repo.GetByEmail(ctx, email)
+	if err == nil && existing != nil {
 		return nil, domain.ErrEmailAlreadyExists
+	}
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 12)

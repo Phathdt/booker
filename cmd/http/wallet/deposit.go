@@ -26,7 +26,10 @@ func Deposit(walletSvc interfaces.WalletService) fiber.Handler {
 			return err
 		}
 
-		userID := c.Locals("user_id").(string)
+		userID, ok := c.Locals("user_id").(string)
+		if !ok || userID == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
+		}
 		w, err := walletSvc.Deposit(c.UserContext(), userID, req.AssetID, req.Amount)
 		if err != nil {
 			return err

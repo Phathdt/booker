@@ -26,7 +26,7 @@ func NewOrderServer(orderSvc interfaces.OrderService) *OrderServer {
 }
 
 func (s *OrderServer) GetOrder(ctx context.Context, req *pb.GetOrderRequest) (*pb.OrderResponse, error) {
-	order, err := s.orderSvc.GetOrder(ctx, "", req.OrderId)
+	order, err := s.orderSvc.GetOrderInternal(ctx, req.OrderId)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}

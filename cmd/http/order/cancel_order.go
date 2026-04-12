@@ -27,7 +27,10 @@ func CancelOrder(orderSvc interfaces.OrderService) fiber.Handler {
 			return fiber.NewError(fiber.StatusBadRequest, "Invalid order ID format")
 		}
 
-		userID := c.Locals("user_id").(string)
+		userID, ok := c.Locals("user_id").(string)
+		if !ok || userID == "" {
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
+		}
 		order, err := orderSvc.CancelOrder(c.UserContext(), userID, orderID)
 		if err != nil {
 			return err

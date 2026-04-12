@@ -21,8 +21,14 @@ import (
 // @Router       /api/v1/users [get]
 func ListUsers(userSvc interfaces.UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		limit, _ := strconv.Atoi(c.Query("limit", "20"))
-		offset, _ := strconv.Atoi(c.Query("offset", "0"))
+		limit, err := strconv.Atoi(c.Query("limit", "20"))
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "Invalid limit parameter")
+		}
+		offset, err := strconv.Atoi(c.Query("offset", "0"))
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "Invalid offset parameter")
+		}
 
 		if limit <= 0 || limit > 100 {
 			limit = 20

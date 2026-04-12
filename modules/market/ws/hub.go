@@ -124,6 +124,16 @@ func (h *Hub) broadcast(channel, pair string, msg WSMessage) {
 	h.mu.RUnlock()
 
 	for _, client := range targets {
+		// Use RLock to verify client is still registered before sending.
+		// Between the snapshot above and this send, a client may have
+		// unregistered and had its send channel closed.
+		h.mu.RLock()
+		_, registered := h.clients[client]
+		h.mu.RUnlock()
+		if !registered {
+			continue
+		}
+
 		select {
 		case client.send <- payload:
 		default:

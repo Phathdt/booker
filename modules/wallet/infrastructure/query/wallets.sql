@@ -1,7 +1,7 @@
 -- name: GetOrCreateWallet :one
 INSERT INTO wallets (user_id, asset_id)
 VALUES ($1, $2)
-ON CONFLICT (user_id, asset_id) DO NOTHING
+ON CONFLICT (user_id, asset_id) DO UPDATE SET updated_at = wallets.updated_at
 RETURNING *;
 
 -- name: GetWalletByUserAndAsset :one

@@ -122,7 +122,7 @@ func RunUsersSvc(c *urfavecli.Context) error {
 
 	app.Use(recover.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
+		AllowOrigins: cfg.CorsOrigins,
 		AllowMethods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
 		AllowHeaders: "Origin,Content-Type,Accept,Authorization,X-Request-Id",
 	}))
@@ -133,7 +133,7 @@ func RunUsersSvc(c *urfavecli.Context) error {
 	// ForwardAuth endpoint for Traefik
 	app.Get("/auth/verify", func(fc *fiber.Ctx) error {
 		authHeader := fc.Get("Authorization")
-		if authHeader == "" || len(authHeader) < 8 || authHeader[:7] != "Bearer " {
+		if authHeader == "" || len(authHeader) <= 7 || authHeader[:7] != "Bearer " {
 			return fc.SendStatus(fiber.StatusUnauthorized)
 		}
 		claims, err := tokenService.ValidateAccessToken(fc.UserContext(), authHeader[7:])
@@ -148,6 +148,7 @@ func RunUsersSvc(c *urfavecli.Context) error {
 	// Register REST routes
 	usersHTTP.RegisterRoutes(app, userService, tokenService, registerUC, loginUC, refreshTokenUC, logoutUC)
 
+	httpserver.LogRoutes(app, "users-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)
 	go func() {
 		log.With("address", httpAddr).Info("Users REST API started (Fiber)")
@@ -163,7 +164,9 @@ func RunUsersSvc(c *urfavecli.Context) error {
 
 	log.Info("shutting down users service...")
 	healthServer.SetServingStatus("user.v1.UserService", healthpb.HealthCheckResponse_NOT_SERVING)
-	_ = app.Shutdown()
+	if err := app.Shutdown(); err != nil {
+		log.Error("http shutdown error", "error", err)
+	}
 	grpcServer.GracefulStop()
 
 	return nil

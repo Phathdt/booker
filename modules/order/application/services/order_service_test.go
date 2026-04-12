@@ -428,24 +428,32 @@ func TestGetOrder_NotFound(t *testing.T) {
 	assert.Equal(t, domain.ErrOrderNotFound, err)
 }
 
-func TestGetOrder_InterService_NoUserID(t *testing.T) {
+func TestGetOrder_EmptyUserID_ReturnsNotFound(t *testing.T) {
+	_, _, svc := newTestService(t)
+
+	order, err := svc.GetOrder(context.Background(), "", "order-1")
+	assert.Nil(t, order)
+	assert.Equal(t, domain.ErrOrderNotFound, err)
+}
+
+func TestGetOrderInternal_Success(t *testing.T) {
 	repo, _, svc := newTestService(t)
 
 	repo.EXPECT().GetByID(mock.Anything, "order-1").
 		Return(&entities.Order{ID: "order-1"}, nil)
 
-	order, err := svc.GetOrder(context.Background(), "", "order-1")
+	order, err := svc.GetOrderInternal(context.Background(), "order-1")
 	assert.NoError(t, err)
 	assert.Equal(t, "order-1", order.ID)
 }
 
-func TestGetOrder_InterService_NotFound(t *testing.T) {
+func TestGetOrderInternal_NotFound(t *testing.T) {
 	repo, _, svc := newTestService(t)
 
 	repo.EXPECT().GetByID(mock.Anything, "order-1").
 		Return(nil, domain.ErrOrderNotFound)
 
-	order, err := svc.GetOrder(context.Background(), "", "order-1")
+	order, err := svc.GetOrderInternal(context.Background(), "order-1")
 	assert.Nil(t, order)
 	assert.Equal(t, domain.ErrOrderNotFound, err)
 }
@@ -510,6 +518,8 @@ func TestUpdateOrderFill_Success(t *testing.T) {
 	repo, _, svc := newTestService(t)
 
 	filledQty := decimal.NewFromFloat(0.5)
+	repo.EXPECT().GetByID(mock.Anything, "order-1").
+		Return(&entities.Order{ID: "order-1", FilledQty: decimal.NewFromFloat(0.3), Status: "partial"}, nil)
 	repo.EXPECT().UpdateFilledQty(mock.Anything, "order-1", filledQty, "partial").
 		Return(&entities.Order{ID: "order-1", FilledQty: filledQty, Status: "partial"}, nil)
 
@@ -538,10 +548,24 @@ func TestUpdateOrderFill_OrderNotFillable(t *testing.T) {
 	repo, _, svc := newTestService(t)
 
 	filledQty := decimal.NewFromFloat(0.5)
+	repo.EXPECT().GetByID(mock.Anything, "order-1").
+		Return(&entities.Order{ID: "order-1", FilledQty: decimal.NewFromFloat(0.3), Status: "partial"}, nil)
 	repo.EXPECT().UpdateFilledQty(mock.Anything, "order-1", filledQty, "filled").
 		Return(nil, domain.ErrOrderNotFillable)
 
 	order, err := svc.UpdateOrderFill(context.Background(), "order-1", filledQty, "filled")
 	assert.Nil(t, order)
 	assert.Equal(t, domain.ErrOrderNotFillable, err)
+}
+
+func TestUpdateOrderFill_BackwardFill(t *testing.T) {
+	repo, _, svc := newTestService(t)
+
+	filledQty := decimal.NewFromFloat(0.2)
+	repo.EXPECT().GetByID(mock.Anything, "order-1").
+		Return(&entities.Order{ID: "order-1", FilledQty: decimal.NewFromFloat(0.5), Status: "partial"}, nil)
+
+	order, err := svc.UpdateOrderFill(context.Background(), "order-1", filledQty, "partial")
+	assert.Nil(t, order)
+	assert.Equal(t, domain.ErrFillQtyBackward, err)
 }

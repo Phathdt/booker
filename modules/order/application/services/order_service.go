@@ -79,7 +79,7 @@ func (s *orderService) CreateOrder(
 	}
 
 	if err := s.walletClient.HoldBalance(ctx, userID, holdAsset, holdAmount); err != nil {
-		return nil, domain.ErrInsufficientBalance
+		return nil, err
 	}
 
 	order := &entities.Order{
@@ -178,16 +178,20 @@ func (s *orderService) CancelOrder(ctx context.Context, userID, orderID string) 
 }
 
 func (s *orderService) GetOrder(ctx context.Context, userID, orderID string) (*entities.Order, error) {
-	// Empty userID = inter-service call (gRPC), no user scoping
 	if userID == "" {
-		order, err := s.repo.GetByID(ctx, orderID)
-		if err != nil {
-			return nil, domain.ErrOrderNotFound
-		}
-		return order, nil
+		return nil, domain.ErrOrderNotFound
 	}
 
 	order, err := s.repo.GetByIDAndUser(ctx, orderID, userID)
+	if err != nil {
+		return nil, domain.ErrOrderNotFound
+	}
+	return order, nil
+}
+
+// GetOrderInternal retrieves an order without user scoping, for inter-service use only.
+func (s *orderService) GetOrderInternal(ctx context.Context, orderID string) (*entities.Order, error) {
+	order, err := s.repo.GetByID(ctx, orderID)
 	if err != nil {
 		return nil, domain.ErrOrderNotFound
 	}
@@ -228,6 +232,15 @@ func (s *orderService) UpdateOrderFill(
 	// Validate status transition
 	if status != "partial" && status != "filled" {
 		return nil, domain.ErrOrderNotFillable
+	}
+
+	// Fetch current order to validate fill quantity is monotonically increasing
+	current, err := s.repo.GetByID(ctx, orderID)
+	if err != nil {
+		return nil, domain.ErrOrderNotFound
+	}
+	if filledQty.LessThan(current.FilledQty) {
+		return nil, domain.ErrFillQtyBackward
 	}
 
 	order, err := s.repo.UpdateFilledQty(ctx, orderID, filledQty, status)

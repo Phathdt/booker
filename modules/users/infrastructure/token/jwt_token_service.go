@@ -82,20 +82,30 @@ func (s *jwtTokenService) ValidateAccessToken(ctx context.Context, tokenStr stri
 		return nil, domain.ErrInvalidToken
 	}
 
-	tokenType, _ := claims["type"].(string)
-	if tokenType != "access" {
+	tokenType, ok := claims["type"].(string)
+	if !ok || tokenType != "access" {
 		return nil, domain.ErrInvalidToken
 	}
 
-	jti, _ := claims["jti"].(string)
+	jti, ok := claims["jti"].(string)
+	if !ok || jti == "" {
+		return nil, domain.ErrInvalidToken
+	}
 	if err := s.redis.Get(ctx, jtiKey(jti)).Err(); err != nil {
 		return nil, domain.ErrInvalidToken
 	}
 
+	sub, ok1 := claims["sub"].(string)
+	email, ok2 := claims["email"].(string)
+	role, ok3 := claims["role"].(string)
+	if !ok1 || !ok2 || !ok3 {
+		return nil, domain.ErrInvalidToken
+	}
+
 	return &entities.AccessClaims{
-		UserID: claims["sub"].(string),
-		Email:  claims["email"].(string),
-		Role:   claims["role"].(string),
+		UserID: sub,
+		Email:  email,
+		Role:   role,
 		JTI:    jti,
 	}, nil
 }
@@ -106,12 +116,15 @@ func (s *jwtTokenService) ValidateRefreshToken(ctx context.Context, tokenStr str
 		return nil, domain.ErrInvalidToken
 	}
 
-	tokenType, _ := claims["type"].(string)
-	if tokenType != "refresh" {
+	tokenType, ok := claims["type"].(string)
+	if !ok || tokenType != "refresh" {
 		return nil, domain.ErrInvalidToken
 	}
 
-	jti, _ := claims["jti"].(string)
+	jti, ok := claims["jti"].(string)
+	if !ok || jti == "" {
+		return nil, domain.ErrInvalidToken
+	}
 
 	// Single-use: delete on validation to prevent replay
 	deleted, err := s.redis.Del(ctx, jtiKey(jti)).Result()
@@ -119,8 +132,13 @@ func (s *jwtTokenService) ValidateRefreshToken(ctx context.Context, tokenStr str
 		return nil, domain.ErrInvalidToken
 	}
 
+	sub, ok := claims["sub"].(string)
+	if !ok {
+		return nil, domain.ErrInvalidToken
+	}
+
 	return &entities.RefreshClaims{
-		UserID: claims["sub"].(string),
+		UserID: sub,
 		JTI:    jti,
 	}, nil
 }

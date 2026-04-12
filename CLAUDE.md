@@ -17,14 +17,14 @@ Go 1.26, Fiber (REST), gRPC (inter-service), SQLC (Postgres), Redis, NATS JetStr
 
 ### Services
 
-| Service | Command | HTTP | gRPC | Status |
-|---------|---------|------|------|--------|
-| users-svc | `./main users-svc` | :8081 | :50051 | Done |
-| wallet-svc | `./main wallet-svc` | :8082 | :50052 | Planned |
-| order-svc | `./main order-svc` | :8083 | :50053 | Planned |
-| matching-svc | `./main matching-svc` | :8084 | :50054 | Planned |
-| market-svc | `./main market-svc` | :8085 | :50055 | Planned |
-| notification-svc | `./main notification-svc` | — | — | Planned |
+| Service          | Command                   | HTTP  | gRPC   | Status |
+| ---------------- | ------------------------- | ----- | ------ | ------ |
+| users-svc        | `./main users-svc`        | :8081 | :50051 | Done   |
+| wallet-svc       | `./main wallet-svc`       | :8082 | :50052 | Done   |
+| order-svc        | `./main order-svc`        | :8083 | :50053 | Done   |
+| matching-svc     | `./main matching-svc`     | :8084 | :50054 | Done   |
+| market-svc       | `./main market-svc`       | :8085 | —      | Done   |
+| notification-svc | `./main notification-svc` | :8086 | —      | Done   |
 
 ## Code Structure
 
@@ -66,7 +66,7 @@ make build              # Build binary to bin/main
 make run-users-svc      # Run users service locally
 make migrate-up         # Run migrations
 make migrate-down       # Rollback last migration
-make seed               # Seed assets + trading pairs
+make seed               # Seed assets, trading pairs + 100 test accounts
 make sqlc-generate      # Regenerate SQLC code
 make proto-generate     # Regenerate protobuf
 make mock               # Regenerate mockery mocks

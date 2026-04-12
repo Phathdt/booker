@@ -3,6 +3,7 @@ package engine
 import (
 	"context"
 	"fmt"
+	"time"
 )
 
 // Engine runs a matching loop for a single trading pair in a dedicated goroutine.
@@ -71,11 +72,18 @@ func (e *Engine) Cancel(orderID string) error {
 	return res.Err
 }
 
-// Stop gracefully stops the engine goroutine.
+// Stop gracefully stops the engine goroutine with a timeout.
 func (e *Engine) Stop() {
 	resultCh := make(chan Result, 1)
-	e.cmdCh <- Command{Type: CmdStop, ResultCh: resultCh}
-	<-resultCh
+	select {
+	case e.cmdCh <- Command{Type: CmdStop, ResultCh: resultCh}:
+	case <-time.After(5 * time.Second):
+		return
+	}
+	select {
+	case <-resultCh:
+	case <-time.After(5 * time.Second):
+	}
 }
 
 // Preload inserts orders into the book without triggering matching (crash recovery).

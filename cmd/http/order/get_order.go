@@ -1,6 +1,7 @@
 package order
 
 import (
+	_ "booker/modules/order/application/dto" // swagger
 	"booker/modules/order/domain/interfaces"
 	"booker/pkg/httpserver"
 

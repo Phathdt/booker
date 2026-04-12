@@ -13,12 +13,17 @@ import (
 )
 
 type orderService struct {
-	repo         interfaces.OrderRepository
-	walletClient interfaces.WalletClient
+	repo           interfaces.OrderRepository
+	walletClient   interfaces.WalletClient
+	matchingClient interfaces.MatchingClient
 }
 
-func NewOrderService(repo interfaces.OrderRepository, walletClient interfaces.WalletClient) interfaces.OrderService {
-	return &orderService{repo: repo, walletClient: walletClient}
+func NewOrderService(
+	repo interfaces.OrderRepository,
+	walletClient interfaces.WalletClient,
+	matchingClient interfaces.MatchingClient,
+) interfaces.OrderService {
+	return &orderService{repo: repo, walletClient: walletClient, matchingClient: matchingClient}
 }
 
 func (s *orderService) CreateOrder(
@@ -93,6 +98,14 @@ func (s *orderService) CreateOrder(
 		return nil, err
 	}
 
+	// Submit to matching engine (fire-and-forget for REST response)
+	if s.matchingClient != nil {
+		if err := s.matchingClient.SubmitOrder(ctx, created); err != nil {
+			slog.WarnContext(ctx, "failed to submit order to matching engine",
+				"order_id", created.ID, "error", err.Error())
+		}
+	}
+
 	return created, nil
 }
 
@@ -122,7 +135,15 @@ func (s *orderService) CancelOrder(ctx context.Context, userID, orderID string) 
 		releaseAmount = remainingQty
 	}
 
-	// Release wallet FIRST — if fails, order stays active (safe)
+	// Remove from matching engine book (best-effort)
+	if s.matchingClient != nil {
+		if err := s.matchingClient.CancelOrder(ctx, order.PairID, orderID); err != nil {
+			slog.WarnContext(ctx, "failed to cancel order in matching engine",
+				"order_id", orderID, "error", err.Error())
+		}
+	}
+
+	// Release wallet — if fails, order stays active (safe)
 	if err := s.walletClient.ReleaseBalance(ctx, userID, releaseAsset, releaseAmount); err != nil {
 		return nil, domain.ErrWalletServiceUnavailable.Wrap(err)
 	}

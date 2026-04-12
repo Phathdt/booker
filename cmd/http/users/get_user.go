@@ -1,6 +1,7 @@
 package users
 
 import (
+	_ "booker/modules/users/application/dto" // swagger
 	"booker/modules/users/domain/interfaces"
 	"booker/pkg/httpserver"
 

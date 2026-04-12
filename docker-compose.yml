@@ -249,3 +249,34 @@ services:
       - "traefik.http.routers.orders.service=order-svc"
       # Service port
       - "traefik.http.services.order-svc.loadbalancer.server.port=8083"
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=:50053"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  matching-svc:
+    image: booker:local
+    command:
+      ["./main", "matching-svc", "--config", "config.yml", "--port", "50054"]
+    env_file: .env
+    environment:
+      - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
+      - NATS__URL=nats://nats:4222
+      - OTEL__ENDPOINT=otel-collector:4317
+      - WALLET_SERVICE__ADDRESS=wallet-svc:50052
+      - ORDER_SERVICE__ADDRESS=order-svc:50053
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      wallet-svc:
+        condition: service_healthy
+      order-svc:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=:50054"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

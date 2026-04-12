@@ -16,3 +16,12 @@ packages:
       OrderRepository:
       OrderService:
       WalletClient:
+      MatchingClient:
+  booker/modules/matching/domain/interfaces:
+    interfaces:
+      TradeRepository:
+      MatchingService:
+      WalletClient:
+        config:
+          mockname: MockMatchingWalletClient
+      OrderClient:

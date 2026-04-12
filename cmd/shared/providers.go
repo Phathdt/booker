@@ -8,6 +8,7 @@ import (
 	"booker/pkg/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -35,6 +36,20 @@ func InitDatabase(ctx context.Context, uri string, log logger.Logger) (*pgxpool.
 	}
 
 	return pool, nil
+}
+
+// InitNATS creates a NATS connection and JetStream context.
+func InitNATS(url string) (*nats.Conn, nats.JetStreamContext, error) {
+	nc, err := nats.Connect(url)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to connect to NATS: %w", err)
+	}
+	js, err := nc.JetStream()
+	if err != nil {
+		nc.Close()
+		return nil, nil, fmt.Errorf("failed to init JetStream: %w", err)
+	}
+	return nc, js, nil
 }
 
 // InitRedis creates and initializes the Redis client.

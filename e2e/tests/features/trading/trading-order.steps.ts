@@ -67,6 +67,14 @@ When('I try to submit the buy order without filling any fields', async function 
   await this.page.waitForTimeout(TimeoutValue.STRATEGIC_ACTION_DELAY);
 });
 
+When('I cancel the first open order', async function (this: BrowserWorld) {
+  logger.info('Cancelling the first open order');
+  const tradingPage = new TradingPage(this.page);
+  this.data.openOrderCountBeforeCancel = await tradingPage.getOpenOrderCount();
+  await tradingPage.cancelFirstOpenOrder();
+  await this.page.waitForTimeout(TimeoutValue.STRATEGIC_PART_DELAY);
+});
+
 // ============================================================================
 // THEN STEPS
 // ============================================================================
@@ -102,4 +110,30 @@ Then('the buy order should not be submitted', async function (this: BrowserWorld
   logger.info('Verifying buy order not submitted');
   const tradingPage = new TradingPage(this.page);
   await tradingPage.expectOnTradingPage();
+});
+
+Then('the cancelled order should be removed from the open orders', async function (this: BrowserWorld) {
+  logger.info('Verifying cancelled order removed from open orders');
+  const tradingPage = new TradingPage(this.page);
+  const countBefore = this.data.openOrderCountBeforeCancel as number;
+  if (countBefore <= 1) {
+    await tradingPage.expectNoOpenOrders();
+  } else {
+    const countAfter = await tradingPage.getOpenOrderCount();
+    expect(countAfter).toBeLessThan(countBefore);
+  }
+});
+
+Then('I should see an error message', async function (this: BrowserWorld) {
+  logger.info('Verifying error toast');
+  const toast = this.page.locator('[data-sonner-toast][data-type="error"]');
+  await expect(toast).toBeVisible({ timeout: TimeoutValue.ACTION });
+  logger.info('Error toast displayed');
+});
+
+Then('the matching orders should be executed', async function (this: BrowserWorld) {
+  logger.info('Verifying matching orders executed');
+  const tradingPage = new TradingPage(this.page);
+  await tradingPage.expectOrderExecuted();
+  logger.info('Order execution verified');
 });

@@ -13,21 +13,14 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api/v1/auth": {
-        target: "http://localhost:8081",
+      "/api": {
+        target: "http://api.booker.localhost",
         changeOrigin: true,
       },
-      "/api/v1/users": {
-        target: "http://localhost:8081",
+      "/ws": {
+        target: "http://api.booker.localhost",
         changeOrigin: true,
-      },
-      "/api/v1/wallet": {
-        target: "http://localhost:8082",
-        changeOrigin: true,
-      },
-      "/api/v1/orders": {
-        target: "http://localhost:8083",
-        changeOrigin: true,
+        ws: true,
       },
     },
   },

@@ -136,16 +136,16 @@ services:
       - "traefik.http.middlewares.forward-auth.forwardauth.trustForwardHeader=true"
       - "traefik.http.middlewares.forward-auth.forwardauth.authResponseHeaders=X-User-Id,X-Role"
       # Public auth routes (no auth required)
-      - "traefik.http.routers.auth-public.rule=PathPrefix(`/api/v1/auth/register`) || PathPrefix(`/api/v1/auth/login`) || PathPrefix(`/api/v1/auth/refresh`)"
+      - "traefik.http.routers.auth-public.rule=Host(`api.booker.localhost`) && (PathPrefix(`/api/v1/auth/register`) || PathPrefix(`/api/v1/auth/login`) || PathPrefix(`/api/v1/auth/refresh`))"
       - "traefik.http.routers.auth-public.entrypoints=web"
       - "traefik.http.routers.auth-public.service=users-svc"
       # Protected auth routes
-      - "traefik.http.routers.auth-protected.rule=PathPrefix(`/api/v1/auth/logout`) || PathPrefix(`/api/v1/auth/me`)"
+      - "traefik.http.routers.auth-protected.rule=Host(`api.booker.localhost`) && (PathPrefix(`/api/v1/auth/logout`) || PathPrefix(`/api/v1/auth/me`))"
       - "traefik.http.routers.auth-protected.entrypoints=web"
       - "traefik.http.routers.auth-protected.middlewares=forward-auth"
       - "traefik.http.routers.auth-protected.service=users-svc"
       # Users routes (protected)
-      - "traefik.http.routers.users.rule=PathPrefix(`/api/v1/users`)"
+      - "traefik.http.routers.users.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/users`)"
       - "traefik.http.routers.users.entrypoints=web"
       - "traefik.http.routers.users.middlewares=forward-auth"
       - "traefik.http.routers.users.service=users-svc"
@@ -181,7 +181,7 @@ services:
     labels:
       - "traefik.enable=true"
       # Wallet routes (all protected via ForwardAuth)
-      - "traefik.http.routers.wallet.rule=PathPrefix(`/api/v1/wallet`)"
+      - "traefik.http.routers.wallet.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/wallet`)"
       - "traefik.http.routers.wallet.entrypoints=web"
       - "traefik.http.routers.wallet.middlewares=forward-auth"
       - "traefik.http.routers.wallet.service=wallet-svc"
@@ -201,7 +201,7 @@ services:
         condition: service_completed_successfully
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.swagger.rule=PathPrefix(`/swagger`)"
+      - "traefik.http.routers.swagger.rule=Host(`api.booker.localhost`) && PathPrefix(`/swagger`)"
       - "traefik.http.routers.swagger.entrypoints=web"
       - "traefik.http.routers.swagger.service=swagger-svc"
       - "traefik.http.services.swagger-svc.loadbalancer.server.port=8090"
@@ -243,7 +243,7 @@ services:
     labels:
       - "traefik.enable=true"
       # Order routes (all protected via ForwardAuth)
-      - "traefik.http.routers.orders.rule=PathPrefix(`/api/v1/orders`)"
+      - "traefik.http.routers.orders.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/orders`)"
       - "traefik.http.routers.orders.entrypoints=web"
       - "traefik.http.routers.orders.middlewares=forward-auth"
       - "traefik.http.routers.orders.service=order-svc"
@@ -299,10 +299,54 @@ services:
         condition: service_started
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.market.rule=PathPrefix(`/api/v1/market`)"
+      - "traefik.http.routers.market.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/market`)"
       - "traefik.http.routers.market.entrypoints=web"
       - "traefik.http.routers.market.service=market-svc"
-      - "traefik.http.routers.market-ws.rule=Path(`/ws`)"
+      - "traefik.http.routers.market-ws.rule=Host(`api.booker.localhost`) && Path(`/ws`)"
       - "traefik.http.routers.market-ws.entrypoints=web"
       - "traefik.http.routers.market-ws.service=market-svc"
       - "traefik.http.services.market-svc.loadbalancer.server.port=8085"
+
+  notification-svc:
+    image: booker:local
+    command:
+      ["./main", "notification-svc", "--config", "config.yml", "--http-port", "8086"]
+    env_file: .env
+    environment:
+      - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
+      - REDIS__URI=redis://:@redis-db:6379/0
+      - NATS__URL=nats://nats:4222
+      - OTEL__ENDPOINT=otel-collector:4317
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis-db:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    labels:
+      - "traefik.enable=true"
+      # Notification REST routes (protected via ForwardAuth)
+      - "traefik.http.routers.notifications.rule=Host(`api.booker.localhost`) && PathPrefix(`/api/v1/notifications`) && !Path(`/api/v1/notifications/ws`)"
+      - "traefik.http.routers.notifications.entrypoints=web"
+      - "traefik.http.routers.notifications.middlewares=forward-auth"
+      - "traefik.http.routers.notifications.service=notification-svc"
+      # Notification WebSocket (auth handled in-app via token)
+      - "traefik.http.routers.notifications-ws.rule=Host(`api.booker.localhost`) && Path(`/api/v1/notifications/ws`)"
+      - "traefik.http.routers.notifications-ws.entrypoints=web"
+      - "traefik.http.routers.notifications-ws.service=notification-svc"
+      # Service port
+      - "traefik.http.services.notification-svc.loadbalancer.server.port=8086"
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`booker.localhost`)"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.routers.web.service=web"
+      - "traefik.http.services.web.loadbalancer.server.port=80"

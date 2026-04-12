@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v6.4
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Check formatting
@@ -30,7 +30,7 @@ jobs:
     needs: format
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v6.4
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - uses: bufbuild/buf-setup-action@v1
@@ -45,7 +45,7 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v6.4
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - uses: bufbuild/buf-setup-action@v1
@@ -60,7 +60,7 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v6.4
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - uses: bufbuild/buf-setup-action@v1

@@ -6,15 +6,11 @@ interface MarketTradesResponse {
   trades: IMarketTrade[];
 }
 
-interface PairsResponse {
-  pairs: ITradingPair[];
-}
-
 export class MarketModel {
   private static service = new Service(MARKET_ENDPOINT.PAIRS);
 
-  static getPairs(): Promise<PairsResponse> {
-    return MarketModel.service.get<PairsResponse>(MARKET_ENDPOINT.PAIRS);
+  static getPairs(): Promise<ITradingPair[]> {
+    return MarketModel.service.get<ITradingPair[]>(MARKET_ENDPOINT.PAIRS);
   }
 
   static getTicker(pair: string): Promise<ITicker> {

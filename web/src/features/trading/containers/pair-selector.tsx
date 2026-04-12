@@ -13,8 +13,7 @@ interface PairSelectorProps {
 }
 
 export function PairSelector({ value, onChange }: PairSelectorProps) {
-  const { data, isLoading } = useQueryPairs();
-  const pairs = data?.pairs ?? [];
+  const { data: pairs = [], isLoading } = useQueryPairs();
 
   return (
     <Select value={value} onValueChange={(v) => v && onChange(v)} disabled={isLoading}>

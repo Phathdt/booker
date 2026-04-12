@@ -10,8 +10,7 @@ import { TradeHistory } from "../containers/trade-history";
 import { useQueryPairs } from "../data/queries";
 
 export function TradingPage() {
-  const { data, isLoading } = useQueryPairs();
-  const pairs = data?.pairs ?? [];
+  const { data: pairs = [], isLoading } = useQueryPairs();
 
   const [selectedPair, setSelectedPair] = useState<string>("");
 

@@ -19,11 +19,15 @@ import (
 	"booker/pkg/httpserver"
 	pkgnats "booker/pkg/nats"
 	bookerOtel "booker/pkg/otel"
+	pb "booker/proto/matching/v1/gen"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	urfavecli "github.com/urfave/cli/v2"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	_ "booker/docs"
 )
@@ -86,6 +90,18 @@ func RunMarketSvc(c *urfavecli.Context) error {
 
 	log.With("pairs", len(tradingPairs)).Info("loaded trading pairs")
 
+	// gRPC client to matching-svc for order book queries
+	matchingConn, err := grpc.NewClient(cfg.MatchingService.Address,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to connect to matching-svc: %w", err)
+	}
+	defer matchingConn.Close()
+	matchingClient := pb.NewMatchingServiceClient(matchingConn)
+	log.With("address", cfg.MatchingService.Address).Info("connected to matching-svc gRPC")
+
 	// WebSocket Hub
 	hub := ws.NewHub()
 	go hub.Run(ctx)
@@ -134,7 +150,7 @@ func RunMarketSvc(c *urfavecli.Context) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	marketHTTP.RegisterRoutes(app, tickers, recentTrades, pairInfos, hub)
+	marketHTTP.RegisterRoutes(app, tickers, recentTrades, pairInfos, hub, matchingClient)
 
 	httpserver.LogRoutes(app, "market-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)

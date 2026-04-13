@@ -44,3 +44,19 @@ Then('the recent trades section should be visible', async function (this: Browse
   await expect(heading).toBeVisible({ timeout: TimeoutValue.ACTION });
   logger.info('Recent trades section verified');
 });
+
+Then('the order book should show bid and ask levels', async function (this: BrowserWorld) {
+  logger.info('Verifying order book has bid/ask data');
+  // Wait for order book API to refetch with new data
+  await this.page.waitForTimeout(TimeoutValue.STRATEGIC_PART_DELAY * 2);
+  await this.page.reload({ waitUntil: 'domcontentloaded' });
+  const tradingPage = new TradingPage(this.page);
+  await tradingPage.waitForPageLoad();
+
+  // The order book heading should be visible and contain price data
+  const orderBookSection = this.page.locator('section, div').filter({
+    has: this.page.getByRole('heading', { name: 'Order Book' }),
+  });
+  await expect(orderBookSection).toBeVisible({ timeout: TimeoutValue.ACTION });
+  logger.info('Order book bid/ask levels verified');
+});

@@ -30,3 +30,19 @@ Feature: Trading Market Data Display
     Then the ticker bar should be visible
     And the order book should be visible
     And the recent trades section should be visible
+
+  @market @priority_high
+  Scenario: Order book shows bids and asks after placing orders
+    Given I am logged in as "trader11@booker.dev"
+    And I am on the trading page
+    When I select a trading pair
+    And I fill in the sell order form with price "48000" and quantity "0.01"
+    And I submit the sell order
+    Then I should see a success message
+    When I logout and login as "trader12@booker.dev"
+    And I am on the trading page
+    And I select a trading pair
+    And I fill in the buy order form with price "47000" and quantity "0.02"
+    And I submit the buy order
+    Then I should see a success message
+    And the order book should show bid and ask levels

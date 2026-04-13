@@ -153,6 +153,34 @@ func (ob *OrderBook) OrderCount() int {
 	return len(ob.index)
 }
 
+// Snapshot returns an aggregated view of the order book.
+func (ob *OrderBook) Snapshot() *OrderBookSnapshot {
+	return &OrderBookSnapshot{
+		PairID: ob.pairID,
+		Bids:   aggregateLevels(ob.bids),
+		Asks:   aggregateLevels(ob.asks),
+	}
+}
+
+func aggregateLevels(sl *sortedLevels) []DepthLevel {
+	levels := make([]DepthLevel, 0, sl.len())
+	for _, pl := range sl.sorted {
+		totalQty := decimal.Zero
+		count := 0
+		for e := pl.orders.Front(); e != nil; e = e.Next() {
+			order := e.Value.(*BookOrder)
+			totalQty = totalQty.Add(order.Remaining)
+			count++
+		}
+		levels = append(levels, DepthLevel{
+			Price:      pl.price,
+			Quantity:   totalQty,
+			OrderCount: count,
+		})
+	}
+	return levels
+}
+
 func (ob *OrderBook) sideFor(s Side) *sortedLevels {
 	if s == SideBuy {
 		return ob.bids

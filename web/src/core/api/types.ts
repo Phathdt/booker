@@ -84,6 +84,18 @@ export interface IMarketTrade {
   executed_at: string;
 }
 
+export interface IOrderBookLevel {
+  price: string;
+  quantity: string;
+  order_count: number;
+}
+
+export interface IOrderBook {
+  pair_id: string;
+  bids: IOrderBookLevel[];
+  asks: IOrderBookLevel[];
+}
+
 export interface INotification {
   id: string;
   user_id: string;

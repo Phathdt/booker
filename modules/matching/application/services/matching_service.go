@@ -66,6 +66,14 @@ func (s *matchingService) SubmitOrder(ctx context.Context, order *engine.BookOrd
 	return trades, nil
 }
 
+func (s *matchingService) GetOrderBook(_ context.Context, pairID string) (*engine.OrderBookSnapshot, error) {
+	eng, ok := s.engines[pairID]
+	if !ok {
+		return nil, domain.ErrPairEngineNotFound
+	}
+	return eng.Snapshot()
+}
+
 func (s *matchingService) CancelOrder(ctx context.Context, pairID, orderID string) error {
 	eng, ok := s.engines[pairID]
 	if !ok {

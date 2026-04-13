@@ -70,6 +70,65 @@ func (_c *MockMatchingService_CancelOrder_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
+// GetOrderBook provides a mock function with given fields: ctx, pairID
+func (_m *MockMatchingService) GetOrderBook(ctx context.Context, pairID string) (*engine.OrderBookSnapshot, error) {
+	ret := _m.Called(ctx, pairID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrderBook")
+	}
+
+	var r0 *engine.OrderBookSnapshot
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*engine.OrderBookSnapshot, error)); ok {
+		return rf(ctx, pairID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *engine.OrderBookSnapshot); ok {
+		r0 = rf(ctx, pairID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*engine.OrderBookSnapshot)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, pairID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockMatchingService_GetOrderBook_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrderBook'
+type MockMatchingService_GetOrderBook_Call struct {
+	*mock.Call
+}
+
+// GetOrderBook is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pairID string
+func (_e *MockMatchingService_Expecter) GetOrderBook(ctx interface{}, pairID interface{}) *MockMatchingService_GetOrderBook_Call {
+	return &MockMatchingService_GetOrderBook_Call{Call: _e.mock.On("GetOrderBook", ctx, pairID)}
+}
+
+func (_c *MockMatchingService_GetOrderBook_Call) Run(run func(ctx context.Context, pairID string)) *MockMatchingService_GetOrderBook_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockMatchingService_GetOrderBook_Call) Return(_a0 *engine.OrderBookSnapshot, _a1 error) *MockMatchingService_GetOrderBook_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockMatchingService_GetOrderBook_Call) RunAndReturn(run func(context.Context, string) (*engine.OrderBookSnapshot, error)) *MockMatchingService_GetOrderBook_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SubmitOrder provides a mock function with given fields: ctx, order
 func (_m *MockMatchingService) SubmitOrder(ctx context.Context, order *engine.BookOrder) ([]*engine.Trade, error) {
 	ret := _m.Called(ctx, order)

@@ -4,6 +4,7 @@ import (
 	"booker/modules/market/ticker"
 	"booker/modules/market/trades"
 	"booker/modules/market/ws"
+	pb "booker/proto/matching/v1/gen"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,6 +16,7 @@ func RegisterRoutes(
 	recentTrades map[string]*trades.RecentTrades,
 	pairs []PairInfo,
 	hub *ws.Hub,
+	matchingClient pb.MatchingServiceClient,
 ) {
 	m := app.Group("/api/v1/market")
 
@@ -22,6 +24,7 @@ func RegisterRoutes(
 	m.Get("/ticker", GetTickers(tickers))
 	m.Get("/ticker/:pair", GetTicker(tickers))
 	m.Get("/trades/:pair", GetTrades(recentTrades))
+	m.Get("/orderbook/:pair", GetOrderBook(matchingClient))
 
 	// WebSocket
 	app.Use("/ws", ws.UpgradeMiddleware())

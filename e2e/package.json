@@ -4,7 +4,7 @@
   "description": "End-to-End Testing Suite for Booker CEX Trading Platform",
   "private": true,
   "scripts": {
-    "test": "cucumber-js --config .cucumber.js",
+    "test": "cucumber-js --config .cucumber.js 2>&1 | tee test-results/test-output.log",
     "test:headed": "HEADLESS=false cucumber-js --config .cucumber.js",
     "test:debug": "DEBUG=* cucumber-js --config .cucumber.js",
     "test:smoke": "cucumber-js --config .cucumber.js --tags @smoke",

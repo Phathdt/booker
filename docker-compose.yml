@@ -238,6 +238,7 @@ services:
       - NATS__URL=nats://nats:4222
       - OTEL__ENDPOINT=otel-collector:4317
       - WALLET_SERVICE__ADDRESS=wallet-svc:50052
+      - MATCHING_SERVICE__ADDRESS=matching-svc:50054
     volumes:
       - ./config.yml:/app/config.yml:ro
     depends_on:

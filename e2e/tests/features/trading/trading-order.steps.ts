@@ -6,9 +6,11 @@
  */
 import { When, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
+import { LoginPage } from '@page-objects/login.page';
 import { TradingPage } from '@page-objects/trading.page';
 import { logger } from '@utils/logger';
 import { TimeoutValue } from '@config/test.config';
+import { getTestCredentials } from '@config/urls.config';
 import type { BrowserWorld } from '../../support/world';
 
 // ============================================================================
@@ -129,9 +131,32 @@ Then('I should see an error message', async function (this: BrowserWorld) {
   logger.info('Error toast displayed');
 });
 
-Then('the matching orders should be executed', async function (this: BrowserWorld) {
-  logger.info('Verifying matching orders executed');
+When('I logout and login as {string}', async function (this: BrowserWorld, email: string) {
+  logger.info(`Switching to user ${email}`);
+  // Click logout
+  const logoutButton = this.page.getByRole('button', { name: /logout/i });
+  await logoutButton.click();
+  await this.page.waitForURL('**/login', { timeout: TimeoutValue.NAVIGATION });
+
+  // Login as new user
+  const loginPage = new LoginPage(this.page);
+  await loginPage.waitForPageLoad();
+  const { password } = getTestCredentials();
+  await loginPage.login(email, password);
+  await this.page.waitForURL('**/trade', { timeout: TimeoutValue.NAVIGATION });
+  logger.info(`Switched to ${email}`);
+});
+
+Then('the buy order should be filled', async function (this: BrowserWorld) {
+  logger.info('Verifying buy order was filled by matching engine');
+  // Wait for matching engine to process + order fill update + API refetch
+  await this.page.waitForTimeout(TimeoutValue.STRATEGIC_PART_DELAY * 3);
+  await this.page.reload({ waitUntil: 'domcontentloaded' });
   const tradingPage = new TradingPage(this.page);
-  await tradingPage.expectOrderExecuted();
-  logger.info('Order execution verified');
+  await tradingPage.waitForPageLoad();
+
+  const filledCount = await tradingPage.getFilledOrderCount();
+  logger.info(`Filled orders: ${filledCount}`);
+  expect(filledCount).toBeGreaterThan(0);
+  logger.info('Buy order fill verified — matching engine matched the orders');
 });

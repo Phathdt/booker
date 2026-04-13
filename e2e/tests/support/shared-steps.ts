@@ -28,6 +28,18 @@ Given('I am logged in to the platform', async function (this: BrowserWorld) {
   logger.info('Logged in successfully');
 });
 
+Given('I am logged in as {string}', async function (this: BrowserWorld, email: string) {
+  logger.info(`Logging in as ${email}`);
+  const loginPage = new LoginPage(this.page);
+  await loginPage.navigate();
+  await loginPage.waitForPageLoad();
+
+  const { password } = getTestCredentials();
+  await loginPage.login(email, password);
+  await this.page.waitForURL('**/trade', { timeout: TimeoutValue.NAVIGATION });
+  logger.info(`Logged in as ${email}`);
+});
+
 Given('I am on the trading page', async function (this: BrowserWorld) {
   logger.info('Verifying on trading page');
   const tradingPage = new TradingPage(this.page);

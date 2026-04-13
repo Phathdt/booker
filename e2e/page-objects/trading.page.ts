@@ -151,7 +151,7 @@ export class TradingPage {
   }
 
   async getFilledOrderCount(): Promise<number> {
-    // Count only orders with status "filled"
+    // Count orders with status "filled" or "partial" (matched by the engine)
     const openOrdersSection = this.page.locator('section, div').filter({ has: this.openOrdersHeading });
     const rows = openOrdersSection.locator('table tbody tr');
 
@@ -161,7 +161,7 @@ export class TradingPage {
       const row = rows.nth(i);
       const statusBadge = row.locator('[class*="badge"]');
       const statusText = await statusBadge.textContent();
-      if (statusText === 'filled') {
+      if (statusText === 'filled' || statusText === 'partial') {
         count++;
       }
     }

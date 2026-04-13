@@ -30,7 +30,9 @@ const common = {
   paths: cliFeaturePaths.length > 0 ? cliFeaturePaths : DEFAULT_FEATURE_PATHS,
   format: [
     process.env.TEST_ENVIRONMENT === 'ci' ? 'progress' : 'progress-bar',
-    'json:test-results/cucumber-report.json'
+    'json:test-results/cucumber-report.json',
+    'message:test-results/cucumber-messages.ndjson',
+    'summary:test-results/summary.txt'
   ],
   publishQuiet: true
 };

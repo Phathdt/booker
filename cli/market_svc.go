@@ -122,6 +122,13 @@ func RunMarketSvc(c *urfavecli.Context) error {
 		} else {
 			log.Info("NATS trade consumer started")
 		}
+
+		orderBookConsumer := consumer.NewOrderBookConsumer(hub)
+		if err := orderBookConsumer.Start(ctx, js); err != nil {
+			log.With("error", err.Error()).Warn("failed to start orderbook consumer")
+		} else {
+			log.Info("NATS orderbook consumer started")
+		}
 	}
 
 	// --- Fiber REST + WS server ---

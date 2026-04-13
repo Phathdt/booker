@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useQueryOrderBook } from "../data/queries";
+import { useMarketWS } from "@/core/hooks";
 import type { IOrderBookLevel } from "@/core/api/types";
 
 interface OrderBookProps {
@@ -104,7 +105,11 @@ function BookSide({ levels, side, maxCumQty }: BookSideProps) {
  * Usage: <OrderBook pairId="BTC_USDT" />
  */
 export function OrderBook({ pairId }: OrderBookProps) {
-  const { data, isLoading } = useQueryOrderBook(pairId);
+  const { data: httpData, isLoading } = useQueryOrderBook(pairId);
+  const { orderBook: wsData } = useMarketWS(pairId);
+
+  // Prefer WS data (real-time) over HTTP polling (fallback)
+  const data = wsData ?? httpData;
 
   const { bids, asks, bothEmpty } = useMemo(() => {
     const bids = buildLevels(data?.bids ?? []);

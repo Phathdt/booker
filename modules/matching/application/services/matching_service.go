@@ -22,12 +22,13 @@ type PairInfo struct {
 }
 
 type matchingService struct {
-	engines        map[string]*engine.Engine
-	tradeRepo      interfaces.TradeRepository
-	orderClient    interfaces.OrderClient
-	walletClient   interfaces.WalletClient
-	tradePublisher pkgnats.TradePublisher
-	pairs          map[string]*PairInfo
+	engines            map[string]*engine.Engine
+	tradeRepo          interfaces.TradeRepository
+	orderClient        interfaces.OrderClient
+	walletClient       interfaces.WalletClient
+	tradePublisher     pkgnats.TradePublisher
+	orderBookPublisher pkgnats.OrderBookPublisher
+	pairs              map[string]*PairInfo
 }
 
 func NewMatchingService(
@@ -36,15 +37,17 @@ func NewMatchingService(
 	orderClient interfaces.OrderClient,
 	walletClient interfaces.WalletClient,
 	tradePublisher pkgnats.TradePublisher,
+	orderBookPublisher pkgnats.OrderBookPublisher,
 	pairs map[string]*PairInfo,
 ) interfaces.MatchingService {
 	return &matchingService{
-		engines:        engines,
-		tradeRepo:      tradeRepo,
-		orderClient:    orderClient,
-		walletClient:   walletClient,
-		tradePublisher: tradePublisher,
-		pairs:          pairs,
+		engines:            engines,
+		tradeRepo:          tradeRepo,
+		orderClient:        orderClient,
+		walletClient:       walletClient,
+		tradePublisher:     tradePublisher,
+		orderBookPublisher: orderBookPublisher,
+		pairs:              pairs,
 	}
 }
 
@@ -62,6 +65,8 @@ func (s *matchingService) SubmitOrder(ctx context.Context, order *engine.BookOrd
 	for _, trade := range trades {
 		s.settleTrade(ctx, trade)
 	}
+
+	s.publishOrderBookSnapshot(order.PairID)
 
 	return trades, nil
 }
@@ -83,7 +88,42 @@ func (s *matchingService) CancelOrder(ctx context.Context, pairID, orderID strin
 	if err := eng.Cancel(orderID); err != nil {
 		return domain.ErrOrderNotInBook
 	}
+
+	s.publishOrderBookSnapshot(pairID)
+
 	return nil
+}
+
+func (s *matchingService) publishOrderBookSnapshot(pairID string) {
+	if s.orderBookPublisher == nil {
+		return
+	}
+	eng, ok := s.engines[pairID]
+	if !ok {
+		return
+	}
+	snap, err := eng.Snapshot()
+	if err != nil {
+		slog.Warn("failed to get orderbook snapshot", "pair", pairID, "error", err.Error())
+		return
+	}
+
+	bids := make([]pkgnats.OrderBookLevel, len(snap.Bids))
+	for i, b := range snap.Bids {
+		bids[i] = pkgnats.OrderBookLevel{Price: b.Price.String(), Quantity: b.Quantity.String(), OrderCount: b.OrderCount}
+	}
+	asks := make([]pkgnats.OrderBookLevel, len(snap.Asks))
+	for i, a := range snap.Asks {
+		asks[i] = pkgnats.OrderBookLevel{Price: a.Price.String(), Quantity: a.Quantity.String(), OrderCount: a.OrderCount}
+	}
+
+	if err := s.orderBookPublisher.PublishOrderBook(&pkgnats.OrderBookEvent{
+		PairID: pairID,
+		Bids:   bids,
+		Asks:   asks,
+	}); err != nil {
+		slog.Warn("failed to publish orderbook snapshot", "pair", pairID, "error", err.Error())
+	}
 }
 
 func (s *matchingService) settleTrade(ctx context.Context, trade *engine.Trade) {

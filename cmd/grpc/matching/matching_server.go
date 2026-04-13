@@ -94,6 +94,51 @@ func (s *MatchingServer) CancelOrder(ctx context.Context, req *pb.CancelOrderReq
 	}, nil
 }
 
+func (s *MatchingServer) GetOrderBook(ctx context.Context, req *pb.GetOrderBookRequest) (*pb.GetOrderBookResponse, error) {
+	snap, err := s.matchingSvc.GetOrderBook(ctx, req.PairId)
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	depth := int(req.Depth)
+	if depth <= 0 {
+		depth = 20
+	}
+
+	bidLevels := snap.Bids
+	if len(bidLevels) > depth {
+		bidLevels = bidLevels[:depth]
+	}
+	askLevels := snap.Asks
+	if len(askLevels) > depth {
+		askLevels = askLevels[:depth]
+	}
+
+	bids := make([]*pb.PriceLevel, len(bidLevels))
+	for i, b := range bidLevels {
+		bids[i] = &pb.PriceLevel{
+			Price:      b.Price.String(),
+			Quantity:   b.Quantity.String(),
+			OrderCount: int32(b.OrderCount),
+		}
+	}
+
+	asks := make([]*pb.PriceLevel, len(askLevels))
+	for i, a := range askLevels {
+		asks[i] = &pb.PriceLevel{
+			Price:      a.Price.String(),
+			Quantity:   a.Quantity.String(),
+			OrderCount: int32(a.OrderCount),
+		}
+	}
+
+	return &pb.GetOrderBookResponse{
+		PairId: req.PairId,
+		Bids:   bids,
+		Asks:   asks,
+	}, nil
+}
+
 func toGRPCError(err error) error {
 	if errors.Is(err, context.Canceled) {
 		return status.Error(codes.Canceled, err.Error())

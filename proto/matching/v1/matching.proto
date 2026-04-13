@@ -5,6 +5,7 @@ option go_package = "booker/proto/matching/v1/gen";
 service MatchingService {
   rpc SubmitOrder(SubmitOrderRequest) returns (SubmitOrderResponse);
   rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse);
+  rpc GetOrderBook(GetOrderBookRequest) returns (GetOrderBookResponse);
 }
 
 message SubmitOrderRequest {
@@ -38,4 +39,21 @@ message TradeResult {
   string sell_order_id = 3;
   string price = 4;
   string quantity = 5;
+}
+
+message GetOrderBookRequest {
+  string pair_id = 1;
+  int32 depth = 2;
+}
+
+message GetOrderBookResponse {
+  string pair_id = 1;
+  repeated PriceLevel bids = 2;
+  repeated PriceLevel asks = 3;
+}
+
+message PriceLevel {
+  string price = 1;
+  string quantity = 2;
+  int32 order_count = 3;
 }

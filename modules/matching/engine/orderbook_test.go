@@ -193,3 +193,48 @@ func TestOrderBook_AskAscending(t *testing.T) {
 	// Best ask should be lowest
 	assert.True(t, ob.BestAsk().Equal(decimal.NewFromFloat(49000)))
 }
+
+func TestOrderBook_Snapshot_Empty(t *testing.T) {
+	ob := NewOrderBook("BTC_USDT")
+	snap := ob.Snapshot()
+
+	assert.Equal(t, "BTC_USDT", snap.PairID)
+	assert.Empty(t, snap.Bids)
+	assert.Empty(t, snap.Asks)
+}
+
+func TestOrderBook_Snapshot_AggregatesLevels(t *testing.T) {
+	ob := NewOrderBook("BTC_USDT")
+
+	ob.Add(newOrder("b1", "u1", SideBuy, 50000, 1.0))
+	ob.Add(newOrder("b2", "u2", SideBuy, 50000, 0.5))
+	ob.Add(newOrder("b3", "u3", SideBuy, 49900, 2.0))
+	ob.Add(newOrder("a1", "u4", SideSell, 50100, 0.3))
+
+	snap := ob.Snapshot()
+
+	require.Len(t, snap.Bids, 2)
+	assert.True(t, snap.Bids[0].Price.Equal(decimal.NewFromFloat(50000)))
+	assert.True(t, snap.Bids[0].Quantity.Equal(decimal.NewFromFloat(1.5)))
+	assert.Equal(t, 2, snap.Bids[0].OrderCount)
+	assert.True(t, snap.Bids[1].Price.Equal(decimal.NewFromFloat(49900)))
+	assert.Equal(t, 1, snap.Bids[1].OrderCount)
+
+	require.Len(t, snap.Asks, 1)
+	assert.True(t, snap.Asks[0].Price.Equal(decimal.NewFromFloat(50100)))
+	assert.Equal(t, 1, snap.Asks[0].OrderCount)
+}
+
+func TestOrderBook_Snapshot_ReflectsPartialFill(t *testing.T) {
+	ob := NewOrderBook("BTC_USDT")
+	ob.Add(newOrder("a1", "u1", SideSell, 50000, 1.0))
+
+	incoming := newOrder("b1", "u2", SideBuy, 50000, 0.3)
+	trades := ob.Match(incoming)
+	require.Len(t, trades, 1)
+
+	snap := ob.Snapshot()
+	require.Len(t, snap.Asks, 1)
+	assert.True(t, snap.Asks[0].Quantity.Equal(decimal.NewFromFloat(0.7)))
+	assert.Empty(t, snap.Bids)
+}

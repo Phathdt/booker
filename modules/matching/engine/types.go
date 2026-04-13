@@ -51,6 +51,20 @@ func NewTrade(pairID string, buyOrder, sellOrder *BookOrder, price, qty decimal.
 	}
 }
 
+// DepthLevel represents an aggregated price level in the order book.
+type DepthLevel struct {
+	Price      decimal.Decimal
+	Quantity   decimal.Decimal
+	OrderCount int
+}
+
+// OrderBookSnapshot is a point-in-time view of the order book.
+type OrderBookSnapshot struct {
+	PairID string
+	Bids   []DepthLevel
+	Asks   []DepthLevel
+}
+
 // Command types for channel-based engine
 type CommandType int
 
@@ -58,6 +72,7 @@ const (
 	CmdSubmit CommandType = iota
 	CmdCancel
 	CmdStop
+	CmdSnapshot
 )
 
 type Command struct {
@@ -68,7 +83,8 @@ type Command struct {
 }
 
 type Result struct {
-	Trades  []*Trade
-	Err     error
-	OrderID string
+	Trades   []*Trade
+	Err      error
+	OrderID  string
+	Snapshot *OrderBookSnapshot
 }

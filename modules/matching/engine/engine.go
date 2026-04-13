@@ -37,6 +37,9 @@ func (e *Engine) Start(ctx context.Context) {
 				case CmdCancel:
 					err := e.book.Cancel(cmd.OrderID)
 					cmd.ResultCh <- Result{Err: err, OrderID: cmd.OrderID}
+				case CmdSnapshot:
+					snap := e.book.Snapshot()
+					cmd.ResultCh <- Result{Snapshot: snap}
 				case CmdStop:
 					cmd.ResultCh <- Result{}
 					return
@@ -84,6 +87,18 @@ func (e *Engine) Stop() {
 	case <-resultCh:
 	case <-time.After(5 * time.Second):
 	}
+}
+
+// Snapshot returns a point-in-time view of the order book (thread-safe via command channel).
+func (e *Engine) Snapshot() (*OrderBookSnapshot, error) {
+	resultCh := make(chan Result, 1)
+	select {
+	case e.cmdCh <- Command{Type: CmdSnapshot, ResultCh: resultCh}:
+	default:
+		return nil, fmt.Errorf("engine %s: command buffer full", e.pairID)
+	}
+	res := <-resultCh
+	return res.Snapshot, res.Err
 }
 
 // Preload inserts orders into the book without triggering matching (crash recovery).

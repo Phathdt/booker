@@ -24,6 +24,7 @@ export const MARKET_ENDPOINT = {
   TICKER_ALL: "/api/v1/market/ticker",
   TICKER: (pair: string) => `/api/v1/market/ticker/${pair}`,
   TRADES: (pair: string) => `/api/v1/market/trades/${pair}`,
+  ORDERBOOK: (pair: string) => `/api/v1/market/orderbook/${pair}`,
   WS: "/ws",
 };
 

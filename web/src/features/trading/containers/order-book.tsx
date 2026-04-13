@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { useQueryMarketTrades } from "../data/queries";
+import { useQueryOrderBook } from "../data/queries";
+import type { IOrderBookLevel } from "@/core/api/types";
 
 interface OrderBookProps {
   pairId: string;
@@ -9,75 +10,34 @@ interface OrderLevel {
   price: string;
   qty: string;
   total: string;
+  cumQty: number;
 }
 
-const LEVELS = 10;
+const MAX_LEVELS = 15;
 
-/**
- * Simulates order book depth from recent market trades.
- * Groups trades into price levels and splits them into bids/asks.
- */
-function buildBookFromTrades(
-  prices: { price: string; quantity: string }[]
-): { bids: OrderLevel[]; asks: OrderLevel[] } {
-  if (prices.length === 0) return { bids: [], asks: [] };
-
-  // Build a price→qty map
-  const priceMap = new Map<string, number>();
-  for (const t of prices) {
-    const p = parseFloat(t.price).toFixed(2);
-    priceMap.set(p, (priceMap.get(p) ?? 0) + parseFloat(t.quantity));
-  }
-
-  const sorted = Array.from(priceMap.entries())
-    .map(([price, qty]) => ({ price: parseFloat(price), qty }))
-    .sort((a, b) => b.price - a.price);
-
-  const mid = Math.floor(sorted.length / 2);
-  const askEntries = sorted.slice(0, mid).slice(0, LEVELS);
-  const bidEntries = sorted.slice(mid).slice(0, LEVELS);
-
-  const toLevel = (entries: typeof sorted): OrderLevel[] => {
-    let cumTotal = 0;
-    return entries.map(({ price, qty }) => {
-      cumTotal += qty;
-      return {
-        price: price.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }),
-        qty: qty.toFixed(4),
-        total: cumTotal.toFixed(4),
-      };
-    });
-  };
-
-  return { asks: toLevel(askEntries), bids: toLevel(bidEntries) };
+function buildLevels(entries: IOrderBookLevel[]): OrderLevel[] {
+  let cumQty = 0;
+  return entries.slice(0, MAX_LEVELS).map((entry) => {
+    const qty = parseFloat(entry.quantity);
+    cumQty += qty;
+    return {
+      price: parseFloat(entry.price).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+      qty: qty.toFixed(4),
+      total: cumQty.toFixed(4),
+      cumQty,
+    };
+  });
 }
 
-/**
- * OrderBook — simulated order book using market trades data.
- * Usage: <OrderBook pairId="BTC-USDT" />
- */
-export function OrderBook({ pairId }: OrderBookProps) {
-  const { data, isLoading } = useQueryMarketTrades(pairId);
+const SKELETON_COUNT = 10;
 
-  const { bids, asks } = useMemo(
-    () => buildBookFromTrades(data?.trades ?? []),
-    [data]
-  );
-
-  const colHeader = (
-    <div className="grid grid-cols-3 gap-1 border-b border-border px-2 py-1">
-      <span className="text-xs text-muted-foreground">Price</span>
-      <span className="text-right text-xs text-muted-foreground">Qty</span>
-      <span className="text-right text-xs text-muted-foreground">Total</span>
-    </div>
-  );
-
-  const skeletonRows = (
-    <div className="flex flex-col gap-1 p-2">
-      {Array.from({ length: LEVELS }).map((_, i) => (
+function SkeletonRows() {
+  return (
+    <div className="flex flex-col gap-0.5 p-2">
+      {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
         <div key={i} className="grid grid-cols-3 gap-1">
           <div className="h-3 animate-pulse rounded bg-muted" />
           <div className="h-3 animate-pulse rounded bg-muted" />
@@ -86,6 +46,90 @@ export function OrderBook({ pairId }: OrderBookProps) {
       ))}
     </div>
   );
+}
+
+interface BookSideProps {
+  levels: OrderLevel[];
+  side: "bid" | "ask";
+  maxCumQty: number;
+}
+
+function BookSide({ levels, side, maxCumQty }: BookSideProps) {
+  const isBid = side === "bid";
+  const colorClass = isBid ? "text-green-500" : "text-red-500";
+  const bgClass = isBid ? "bg-green-500/10" : "bg-red-500/10";
+  const label = isBid ? "Bids" : "Asks";
+
+  return (
+    <div className="flex flex-col overflow-hidden">
+      {/* Side header */}
+      <div className="border-b border-border px-2 py-1">
+        <span className={`text-xs font-medium ${colorClass}`}>{label}</span>
+      </div>
+
+      {/* Column headers */}
+      <div className="grid grid-cols-3 gap-1 border-b border-border px-2 py-1">
+        <span className="text-xs text-muted-foreground">Price</span>
+        <span className="text-right text-xs text-muted-foreground">Qty</span>
+        <span className="text-right text-xs text-muted-foreground">Total</span>
+      </div>
+
+      {/* Rows */}
+      <div className="overflow-y-auto">
+        {levels.length === 0 ? (
+          <p className="px-2 py-4 text-center text-xs text-muted-foreground">
+            No orders
+          </p>
+        ) : (
+          levels.map((level, i) => {
+            const depthPct =
+              maxCumQty > 0 ? (level.cumQty / maxCumQty) * 100 : 0;
+            return (
+              <div key={i} className="relative px-2 py-0.5">
+                {/* Depth background bar */}
+                <div
+                  className={`absolute inset-y-0 ${isBid ? "left-0" : "right-0"} ${bgClass}`}
+                  style={{ width: `${depthPct}%` }}
+                  aria-hidden="true"
+                />
+                {/* Row content */}
+                <div className="relative grid grid-cols-3 gap-1">
+                  <span
+                    className={`text-xs font-medium tabular-nums ${colorClass}`}
+                  >
+                    {level.price}
+                  </span>
+                  <span className="text-right text-xs tabular-nums text-foreground">
+                    {level.qty}
+                  </span>
+                  <span className="text-right text-xs tabular-nums text-muted-foreground">
+                    {level.total}
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * OrderBook — real order book using the market orderbook API.
+ * Usage: <OrderBook pairId="BTC_USDT" />
+ */
+export function OrderBook({ pairId }: OrderBookProps) {
+  const { data, isLoading } = useQueryOrderBook(pairId);
+
+  const { bids, asks, bothEmpty } = useMemo(() => {
+    const bids = buildLevels(data?.bids ?? []);
+    const asks = buildLevels(data?.asks ?? []);
+    return { bids, asks, bothEmpty: bids.length === 0 && asks.length === 0 };
+  }, [data]);
+
+  const maxBidCumQty = bids.length > 0 ? bids[bids.length - 1].cumQty : 0;
+  const maxAskCumQty = asks.length > 0 ? asks[asks.length - 1].cumQty : 0;
 
   return (
     <div className="flex h-full flex-col rounded-lg border border-border bg-card">
@@ -96,79 +140,20 @@ export function OrderBook({ pairId }: OrderBookProps) {
         </p>
       </div>
 
-      <div className="grid flex-1 grid-cols-2 divide-x divide-border overflow-hidden">
-        {/* Bids */}
-        <div className="flex flex-col overflow-hidden">
-          <div className="border-b border-border px-2 py-1">
-            <span className="text-xs font-medium text-green-500">Bids</span>
-          </div>
-          {colHeader}
-          {isLoading ? (
-            skeletonRows
-          ) : (
-            <div className="overflow-y-auto">
-              {bids.length === 0 ? (
-                <p className="px-2 py-4 text-center text-xs text-muted-foreground">
-                  No data
-                </p>
-              ) : (
-                bids.map((level, i) => (
-                  <div
-                    key={i}
-                    className="grid grid-cols-3 gap-1 px-2 py-0.5 hover:bg-green-500/5"
-                  >
-                    <span className="text-xs font-medium tabular-nums text-green-500">
-                      {level.price}
-                    </span>
-                    <span className="text-right text-xs tabular-nums text-foreground">
-                      {level.qty}
-                    </span>
-                    <span className="text-right text-xs tabular-nums text-muted-foreground">
-                      {level.total}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
+      {isLoading ? (
+        <div className="flex flex-1 items-center justify-center">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
         </div>
-
-        {/* Asks */}
-        <div className="flex flex-col overflow-hidden">
-          <div className="border-b border-border px-2 py-1">
-            <span className="text-xs font-medium text-red-500">Asks</span>
-          </div>
-          {colHeader}
-          {isLoading ? (
-            skeletonRows
-          ) : (
-            <div className="overflow-y-auto">
-              {asks.length === 0 ? (
-                <p className="px-2 py-4 text-center text-xs text-muted-foreground">
-                  No data
-                </p>
-              ) : (
-                asks.map((level, i) => (
-                  <div
-                    key={i}
-                    className="grid grid-cols-3 gap-1 px-2 py-0.5 hover:bg-red-500/5"
-                  >
-                    <span className="text-xs font-medium tabular-nums text-red-500">
-                      {level.price}
-                    </span>
-                    <span className="text-right text-xs tabular-nums text-foreground">
-                      {level.qty}
-                    </span>
-                    <span className="text-right text-xs tabular-nums text-muted-foreground">
-                      {level.total}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
+      ) : bothEmpty && data !== undefined ? (
+        <div className="flex flex-1 items-center justify-center">
+          <p className="text-xs text-muted-foreground">No orders</p>
         </div>
-      </div>
+      ) : (
+        <div className="grid flex-1 grid-cols-2 divide-x divide-border overflow-hidden">
+          <BookSide levels={bids} side="bid" maxCumQty={maxBidCumQty} />
+          <BookSide levels={asks} side="ask" maxCumQty={maxAskCumQty} />
+        </div>
+      )}
     </div>
   );
 }

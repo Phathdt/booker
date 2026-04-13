@@ -298,6 +298,7 @@ services:
       - DATABASE__URI=postgresql://postgres:postgres@postgres-db:5432/booker?sslmode=disable
       - NATS__URL=nats://nats:4222
       - OTEL__ENDPOINT=otel-collector:4317
+      - MATCHING_SERVICE__ADDRESS=matching-svc:50054
     volumes:
       - ./config.yml:/app/config.yml:ro
     depends_on:

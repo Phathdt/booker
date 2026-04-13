@@ -100,8 +100,22 @@ func (s *MatchingServer) GetOrderBook(ctx context.Context, req *pb.GetOrderBookR
 		return nil, toGRPCError(err)
 	}
 
-	bids := make([]*pb.PriceLevel, len(snap.Bids))
-	for i, b := range snap.Bids {
+	depth := int(req.Depth)
+	if depth <= 0 {
+		depth = 20
+	}
+
+	bidLevels := snap.Bids
+	if len(bidLevels) > depth {
+		bidLevels = bidLevels[:depth]
+	}
+	askLevels := snap.Asks
+	if len(askLevels) > depth {
+		askLevels = askLevels[:depth]
+	}
+
+	bids := make([]*pb.PriceLevel, len(bidLevels))
+	for i, b := range bidLevels {
 		bids[i] = &pb.PriceLevel{
 			Price:      b.Price.String(),
 			Quantity:   b.Quantity.String(),
@@ -109,8 +123,8 @@ func (s *MatchingServer) GetOrderBook(ctx context.Context, req *pb.GetOrderBookR
 		}
 	}
 
-	asks := make([]*pb.PriceLevel, len(snap.Asks))
-	for i, a := range snap.Asks {
+	asks := make([]*pb.PriceLevel, len(askLevels))
+	for i, a := range askLevels {
 		asks[i] = &pb.PriceLevel{
 			Price:      a.Price.String(),
 			Quantity:   a.Quantity.String(),

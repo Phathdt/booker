@@ -43,6 +43,7 @@ message TradeResult {
 
 message GetOrderBookRequest {
   string pair_id = 1;
+  int32 depth = 2;
 }
 
 message GetOrderBookResponse {

@@ -5,6 +5,8 @@ import (
 	pb "booker/proto/matching/v1/gen"
 
 	"github.com/gofiber/fiber/v2"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type OrderBookLevel struct {
@@ -24,10 +26,19 @@ func GetOrderBook(matchingClient pb.MatchingServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		pair := c.Params("pair")
 
-		resp, err := matchingClient.GetOrderBook(c.Context(), &pb.GetOrderBookRequest{
+		depth := int32(c.QueryInt("depth", 20))
+		if depth > 100 {
+			depth = 100
+		}
+
+		resp, err := matchingClient.GetOrderBook(c.UserContext(), &pb.GetOrderBookRequest{
 			PairId: pair,
+			Depth:  depth,
 		})
 		if err != nil {
+			if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
+				return fiber.NewError(fiber.StatusNotFound, "trading pair not found")
+			}
 			return fiber.NewError(fiber.StatusBadGateway, "matching engine unavailable")
 		}
 

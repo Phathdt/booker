@@ -106,10 +106,10 @@ function BookSide({ levels, side, maxCumQty }: BookSideProps) {
  */
 export function OrderBook({ pairId }: OrderBookProps) {
   const { data: httpData, isLoading } = useQueryOrderBook(pairId);
-  const { orderBook: wsData } = useMarketWS(pairId);
+  const { orderBook: wsData, connected: wsConnected } = useMarketWS(pairId);
 
-  // Prefer WS data (real-time) over HTTP polling (fallback)
-  const data = wsData ?? httpData;
+  // Use WS data only when connected; fall back to HTTP polling when disconnected
+  const data = wsConnected && wsData ? wsData : httpData;
 
   const { bids, asks, bothEmpty } = useMemo(() => {
     const bids = buildLevels(data?.bids ?? []);

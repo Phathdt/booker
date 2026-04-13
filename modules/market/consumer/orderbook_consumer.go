@@ -23,6 +23,7 @@ func NewOrderBookConsumer(hub *ws.Hub) *OrderBookConsumer {
 
 // Start begins consuming orderbook events from NATS JetStream.
 func (c *OrderBookConsumer) Start(ctx context.Context, js nats.JetStreamContext) error {
+	// Ephemeral consumer — every market-svc instance gets all messages (broadcast, not load-balanced)
 	sub, err := js.Subscribe("orderbook.>", func(msg *nats.Msg) {
 		var event pkgnats.OrderBookEvent
 		if err := json.Unmarshal(msg.Data, &event); err != nil {
@@ -46,7 +47,7 @@ func (c *OrderBookConsumer) Start(ctx context.Context, js nats.JetStreamContext)
 		})
 
 		msg.Ack()
-	}, nats.Durable("market-orderbook-svc"), nats.DeliverNew(), nats.AckExplicit())
+	}, nats.DeliverLast(), nats.AckExplicit())
 	if err != nil {
 		return err
 	}

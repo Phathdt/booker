@@ -66,7 +66,7 @@ func (s *matchingService) SubmitOrder(ctx context.Context, order *engine.BookOrd
 		s.settleTrade(ctx, trade)
 	}
 
-	s.publishOrderBookSnapshot(order.PairID)
+	go s.publishOrderBookSnapshot(order.PairID)
 
 	return trades, nil
 }
@@ -89,7 +89,7 @@ func (s *matchingService) CancelOrder(ctx context.Context, pairID, orderID strin
 		return domain.ErrOrderNotInBook
 	}
 
-	s.publishOrderBookSnapshot(pairID)
+	go s.publishOrderBookSnapshot(pairID)
 
 	return nil
 }

@@ -151,7 +151,10 @@ func RunMatchingSvc(c *urfavecli.Context) error {
 		}
 	}
 
-	orderBookPublisher := pkgnats.NewOrderBookPublisher(js)
+	var orderBookPublisher pkgnats.OrderBookPublisher
+	if js != nil {
+		orderBookPublisher = pkgnats.NewOrderBookPublisher(js)
+	}
 
 	matchingService := matchingServices.NewMatchingService(
 		engines, tradeRepo, orderClient, walletClient, tradePublisher, orderBookPublisher, pairs,

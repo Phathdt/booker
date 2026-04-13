@@ -32,22 +32,6 @@ function buildLevels(entries: IOrderBookLevel[]): OrderLevel[] {
   });
 }
 
-const SKELETON_COUNT = 10;
-
-function SkeletonRows() {
-  return (
-    <div className="flex flex-col gap-0.5 p-2">
-      {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-        <div key={i} className="grid grid-cols-3 gap-1">
-          <div className="h-3 animate-pulse rounded bg-muted" />
-          <div className="h-3 animate-pulse rounded bg-muted" />
-          <div className="h-3 animate-pulse rounded bg-muted" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
 interface BookSideProps {
   levels: OrderLevel[];
   side: "bid" | "ask";

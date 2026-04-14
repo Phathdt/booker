@@ -1,79 +1,12 @@
-// @ts-nocheck
 // AUTO-GENERATED — DO NOT EDIT (regenerate: pnpm generate:api)
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
-type DtoAuthResponse = Partial<{
-  access_token: string;
-  expires_in: number;
-  user: DtoUserResponse;
-}>;
-type DtoUserResponse = Partial<{
-  created_at: string;
-  email: string;
-  id: string;
-  role: string;
-  status: string;
-  updated_at: string;
-}>;
-type DtoNotificationListResponse = Partial<{
-  notifications: Array<DtoNotificationResponse> | null;
-}>;
-type DtoNotificationResponse = Partial<{
-  body: string;
-  created_at: string;
-  id: string;
-  is_read: boolean;
-  metadata: {};
-  title: string;
-  type: string;
-}>;
-type DtoOrderListResponse = Partial<{
-  orders: Array<DtoOrderResponse> | null;
-}>;
-type DtoOrderResponse = Partial<{
-  created_at: string;
-  filled_qty: string;
-  id: string;
-  pair_id: string;
-  price: string;
-  quantity: string;
-  side: string;
-  status: string;
-  type: string;
-  updated_at: string;
-  user_id: string;
-}>;
-type DtoUserListResponse = Partial<{
-  total: number;
-  users: Array<DtoUserResponse> | null;
-}>;
-type DtoWalletListResponse = Partial<{
-  wallets: Array<DtoWalletResponse> | null;
-}>;
-type DtoWalletResponse = Partial<{
-  asset_id: string;
-  available: string;
-  id: string;
-  locked: string;
-  updated_at: string;
-  user_id: string;
-}>;
-type MarketOrderBookResponse = Partial<{
-  asks: Array<MarketOrderBookLevel> | null;
-  bids: Array<MarketOrderBookLevel> | null;
-  pair_id: string;
-}>;
-type MarketOrderBookLevel = Partial<{
-  order_count: number;
-  price: string;
-  quantity: string;
-}>;
 
 const DtoLoginDTO = z
   .object({ email: z.string(), password: z.string() })
   .passthrough();
-const DtoUserResponse: z.ZodType<DtoUserResponse> = z
+const DtoUserResponse = z
   .object({
     created_at: z.string(),
     email: z.string(),
@@ -83,7 +16,7 @@ const DtoUserResponse: z.ZodType<DtoUserResponse> = z
     updated_at: z.string(),
   })
   .passthrough();
-const DtoAuthResponse: z.ZodType<DtoAuthResponse> = z
+const DtoAuthResponse = z
   .object({
     access_token: z.string(),
     expires_in: z.number().int(),
@@ -97,14 +30,14 @@ const DtoTokenPairResponse = z
 const DtoRegisterDTO = z
   .object({ email: z.string(), password: z.string() })
   .passthrough();
-const MarketOrderBookLevel: z.ZodType<MarketOrderBookLevel> = z
+const MarketOrderBookLevel = z
   .object({
     order_count: z.number().int(),
     price: z.string(),
     quantity: z.string(),
   })
   .passthrough();
-const MarketOrderBookResponse: z.ZodType<MarketOrderBookResponse> = z
+const MarketOrderBookResponse = z
   .object({
     asks: z.array(MarketOrderBookLevel).nullable(),
     bids: z.array(MarketOrderBookLevel).nullable(),
@@ -141,7 +74,7 @@ const MarketTradeResponse = z
     trade_id: z.string(),
   })
   .passthrough();
-const DtoNotificationResponse: z.ZodType<DtoNotificationResponse> = z
+const DtoNotificationResponse = z
   .object({
     body: z.string(),
     created_at: z.string(),
@@ -152,14 +85,14 @@ const DtoNotificationResponse: z.ZodType<DtoNotificationResponse> = z
     type: z.string(),
   })
   .passthrough();
-const DtoNotificationListResponse: z.ZodType<DtoNotificationListResponse> = z
+const DtoNotificationListResponse = z
   .object({ notifications: z.array(DtoNotificationResponse).nullable() })
   .passthrough();
 const V2Map = z.object({}).passthrough();
 const DtoUnreadCountResponse = z
   .object({ count: z.number().int() })
   .passthrough();
-const DtoOrderResponse: z.ZodType<DtoOrderResponse> = z
+const DtoOrderResponse = z
   .object({
     created_at: z.string(),
     filled_qty: z.string(),
@@ -174,7 +107,7 @@ const DtoOrderResponse: z.ZodType<DtoOrderResponse> = z
     user_id: z.string(),
   })
   .passthrough();
-const DtoOrderListResponse: z.ZodType<DtoOrderListResponse> = z
+const DtoOrderListResponse = z
   .object({ orders: z.array(DtoOrderResponse).nullable() })
   .passthrough();
 const DtoCreateOrderDTO = z
@@ -186,13 +119,13 @@ const DtoCreateOrderDTO = z
     type: z.string(),
   })
   .passthrough();
-const DtoUserListResponse: z.ZodType<DtoUserListResponse> = z
+const DtoUserListResponse = z
   .object({
     total: z.number().int(),
     users: z.array(DtoUserResponse).nullable(),
   })
   .passthrough();
-const DtoWalletResponse: z.ZodType<DtoWalletResponse> = z
+const DtoWalletResponse = z
   .object({
     asset_id: z.string(),
     available: z.string(),
@@ -202,7 +135,7 @@ const DtoWalletResponse: z.ZodType<DtoWalletResponse> = z
     user_id: z.string(),
   })
   .passthrough();
-const DtoWalletListResponse: z.ZodType<DtoWalletListResponse> = z
+const DtoWalletListResponse = z
   .object({ wallets: z.array(DtoWalletResponse).nullable() })
   .passthrough();
 const DtoDepositDTO = z

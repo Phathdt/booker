@@ -1,6 +1,7 @@
 // --- Generated types (from OpenAPI spec via Zod schemas) ---
 // Regenerate: cd web && pnpm generate:api
 
+import { z } from "zod";
 import { schemas } from "./generated/schemas";
 
 // Re-export Zod schemas for optional runtime validation
@@ -16,98 +17,18 @@ export const OrderBookLevelSchema = schemas.MarketOrderBookLevel;
 export const OrderBookSchema = schemas.MarketOrderBookResponse;
 export const NotificationSchema = schemas.DtoNotificationResponse;
 
-// TypeScript types — inferred from schema shape (all fields required)
-export type IUser = {
-  id: string;
-  email: string;
-  role: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-};
-
-export type IAuthResponse = {
-  user: IUser;
-  access_token: string;
-  expires_in: number;
-};
-
-export type IRefreshResponse = {
-  access_token: string;
-  expires_in: number;
-};
-
-export type IWallet = {
-  id: string;
-  user_id: string;
-  asset_id: string;
-  available: string;
-  locked: string;
-  updated_at: string;
-};
-
-export type IOrder = {
-  id: string;
-  user_id: string;
-  pair_id: string;
-  side: string;
-  type: string;
-  price: string;
-  quantity: string;
-  filled_qty: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-};
-
-export type ITradingPair = {
-  id: string;
-  base_asset: string;
-  quote_asset: string;
-  min_qty: string;
-  tick_size: string;
-};
-
-export type ITicker = {
-  pair: string;
-  open: string;
-  high: string;
-  low: string;
-  close: string;
-  volume: string;
-  change_pct: string;
-  last_price: string;
-  timestamp: number;
-};
-
-export type IMarketTrade = {
-  trade_id: string;
-  price: string;
-  quantity: string;
-  timestamp: number;
-};
-
-export type IOrderBookLevel = {
-  price: string;
-  quantity: string;
-  order_count: number;
-};
-
-export type IOrderBook = {
-  pair_id: string;
-  bids: IOrderBookLevel[];
-  asks: IOrderBookLevel[];
-};
-
-export type INotification = {
-  id: string;
-  type: string;
-  title: string;
-  body: string;
-  metadata: Record<string, string> | null;
-  is_read: boolean;
-  created_at: string;
-};
+// Inferred TypeScript types (from Zod schemas — single source of truth)
+export type IUser = z.infer<typeof UserSchema>;
+export type IAuthResponse = z.infer<typeof AuthResponseSchema>;
+export type IRefreshResponse = z.infer<typeof TokenPairSchema>;
+export type IWallet = z.infer<typeof WalletSchema>;
+export type IOrder = z.infer<typeof OrderSchema>;
+export type ITradingPair = z.infer<typeof TradingPairSchema>;
+export type ITicker = z.infer<typeof TickerSchema>;
+export type IMarketTrade = z.infer<typeof TradeSchema>;
+export type IOrderBookLevel = z.infer<typeof OrderBookLevelSchema>;
+export type IOrderBook = z.infer<typeof OrderBookSchema>;
+export type INotification = z.infer<typeof NotificationSchema>;
 
 // --- Utility types (client-side only, not from API spec) ---
 

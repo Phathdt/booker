@@ -110,17 +110,14 @@ export function useMarketWS(pair: string): UseMarketWSResult {
               volume: msg.data.volume,
               change_pct: msg.data.change_pct,
               last_price: msg.data.last_price,
-              ts: msg.data.ts,
+              timestamp: msg.data.ts,
             });
           } else if (msg.type === "trade") {
             const trade: IMarketTrade = {
-              id: msg.data.id,
-              pair_id: msg.pair,
+              trade_id: msg.data.id,
               price: msg.data.price,
               quantity: msg.data.quantity,
-              buyer_id: "",
-              seller_id: "",
-              executed_at: msg.data.executed_at,
+              timestamp: new Date(msg.data.executed_at).getTime(),
             };
             setTrades((prev) => [trade, ...prev].slice(0, MAX_TRADES));
           } else if (msg.type === "orderbook") {

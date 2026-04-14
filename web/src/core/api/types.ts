@@ -1,3 +1,51 @@
+// --- Generated types (from OpenAPI spec via Zod schemas) ---
+// Regenerate: cd web && pnpm generate:api
+
+import { z } from "zod";
+import {
+  UserResponse,
+  AuthResponse,
+  TokenPairResponse,
+  WalletResponse,
+  OrderResponse,
+  PairResponse,
+  TickerResponse,
+  TradeResponse,
+  OrderBookLevel,
+  OrderBookResponse,
+  NotificationResponse,
+} from "./generated/schemas";
+
+// Re-export Zod schemas for optional runtime validation
+export {
+  UserResponse as UserSchema,
+  AuthResponse as AuthResponseSchema,
+  TokenPairResponse as TokenPairSchema,
+  WalletResponse as WalletSchema,
+  OrderResponse as OrderSchema,
+  PairResponse as TradingPairSchema,
+  TickerResponse as TickerSchema,
+  TradeResponse as TradeSchema,
+  OrderBookLevel as OrderBookLevelSchema,
+  OrderBookResponse as OrderBookSchema,
+  NotificationResponse as NotificationSchema,
+} from "./generated/schemas";
+
+// Inferred TypeScript types (replace manual interfaces)
+export type IUser = z.infer<typeof UserResponse>;
+export type IAuthResponse = z.infer<typeof AuthResponse>;
+export type IRefreshResponse = z.infer<typeof TokenPairResponse>;
+export type IWallet = z.infer<typeof WalletResponse>;
+export type IOrder = z.infer<typeof OrderResponse>;
+export type ITradingPair = z.infer<typeof PairResponse>;
+export type ITicker = z.infer<typeof TickerResponse>;
+export type IMarketTrade = z.infer<typeof TradeResponse>;
+export type IOrderBookLevel = z.infer<typeof OrderBookLevel>;
+export type IOrderBook = z.infer<typeof OrderBookResponse>;
+export type INotification = z.infer<typeof NotificationResponse>;
+
+// --- Utility types (client-side only, not from API spec) ---
+
 export interface IApiResponse<T> {
   data: T;
   error?: { message: string; code?: string };
@@ -8,102 +56,4 @@ export interface IApiResponse<T> {
 export interface IHttpError {
   httpCode: number;
   message: string;
-}
-
-export interface IUser {
-  id: string;
-  email: string;
-  role: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface IAuthResponse {
-  user: IUser;
-  access_token: string;
-  expires_in: number;
-}
-
-export interface IRefreshResponse {
-  access_token: string;
-  expires_in: number;
-}
-
-export interface IWallet {
-  id: string;
-  user_id: string;
-  asset_id: string;
-  available: string;
-  locked: string;
-  updated_at: string;
-}
-
-export interface IOrder {
-  id: string;
-  user_id: string;
-  pair_id: string;
-  side: "buy" | "sell";
-  type: "limit";
-  price: string;
-  quantity: string;
-  filled_qty: string;
-  status: "new" | "partial" | "filled" | "cancelled";
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ITradingPair {
-  id: string;
-  base_asset: string;
-  quote_asset: string;
-  min_qty: string;
-  tick_size: string;
-  status: string;
-}
-
-export interface ITicker {
-  pair: string;
-  open: string;
-  high: string;
-  low: string;
-  close: string;
-  volume: string;
-  change_pct: string;
-  last_price: string;
-  ts: number;
-}
-
-export interface IMarketTrade {
-  id: string;
-  pair_id: string;
-  price: string;
-  quantity: string;
-  buyer_id: string;
-  seller_id: string;
-  executed_at: string;
-}
-
-export interface IOrderBookLevel {
-  price: string;
-  quantity: string;
-  order_count: number;
-}
-
-export interface IOrderBook {
-  pair_id: string;
-  bids: IOrderBookLevel[];
-  asks: IOrderBookLevel[];
-}
-
-export interface INotification {
-  id: string;
-  user_id: string;
-  event_key: string;
-  type: string;
-  title: string;
-  body: string;
-  is_read: boolean;
-  metadata: Record<string, string>;
-  created_at: string;
 }

@@ -17,6 +17,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.99.0
         version: 5.99.0(react@19.2.5)
+      '@zodios/core':
+        specifier: ^10.9.6
+        version: 10.9.6(axios@1.15.0)(zod@4.3.6)
       axios:
         specifier: ^1.15.0
         version: 1.15.0
@@ -3276,6 +3279,11 @@ snapshots:
     dependencies:
       axios: 1.15.0
       zod: 3.25.76
+
+  '@zodios/core@10.9.6(axios@1.15.0)(zod@4.3.6)':
+    dependencies:
+      axios: 1.15.0
+      zod: 4.3.6
 
   accepts@2.0.0:
     dependencies:

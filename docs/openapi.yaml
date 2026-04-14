@@ -484,6 +484,10 @@ components:
           type: integer
         user:
           $ref: '#/components/schemas/DtoUserResponse'
+      required:
+      - user
+      - access_token
+      - expires_in
       type: object
     DtoCreateOrderDTO:
       properties:
@@ -497,6 +501,12 @@ components:
           type: string
         type:
           type: string
+      required:
+      - pair_id
+      - side
+      - type
+      - price
+      - quantity
       type: object
     DtoDepositDTO:
       properties:
@@ -504,6 +514,9 @@ components:
           type: string
         asset_id:
           type: string
+      required:
+      - asset_id
+      - amount
       type: object
     DtoLoginDTO:
       properties:
@@ -517,6 +530,8 @@ components:
         message:
           example: logged out
           type: string
+      required:
+      - message
       type: object
     DtoNotificationListResponse:
       properties:
@@ -525,6 +540,8 @@ components:
             $ref: '#/components/schemas/DtoNotificationResponse'
           nullable: true
           type: array
+      required:
+      - notifications
       type: object
     DtoNotificationResponse:
       properties:
@@ -551,6 +568,14 @@ components:
         type:
           example: order_filled
           type: string
+      required:
+      - id
+      - type
+      - title
+      - body
+      - metadata
+      - is_read
+      - created_at
       type: object
     DtoOrderListResponse:
       properties:
@@ -559,6 +584,8 @@ components:
             $ref: '#/components/schemas/DtoOrderResponse'
           nullable: true
           type: array
+      required:
+      - orders
       type: object
     DtoOrderResponse:
       properties:
@@ -595,6 +622,18 @@ components:
         user_id:
           example: 550e8400-e29b-41d4-a716-446655440001
           type: string
+      required:
+      - id
+      - user_id
+      - pair_id
+      - side
+      - type
+      - price
+      - quantity
+      - filled_qty
+      - status
+      - created_at
+      - updated_at
       type: object
     DtoRegisterDTO:
       properties:
@@ -611,6 +650,9 @@ components:
         expires_in:
           example: 900
           type: integer
+      required:
+      - access_token
+      - expires_in
       type: object
     DtoUnreadCountResponse:
       properties:
@@ -618,6 +660,8 @@ components:
           example: 5
           format: int64
           type: integer
+      required:
+      - count
       type: object
     DtoUserListResponse:
       properties:
@@ -630,6 +674,9 @@ components:
             $ref: '#/components/schemas/DtoUserResponse'
           nullable: true
           type: array
+      required:
+      - users
+      - total
       type: object
     DtoUserResponse:
       properties:
@@ -651,6 +698,13 @@ components:
         updated_at:
           example: "2026-04-12T00:00:00Z"
           type: string
+      required:
+      - id
+      - email
+      - role
+      - status
+      - created_at
+      - updated_at
       type: object
     DtoWalletListResponse:
       properties:
@@ -659,6 +713,8 @@ components:
             $ref: '#/components/schemas/DtoWalletResponse'
           nullable: true
           type: array
+      required:
+      - wallets
       type: object
     DtoWalletResponse:
       properties:
@@ -680,6 +736,13 @@ components:
         user_id:
           example: 550e8400-e29b-41d4-a716-446655440001
           type: string
+      required:
+      - id
+      - user_id
+      - asset_id
+      - available
+      - locked
+      - updated_at
       type: object
     DtoWithdrawDTO:
       properties:
@@ -687,6 +750,9 @@ components:
           type: string
         asset_id:
           type: string
+      required:
+      - asset_id
+      - amount
       type: object
     MarketOrderBookLevel:
       properties:
@@ -700,6 +766,10 @@ components:
         quantity:
           example: "1.5"
           type: string
+      required:
+      - price
+      - quantity
+      - order_count
       type: object
     MarketOrderBookResponse:
       properties:
@@ -716,6 +786,10 @@ components:
         pair_id:
           example: BTC_USDT
           type: string
+      required:
+      - pair_id
+      - bids
+      - asks
       type: object
     MarketPairResponse:
       properties:
@@ -734,6 +808,12 @@ components:
         tick_size:
           example: "0.01"
           type: string
+      required:
+      - id
+      - base_asset
+      - quote_asset
+      - min_qty
+      - tick_size
       type: object
     MarketTickerResponse:
       properties:
@@ -765,6 +845,16 @@ components:
         volume:
           example: "1234.56"
           type: string
+      required:
+      - pair
+      - open
+      - high
+      - low
+      - close
+      - volume
+      - change_pct
+      - last_price
+      - timestamp
       type: object
     MarketTradeResponse:
       properties:
@@ -781,6 +871,11 @@ components:
         trade_id:
           example: 550e8400-e29b-41d4-a716-446655440000
           type: string
+      required:
+      - trade_id
+      - price
+      - quantity
+      - timestamp
       type: object
     V2Map:
       additionalProperties: {}

@@ -8,13 +8,12 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:api": "openapi-zod-client ../docs/openapi.yaml -o src/core/api/generated/schemas.ts --export-schemas --export-types --implicit-required && bash scripts/postprocess-schemas.sh"
+    "generate:api": "orval"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
     "@fontsource-variable/geist": "^5.2.8",
     "@tanstack/react-query": "^5.99.0",
-    "@zodios/core": "^10.9.6",
     "axios": "^1.15.0",
     "big.js": "^7.0.1",
     "class-variance-authority": "^0.7.1",
@@ -42,7 +41,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
-    "openapi-zod-client": "^1.18.3",
+    "orval": "^8.7.0",
     "tailwindcss": "^4.2.2",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",

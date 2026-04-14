@@ -7,19 +7,19 @@ type ListNotificationsDTO struct {
 }
 
 type NotificationResponse struct {
-	ID        string            `json:"id"         example:"550e8400-e29b-41d4-a716-446655440000"`
-	Type      string            `json:"type"       example:"order_filled"`
-	Title     string            `json:"title"      example:"Order Filled"`
-	Body      string            `json:"body"       example:"Your buy order for 0.5 BTC was filled"`
-	Metadata  map[string]string `json:"metadata"`
-	IsRead    bool              `json:"is_read"    example:"false"`
-	CreatedAt string            `json:"created_at" example:"2026-04-12T00:00:00Z"`
+	ID        string            `json:"id"         required:"true" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Type      string            `json:"type"       required:"true" example:"order_filled"`
+	Title     string            `json:"title"      required:"true" example:"Order Filled"`
+	Body      string            `json:"body"       required:"true" example:"Your buy order for 0.5 BTC was filled"`
+	Metadata  map[string]string `json:"metadata"   required:"true"`
+	IsRead    bool              `json:"is_read"    required:"true" example:"false"`
+	CreatedAt string            `json:"created_at" required:"true" example:"2026-04-12T00:00:00Z"`
 }
 
 type NotificationListResponse struct {
-	Notifications []NotificationResponse `json:"notifications"`
+	Notifications []NotificationResponse `json:"notifications" required:"true"`
 }
 
 type UnreadCountResponse struct {
-	Count int64 `json:"count" example:"5"`
+	Count int64 `json:"count" required:"true" example:"5"`
 }

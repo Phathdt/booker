@@ -1,1 +1,0 @@
-export { AuthModel } from "./auth";

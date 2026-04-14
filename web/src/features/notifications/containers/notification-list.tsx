@@ -1,5 +1,6 @@
-import { useQueryNotifications } from "../data/queries";
-import { useMutationMarkRead, useMutationMarkAllRead } from "../data/mutations";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetApiV1Notifications, getGetApiV1NotificationsQueryKey } from "@/core/api/generated/notifications/notifications";
+import { usePatchApiV1NotificationsIdRead, usePostApiV1NotificationsReadAll, getGetApiV1NotificationsUnreadCountQueryKey } from "@/core/api/generated/notifications/notifications";
 import { Button } from "@/components/ui/button";
 import type { INotification } from "@/core/api/types";
 
@@ -59,9 +60,24 @@ function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
 }
 
 export function NotificationList() {
-  const { data, isLoading } = useQueryNotifications();
-  const markRead = useMutationMarkRead();
-  const markAllRead = useMutationMarkAllRead();
+  const queryClient = useQueryClient();
+  const { data, isLoading } = useGetApiV1Notifications();
+  const markRead = usePatchApiV1NotificationsIdRead({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsUnreadCountQueryKey() });
+      },
+    },
+  });
+  const markAllRead = usePostApiV1NotificationsReadAll({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsUnreadCountQueryKey() });
+      },
+    },
+  });
 
   const notifications = (data?.notifications ?? []).slice(0, 10);
 
@@ -94,7 +110,7 @@ export function NotificationList() {
             <NotificationItem
               key={notification.id}
               notification={notification}
-              onMarkRead={(id) => markRead.mutate(id)}
+              onMarkRead={(id) => markRead.mutate({ id })}
             />
           ))
         )}

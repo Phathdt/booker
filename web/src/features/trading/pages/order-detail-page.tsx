@@ -5,8 +5,7 @@ import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { OrderModel } from "../data/models";
-import { useMutationCancelOrder } from "../data/mutations";
+import { getApiV1OrdersId, useDeleteApiV1OrdersId } from "@/core/api/generated/orders/orders";
 import type { IOrder } from "@/core/api/types";
 
 function statusVariant(
@@ -50,11 +49,15 @@ export function OrderDetailPage() {
 
   const { data: order, isLoading, isError } = useQuery({
     queryKey: ["order", id],
-    queryFn: () => OrderModel.getById(id!),
+    queryFn: () => getApiV1OrdersId(id!),
     enabled: Boolean(id),
   });
 
-  const { mutate: cancel, isPending: isCancelling } = useMutationCancelOrder();
+  const { mutate: cancel, isPending: isCancelling } = useDeleteApiV1OrdersId({
+    mutation: {
+      onSuccess: () => navigate("/trade"),
+    },
+  });
 
   const canCancel = order?.status === "new" || order?.status === "partial";
 
@@ -130,9 +133,7 @@ export function OrderDetailPage() {
             className="w-full"
             disabled={isCancelling}
             onClick={() => {
-              cancel(order.id, {
-                onSuccess: () => navigate("/trade"),
-              });
+              cancel({ id: order.id });
             }}
           >
             {isCancelling ? "Cancelling..." : "Cancel Order"}

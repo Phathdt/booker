@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useQueryWallets } from "../data/queries";
+import { useGetApiV1Wallet } from "@/core/api/generated/wallet/wallet";
 import { DepositDialog } from "./deposit-dialog";
 import { WithdrawDialog } from "./withdraw-dialog";
 import type { IWallet } from "@/core/api/types";
@@ -39,7 +39,7 @@ function mergeWallets(wallets: IWallet[]): AssetRow[] {
 }
 
 export function BalanceTable() {
-  const { data, isLoading } = useQueryWallets();
+  const { data, isLoading } = useGetApiV1Wallet();
   const [depositAsset, setDepositAsset] = useState<string | null>(null);
   const [withdrawAsset, setWithdrawAsset] = useState<string | null>(null);
 

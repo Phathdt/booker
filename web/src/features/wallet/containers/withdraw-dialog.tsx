@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useMutationWithdraw } from "../data/mutations";
+import { usePostApiV1WalletWithdraw, getGetApiV1WalletQueryKey } from "@/core/api/generated/wallet/wallet";
 
 interface WithdrawDialogProps {
   assetId: string;
@@ -25,20 +27,26 @@ export function WithdrawDialog({
   onOpenChange,
 }: WithdrawDialogProps) {
   const [amount, setAmount] = useState("");
-  const { mutate, isPending } = useMutationWithdraw();
+  const queryClient = useQueryClient();
+  const { mutate, isPending } = usePostApiV1WalletWithdraw({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetApiV1WalletQueryKey() });
+        toast.success("Withdrawal successful");
+        setAmount("");
+        onOpenChange(false);
+      },
+      onError: (err: unknown) => {
+        const message = err instanceof Error ? err.message : "Withdrawal failed";
+        toast.error(message);
+      },
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || Number(amount) <= 0) return;
-    mutate(
-      { assetId, amount },
-      {
-        onSuccess: () => {
-          setAmount("");
-          onOpenChange(false);
-        },
-      }
-    );
+    mutate({ data: { asset_id: assetId, amount } });
   };
 
   return (

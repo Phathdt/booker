@@ -1,4 +1,4 @@
-import { useQueryMarketTrades } from "../data/queries";
+import { useGetApiV1MarketTradesPair } from "@/core/api/generated/market/market";
 import type { IMarketTrade } from "@/core/api/types";
 
 interface TradeHistoryProps {
@@ -50,7 +50,7 @@ function getPriceColor(trade: IMarketTrade, prevTrade: IMarketTrade | undefined)
  * Usage: <TradeHistory pairId="BTC-USDT" />
  */
 export function TradeHistory({ pairId }: TradeHistoryProps) {
-  const { data, isLoading } = useQueryMarketTrades(pairId);
+  const { data, isLoading } = useGetApiV1MarketTradesPair(pairId, undefined, { query: { refetchInterval: 5000, enabled: Boolean(pairId) } });
 
   const trades = (data ?? []).slice(0, MAX_TRADES);
 

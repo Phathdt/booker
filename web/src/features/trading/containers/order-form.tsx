@@ -1,10 +1,12 @@
 import { useState } from "react";
 import Big from "big.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useMutationCreateOrder } from "../data/mutations";
+import { usePostApiV1Orders, getGetApiV1OrdersQueryKey } from "@/core/api/generated/orders/orders";
 import { cn } from "@/lib/utils";
 
 interface OrderFormProps {
@@ -30,22 +32,28 @@ interface SideFormProps {
 function SideForm({ side, pairId }: SideFormProps) {
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("");
-  const { mutate, isPending } = useMutationCreateOrder();
+  const queryClient = useQueryClient();
+  const { mutate, isPending } = usePostApiV1Orders({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetApiV1OrdersQueryKey() });
+        toast.success("Order placed");
+        setPrice("");
+        setQuantity("");
+      },
+      onError: (err: unknown) => {
+        const message = err instanceof Error ? err.message : "Failed to place order";
+        toast.error(message);
+      },
+    },
+  });
 
   const total = computeTotal(price, quantity);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!price || !quantity) return;
-    mutate(
-      { pair_id: pairId, side, type: "limit", price, quantity },
-      {
-        onSuccess: () => {
-          setPrice("");
-          setQuantity("");
-        },
-      }
-    );
+    mutate({ data: { pair_id: pairId, side, type: "limit", price, quantity } });
   };
 
   const isBuy = side === "buy";

@@ -1,1 +1,0 @@
-export { WalletModel } from "./wallet";

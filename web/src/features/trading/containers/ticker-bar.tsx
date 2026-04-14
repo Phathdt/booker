@@ -1,4 +1,4 @@
-import { useQueryTicker } from "../data/queries";
+import { useGetApiV1MarketTickerPair } from "@/core/api/generated/market/market";
 
 interface TickerBarProps {
   pairId: string;
@@ -9,7 +9,7 @@ interface TickerBarProps {
  * Usage: <TickerBar pairId="BTC-USDT" />
  */
 export function TickerBar({ pairId }: TickerBarProps) {
-  const { data: ticker, isLoading } = useQueryTicker(pairId);
+  const { data: ticker, isLoading } = useGetApiV1MarketTickerPair(pairId, { query: { refetchInterval: 3000, enabled: Boolean(pairId) } });
 
   if (isLoading) {
     return (

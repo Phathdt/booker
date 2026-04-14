@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PairSelector } from "../containers/pair-selector";
@@ -14,14 +14,13 @@ export function TradingPage() {
 
   const [selectedPair, setSelectedPair] = useState<string>("");
 
-  // Default to first pair once loaded
-  useEffect(() => {
-    if (!selectedPair && pairs.length > 0) {
-      setSelectedPair(pairs[0].id);
-    }
-  }, [pairs, selectedPair]);
+  // Default to first pair once loaded (derived state, no effect needed)
+  const activePair = useMemo(
+    () => selectedPair || (pairs.length > 0 ? pairs[0].id : ""),
+    [selectedPair, pairs],
+  );
 
-  if (isLoading && !selectedPair) {
+  if (isLoading && !activePair) {
     return (
       <Layout>
         <div className="flex h-64 items-center justify-center">
@@ -37,11 +36,11 @@ export function TradingPage() {
         {/* Header row with pair selector + ticker */}
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-bold tracking-tight">Trade</h1>
-          <PairSelector value={selectedPair} onChange={setSelectedPair} />
+          <PairSelector value={activePair} onChange={setSelectedPair} />
         </div>
 
         {/* Ticker bar */}
-        <TickerBar pairId={selectedPair} />
+        <TickerBar pairId={activePair} />
 
         {/* Top section: order book + order form */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -52,7 +51,7 @@ export function TradingPage() {
                 <CardTitle className="text-base">Order Book</CardTitle>
               </CardHeader>
               <CardContent>
-                <OrderBook pairId={selectedPair} />
+                <OrderBook pairId={activePair} />
               </CardContent>
             </Card>
           </div>
@@ -61,10 +60,10 @@ export function TradingPage() {
           <div>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">{selectedPair}</CardTitle>
+                <CardTitle className="text-base">{activePair}</CardTitle>
               </CardHeader>
               <CardContent>
-                <OrderForm pairId={selectedPair} />
+                <OrderForm pairId={activePair} />
               </CardContent>
             </Card>
           </div>
@@ -77,7 +76,7 @@ export function TradingPage() {
               <CardTitle className="text-base">Recent Trades</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <TradeHistory pairId={selectedPair} />
+              <TradeHistory pairId={activePair} />
             </CardContent>
           </Card>
 
@@ -86,7 +85,7 @@ export function TradingPage() {
               <CardTitle className="text-base">Open Orders</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <OpenOrders pairId={selectedPair} />
+              <OpenOrders pairId={activePair} />
             </CardContent>
           </Card>
         </div>

@@ -1,12 +1,3 @@
-// @title          Booker CEX API
-// @version        1.0
-// @description    Centralized Exchange demo — token trading platform
-// @host           localhost
-// @BasePath       /
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
-// @description Enter "Bearer {token}"
 package main
 
 import (
@@ -198,6 +189,20 @@ func main() {
 						Action: mycli.MigrateStatus,
 					},
 				},
+			},
+			{
+				Name:    "openapi-export",
+				Aliases: []string{"oa"},
+				Usage:   "Export combined OpenAPI 3.0 spec to file",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "output",
+						Aliases: []string{"o"},
+						Value:   "docs/openapi.yaml",
+						Usage:   "Output file path",
+					},
+				},
+				Action: mycli.RunOpenAPIExport,
 			},
 		},
 		Action: func(c *cli.Context) error {

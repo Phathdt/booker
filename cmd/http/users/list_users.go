@@ -11,14 +11,6 @@ import (
 )
 
 // ListUsers godoc
-// @Summary      List users
-// @Tags         users
-// @Security     BearerAuth
-// @Param        limit   query  int  false  "Limit"   default(20)
-// @Param        offset  query  int  false  "Offset"  default(0)
-// @Success      200  {object}  httpserver.Response{data=dto.UserListResponse}
-// @Failure      401  {object}  httpserver.Response{error=object}
-// @Router       /api/v1/users [get]
 func ListUsers(userSvc interfaces.UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		limit, err := strconv.Atoi(c.Query("limit", "20"))

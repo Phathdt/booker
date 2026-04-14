@@ -7,29 +7,16 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "booker/docs"
+	"booker/cmd/shared"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/swaggo/swag"
 	urfavecli "github.com/urfave/cli/v2"
 )
 
-const scalarHTML = `<!doctype html>
-<html>
-<head>
-    <title>Booker CEX API</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-</head>
-<body>
-    <script id="api-reference" data-url="/swagger/doc.json"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-</body>
-</html>`
-
-// RunSwaggerSvc starts a lightweight HTTP server that serves Scalar API docs.
+// RunSwaggerSvc starts a lightweight HTTP server that serves OpenAPI docs
+// via the fiberopenapi built-in /docs UI.
 func RunSwaggerSvc(c *urfavecli.Context) error {
 	httpPort := c.Int("http-port")
 
@@ -43,21 +30,8 @@ func RunSwaggerSvc(c *urfavecli.Context) error {
 	app.Use(recover.New())
 	app.Use(cors.New())
 
-	// Serve OpenAPI spec JSON
-	app.Get("/swagger/doc.json", func(c *fiber.Ctx) error {
-		doc, err := swag.ReadDoc()
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-		c.Set("Content-Type", "application/json")
-		return c.SendString(doc)
-	})
-
-	// Serve Scalar UI
-	app.Get("/swagger", func(c *fiber.Ctx) error {
-		c.Set("Content-Type", "text/html")
-		return c.SendString(scalarHTML)
-	})
+	// Initialize OpenAPI router — serves /docs and /docs/openapi.yaml
+	_ = shared.NewOpenAPIRouter(app)
 
 	// Health check for Traefik / Docker
 	app.Get("/healthz", func(c *fiber.Ctx) error {
@@ -67,7 +41,7 @@ func RunSwaggerSvc(c *urfavecli.Context) error {
 	httpAddr := fmt.Sprintf(":%d", httpPort)
 	errCh := make(chan error, 1)
 	go func() {
-		log.Info("Scalar API docs started", "address", httpAddr)
+		log.Info("OpenAPI docs started", "address", httpAddr)
 		if err := app.Listen(httpAddr); err != nil {
 			errCh <- err
 		}

@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// MarkAllAsRead marks all notifications as read for the authenticated user.
+// MarkAllAsRead godoc
 func MarkAllAsRead(svc interfaces.NotificationService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userID, ok := c.Locals("user_id").(string)

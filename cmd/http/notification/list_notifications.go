@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ListNotifications returns paginated notifications for the authenticated user.
+// ListNotifications godoc
 func ListNotifications(svc interfaces.NotificationService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req dto.ListNotificationsDTO

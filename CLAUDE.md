@@ -13,7 +13,7 @@
 
 ### Tech Stack
 
-Go 1.26, Fiber (REST), gRPC (inter-service), SQLC (Postgres), Redis, NATS JetStream, Traefik v3, buf (protobuf), goose (migrations), mockery (mocks), testcontainers (integration tests), go-playground/validator (input validation)
+Go 1.26, Fiber (REST), gRPC (inter-service), SQLC (Postgres), Redis, NATS JetStream, Traefik v3, buf (protobuf), goose (migrations), mockery (mocks), testcontainers (integration tests), go-playground/validator (input validation), oaswrap/spec + fiberopenapi (OpenAPI 3.0 docs)
 
 ### Services
 

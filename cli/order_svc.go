@@ -178,7 +178,8 @@ func RunOrderSvc(c *urfavecli.Context) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	orderHTTP.RegisterRoutes(app, orderService, tokenService)
+	r := shared.NewOpenAPIRouter(app)
+	orderHTTP.RegisterRoutes(r, orderService, tokenService)
 
 	httpserver.LogRoutes(app, "order-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)

@@ -1,7 +1,6 @@
 package order
 
 import (
-	_ "booker/modules/order/application/dto" // swagger
 	"booker/modules/order/domain/interfaces"
 	"booker/pkg/httpserver"
 
@@ -10,16 +9,6 @@ import (
 )
 
 // GetOrder godoc
-// @Summary      Get a single order by ID
-// @Tags         orders
-// @Security     BearerAuth
-// @Produce      json
-// @Param        id  path  string  true  "Order ID (UUID)"
-// @Success      200  {object}  httpserver.Response{data=dto.OrderResponse}
-// @Failure      400  {object}  httpserver.Response{error=object}
-// @Failure      401  {object}  httpserver.Response{error=object}
-// @Failure      404  {object}  httpserver.Response{error=object}
-// @Router       /api/v1/orders/{id} [get]
 func GetOrder(orderSvc interfaces.OrderService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		orderID := c.Params("id")

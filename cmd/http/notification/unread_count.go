@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// UnreadCount returns the count of unread notifications.
+// UnreadCount godoc
 func UnreadCount(svc interfaces.NotificationService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userID, ok := c.Locals("user_id").(string)

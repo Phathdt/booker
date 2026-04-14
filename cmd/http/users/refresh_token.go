@@ -13,12 +13,6 @@ import (
 )
 
 // RefreshToken godoc
-// @Summary      Refresh access token using HTTP-only cookie
-// @Tags         auth
-// @Produce      json
-// @Success      200   {object}  httpserver.Response{data=dto.TokenPairResponse}
-// @Failure      401   {object}  httpserver.Response{error=object}
-// @Router       /api/v1/auth/refresh [post]
 func RefreshToken(cfg *config.Config, uc *usecases.RefreshTokenUseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		refreshToken := c.Cookies(refreshTokenCookie)

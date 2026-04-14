@@ -116,7 +116,8 @@ func RunNotificationSvc(c *urfavecli.Context) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	notifHTTP.RegisterRoutes(app, notifService, tokenService, wsHub)
+	r := shared.NewOpenAPIRouter(app)
+	notifHTTP.RegisterRoutes(app, r, notifService, tokenService, wsHub)
 
 	if httpPort == 0 {
 		httpPort = 8086

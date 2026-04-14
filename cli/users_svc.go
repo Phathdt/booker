@@ -158,7 +158,8 @@ func RunUsersSvc(c *urfavecli.Context) error {
 	})
 
 	// Register REST routes
-	usersHTTP.RegisterRoutes(app, cfg, userService, tokenService, registerUC, loginUC, refreshTokenUC, logoutUC)
+	r := shared.NewOpenAPIRouter(app)
+	usersHTTP.RegisterRoutes(r, cfg, userService, tokenService, registerUC, loginUC, refreshTokenUC, logoutUC)
 
 	httpserver.LogRoutes(app, "users-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)

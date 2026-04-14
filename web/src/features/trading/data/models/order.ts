@@ -1,42 +1,36 @@
-import { Service } from "@/core/api/service";
-import { ORDER_ENDPOINT } from "@/core/api/endpoint";
+import {
+  getApiV1Orders,
+  postApiV1Orders,
+  getApiV1OrdersId,
+  deleteApiV1OrdersId,
+} from "@/core/api/generated/orders/orders";
 import type { IOrder } from "@/core/api/types";
+import type { GetApiV1OrdersParams } from "@/core/api/generated/models";
 
 interface OrderListResponse {
   orders: IOrder[];
 }
 
-interface CreateOrderPayload {
-  pair_id: string;
-  side: "buy" | "sell";
-  type: "limit";
-  price: string;
-  quantity: string;
-}
-
-interface OrderListParams {
-  pair_id?: string;
-  status?: string;
-  limit?: number;
-  offset?: number;
-}
-
 export class OrderModel {
-  private static service = new Service(ORDER_ENDPOINT.LIST);
-
-  static getAll(params?: OrderListParams): Promise<OrderListResponse> {
-    return OrderModel.service.get<OrderListResponse>(ORDER_ENDPOINT.LIST, params);
+  static getAll(params?: GetApiV1OrdersParams): Promise<OrderListResponse> {
+    return getApiV1Orders(params) as Promise<OrderListResponse>;
   }
 
   static getById(id: string): Promise<IOrder> {
-    return OrderModel.service.get<IOrder>(`${ORDER_ENDPOINT.LIST}/${id}`);
+    return getApiV1OrdersId(id) as Promise<IOrder>;
   }
 
-  static create(payload: CreateOrderPayload): Promise<IOrder> {
-    return OrderModel.service.post<IOrder>(payload, ORDER_ENDPOINT.CREATE);
+  static create(payload: {
+    pair_id: string;
+    side: string;
+    type: string;
+    price: string;
+    quantity: string;
+  }): Promise<IOrder> {
+    return postApiV1Orders(payload) as Promise<IOrder>;
   }
 
   static cancel(id: string): Promise<IOrder> {
-    return OrderModel.service.delete<IOrder>(`${ORDER_ENDPOINT.LIST}/${id}`);
+    return deleteApiV1OrdersId(id) as Promise<IOrder>;
   }
 }

@@ -76,9 +76,15 @@ AXIOS_INSTANCE.interceptors.response.use(
   },
 );
 
-// Orval custom instance — must match mutator signature
+// Orval custom instance — unwraps { data, error, trace_id } response wrapper
 export const axiosInstance = <T>(config: AxiosRequestConfig): Promise<T> => {
-  return AXIOS_INSTANCE(config).then(({ data }) => data);
+  return AXIOS_INSTANCE(config).then(({ data }) => {
+    // Backend wraps all responses in { data: T, error, trace_id, request_id }
+    if (data && typeof data === "object" && "data" in data) {
+      return (data as { data: T }).data;
+    }
+    return data as T;
+  });
 };
 
 export default axiosInstance;

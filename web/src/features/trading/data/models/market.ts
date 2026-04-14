@@ -1,27 +1,30 @@
-import { Service } from "@/core/api/service";
-import { MARKET_ENDPOINT } from "@/core/api/endpoint";
+import {
+  getApiV1MarketPairs,
+  getApiV1MarketTicker,
+  getApiV1MarketTickerPair,
+  getApiV1MarketTradesPair,
+  getApiV1MarketOrderbookPair,
+} from "@/core/api/generated/market/market";
 import type { ITicker, IMarketTrade, ITradingPair, IOrderBook } from "@/core/api/types";
 
-interface MarketTradesResponse {
-  trades: IMarketTrade[];
-}
-
 export class MarketModel {
-  private static service = new Service(MARKET_ENDPOINT.PAIRS);
-
   static getPairs(): Promise<ITradingPair[]> {
-    return MarketModel.service.get<ITradingPair[]>(MARKET_ENDPOINT.PAIRS);
+    return getApiV1MarketPairs() as Promise<ITradingPair[]>;
+  }
+
+  static getAllTickers(): Promise<ITicker[]> {
+    return getApiV1MarketTicker() as Promise<ITicker[]>;
   }
 
   static getTicker(pair: string): Promise<ITicker> {
-    return MarketModel.service.get<ITicker>(MARKET_ENDPOINT.TICKER(pair));
+    return getApiV1MarketTickerPair(pair) as Promise<ITicker>;
   }
 
-  static getTrades(pair: string): Promise<MarketTradesResponse> {
-    return MarketModel.service.get<MarketTradesResponse>(MARKET_ENDPOINT.TRADES(pair));
+  static getTrades(pair: string): Promise<IMarketTrade[]> {
+    return getApiV1MarketTradesPair(pair) as Promise<IMarketTrade[]>;
   }
 
   static getOrderBook(pair: string): Promise<IOrderBook> {
-    return MarketModel.service.get<IOrderBook>(MARKET_ENDPOINT.ORDERBOOK(pair));
+    return getApiV1MarketOrderbookPair(pair) as Promise<IOrderBook>;
   }
 }

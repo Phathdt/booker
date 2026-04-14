@@ -27,7 +27,7 @@ export default defineConfig({
       mode: "tags-split",
       target: "src/core/api/generated",
       client: "zod",
-      fileExtension: ".zod",
+      fileExtension: ".zod.ts",
     },
   },
 });

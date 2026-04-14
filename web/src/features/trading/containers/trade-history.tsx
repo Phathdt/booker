@@ -52,7 +52,7 @@ function getPriceColor(trade: IMarketTrade, prevTrade: IMarketTrade | undefined)
 export function TradeHistory({ pairId }: TradeHistoryProps) {
   const { data, isLoading } = useQueryMarketTrades(pairId);
 
-  const trades = (data?.trades ?? []).slice(0, MAX_TRADES);
+  const trades = (data ?? []).slice(0, MAX_TRADES);
 
   if (isLoading) {
     return (

@@ -1,33 +1,30 @@
-import { Service } from "./service";
-import { AUTH_ENDPOINT } from "./endpoint";
+import {
+  postApiV1AuthLogin,
+  postApiV1AuthRegister,
+  postApiV1AuthLogout,
+  getApiV1AuthMe,
+  postApiV1AuthRefresh,
+} from "./generated/auth/auth";
 import type { IAuthResponse, IRefreshResponse, IUser } from "./types";
-
-const service = new Service(AUTH_ENDPOINT.LOGIN);
 
 export const authService = {
   login(email: string, password: string): Promise<IAuthResponse> {
-    return service.post<IAuthResponse>(
-      { email, password },
-      AUTH_ENDPOINT.LOGIN
-    );
+    return postApiV1AuthLogin({ email, password }) as Promise<IAuthResponse>;
   },
 
   register(email: string, password: string): Promise<IAuthResponse> {
-    return service.post<IAuthResponse>(
-      { email, password },
-      AUTH_ENDPOINT.REGISTER
-    );
+    return postApiV1AuthRegister({ email, password }) as Promise<IAuthResponse>;
   },
 
   logout(): Promise<{ message: string }> {
-    return service.post<{ message: string }>({}, AUTH_ENDPOINT.LOGOUT);
+    return postApiV1AuthLogout() as Promise<{ message: string }>;
   },
 
   getMe(): Promise<IUser> {
-    return service.get<IUser>(AUTH_ENDPOINT.ME);
+    return getApiV1AuthMe() as Promise<IUser>;
   },
 
   refresh(): Promise<IRefreshResponse> {
-    return service.post<IRefreshResponse>({}, AUTH_ENDPOINT.REFRESH);
+    return postApiV1AuthRefresh() as Promise<IRefreshResponse>;
   },
 };

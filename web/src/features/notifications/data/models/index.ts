@@ -1,5 +1,9 @@
-import { Service } from "@/core/api/service";
-import { NOTIFICATION_ENDPOINT } from "@/core/api/endpoint";
+import {
+  getApiV1Notifications,
+  patchApiV1NotificationsIdRead,
+  postApiV1NotificationsReadAll,
+  getApiV1NotificationsUnreadCount,
+} from "@/core/api/generated/notifications/notifications";
 import type { INotification } from "@/core/api/types";
 
 interface NotificationListResponse {
@@ -11,28 +15,19 @@ interface UnreadCountResponse {
 }
 
 export class NotificationModel {
-  private static service = new Service(NOTIFICATION_ENDPOINT.LIST);
-
   static getAll(): Promise<NotificationListResponse> {
-    return NotificationModel.service.get<NotificationListResponse>(
-      NOTIFICATION_ENDPOINT.LIST
-    );
+    return getApiV1Notifications() as Promise<NotificationListResponse>;
   }
 
   static getUnreadCount(): Promise<UnreadCountResponse> {
-    return NotificationModel.service.get<UnreadCountResponse>(
-      NOTIFICATION_ENDPOINT.UNREAD_COUNT
-    );
+    return getApiV1NotificationsUnreadCount() as Promise<UnreadCountResponse>;
   }
 
   static markRead(id: string): Promise<INotification> {
-    return NotificationModel.service.post<INotification>(
-      {},
-      NOTIFICATION_ENDPOINT.READ(id)
-    );
+    return patchApiV1NotificationsIdRead(id) as unknown as Promise<INotification>;
   }
 
   static markAllRead(): Promise<void> {
-    return NotificationModel.service.post<void>({}, NOTIFICATION_ENDPOINT.READ_ALL);
+    return postApiV1NotificationsReadAll() as unknown as Promise<void>;
   }
 }

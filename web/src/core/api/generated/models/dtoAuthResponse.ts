@@ -8,7 +8,7 @@
 import type { DtoUserResponse } from './dtoUserResponse';
 
 export interface DtoAuthResponse {
-  access_token: string;
-  expires_in: number;
+  accessToken: string;
+  expiresIn: number;
   user: DtoUserResponse;
 }

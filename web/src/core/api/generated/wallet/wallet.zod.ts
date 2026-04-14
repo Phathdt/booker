@@ -14,12 +14,12 @@ import * as zod from 'zod';
  */
 export const GetApiV1WalletResponse = zod.object({
   "wallets": zod.array(zod.object({
-  "asset_id": zod.string(),
+  "assetId": zod.string(),
   "available": zod.string(),
   "id": zod.string(),
   "locked": zod.string(),
-  "updated_at": zod.string(),
-  "user_id": zod.string()
+  "updatedAt": zod.string(),
+  "userId": zod.string()
 })).nullable()
 })
 
@@ -32,12 +32,12 @@ export const GetApiV1WalletAssetIdParams = zod.object({
 })
 
 export const GetApiV1WalletAssetIdResponse = zod.object({
-  "asset_id": zod.string(),
+  "assetId": zod.string(),
   "available": zod.string(),
   "id": zod.string(),
   "locked": zod.string(),
-  "updated_at": zod.string(),
-  "user_id": zod.string()
+  "updatedAt": zod.string(),
+  "userId": zod.string()
 })
 
 /**
@@ -46,16 +46,16 @@ export const GetApiV1WalletAssetIdResponse = zod.object({
  */
 export const PostApiV1WalletDepositBody = zod.object({
   "amount": zod.string(),
-  "asset_id": zod.string()
+  "assetId": zod.string()
 })
 
 export const PostApiV1WalletDepositResponse = zod.object({
-  "asset_id": zod.string(),
+  "assetId": zod.string(),
   "available": zod.string(),
   "id": zod.string(),
   "locked": zod.string(),
-  "updated_at": zod.string(),
-  "user_id": zod.string()
+  "updatedAt": zod.string(),
+  "userId": zod.string()
 })
 
 /**
@@ -64,15 +64,15 @@ export const PostApiV1WalletDepositResponse = zod.object({
  */
 export const PostApiV1WalletWithdrawBody = zod.object({
   "amount": zod.string(),
-  "asset_id": zod.string()
+  "assetId": zod.string()
 })
 
 export const PostApiV1WalletWithdrawResponse = zod.object({
-  "asset_id": zod.string(),
+  "assetId": zod.string(),
   "available": zod.string(),
   "id": zod.string(),
   "locked": zod.string(),
-  "updated_at": zod.string(),
-  "user_id": zod.string()
+  "updatedAt": zod.string(),
+  "userId": zod.string()
 })
 

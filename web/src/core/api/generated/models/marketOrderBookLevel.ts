@@ -7,7 +7,7 @@
  */
 
 export interface MarketOrderBookLevel {
-  order_count: number;
+  orderCount: number;
   price: string;
   quantity: string;
 }

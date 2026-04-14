@@ -11,8 +11,8 @@ interface WsTickerMessage {
     low: string;
     close: string;
     volume: string;
-    change_pct: string;
-    last_price: string;
+    changePct: string;
+    lastPrice: string;
     ts: number;
   };
 }
@@ -108,13 +108,13 @@ export function useMarketWS(pair: string): UseMarketWSResult {
               low: msg.data.low,
               close: msg.data.close,
               volume: msg.data.volume,
-              change_pct: msg.data.change_pct,
-              last_price: msg.data.last_price,
+              changePct: msg.data.changePct,
+              lastPrice: msg.data.lastPrice,
               timestamp: msg.data.ts,
             });
           } else if (msg.type === "trade") {
             const trade: IMarketTrade = {
-              trade_id: msg.data.id,
+              tradeId: msg.data.id,
               price: msg.data.price,
               quantity: msg.data.quantity,
               timestamp: new Date(msg.data.executed_at).getTime(),

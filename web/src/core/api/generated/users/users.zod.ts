@@ -20,12 +20,12 @@ export const GetApiV1UsersQueryParams = zod.object({
 export const GetApiV1UsersResponse = zod.object({
   "total": zod.number(),
   "users": zod.array(zod.object({
-  "created_at": zod.string(),
+  "createdAt": zod.string(),
   "email": zod.string(),
   "id": zod.string(),
   "role": zod.string(),
   "status": zod.string(),
-  "updated_at": zod.string()
+  "updatedAt": zod.string()
 })).nullable()
 })
 
@@ -38,11 +38,11 @@ export const GetApiV1UsersIdParams = zod.object({
 })
 
 export const GetApiV1UsersIdResponse = zod.object({
-  "created_at": zod.string(),
+  "createdAt": zod.string(),
   "email": zod.string(),
   "id": zod.string(),
   "role": zod.string(),
   "status": zod.string(),
-  "updated_at": zod.string()
+  "updatedAt": zod.string()
 })
 

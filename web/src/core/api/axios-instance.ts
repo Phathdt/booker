@@ -58,10 +58,10 @@ AXIOS_INSTANCE.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const { data } = await AXIOS_INSTANCE.post<{ data: { access_token: string } }>(
+      const { data } = await AXIOS_INSTANCE.post<{ data: { accessToken: string } }>(
         AUTH_ENDPOINT.REFRESH,
       );
-      const newToken = data.data.access_token;
+      const newToken = data.data.accessToken;
       setAccessToken(newToken);
       processQueue(null, newToken);
       original.headers = { ...original.headers, Authorization: `Bearer ${newToken}` };
@@ -76,10 +76,10 @@ AXIOS_INSTANCE.interceptors.response.use(
   },
 );
 
-// Orval custom instance — unwraps { data, error, trace_id } response wrapper
+// Orval custom instance — unwraps { data, error, traceId } response wrapper
 export const axiosInstance = <T>(config: AxiosRequestConfig): Promise<T> => {
   return AXIOS_INSTANCE(config).then(({ data }) => {
-    // Backend wraps all responses in { data: T, error, trace_id, request_id }
+    // Backend wraps all responses in { data: T, error, traceId, requestId }
     if (data && typeof data === "object" && "data" in data) {
       return (data as { data: T }).data;
     }

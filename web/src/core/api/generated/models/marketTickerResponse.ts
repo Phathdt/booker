@@ -7,10 +7,10 @@
  */
 
 export interface MarketTickerResponse {
-  change_pct: string;
+  changePct: string;
   close: string;
   high: string;
-  last_price: string;
+  lastPrice: string;
   low: string;
   open: string;
   pair: string;

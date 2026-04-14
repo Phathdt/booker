@@ -12,8 +12,8 @@ type NotificationResponse struct {
 	Title     string            `json:"title"      required:"true" example:"Order Filled"`
 	Body      string            `json:"body"       required:"true" example:"Your buy order for 0.5 BTC was filled"`
 	Metadata  map[string]string `json:"metadata"   required:"true"`
-	IsRead    bool              `json:"is_read"    required:"true" example:"false"`
-	CreatedAt string            `json:"created_at" required:"true" example:"2026-04-12T00:00:00Z"`
+	IsRead    bool              `json:"isRead"    required:"true" example:"false"`
+	CreatedAt string            `json:"createdAt" required:"true" example:"2026-04-12T00:00:00Z"`
 }
 
 type NotificationListResponse struct {

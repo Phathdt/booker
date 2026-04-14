@@ -7,9 +7,9 @@
  */
 
 export interface MarketPairResponse {
-  base_asset: string;
+  baseAsset: string;
   id: string;
-  min_qty: string;
-  quote_asset: string;
-  tick_size: string;
+  minQty: string;
+  quoteAsset: string;
+  tickSize: string;
 }

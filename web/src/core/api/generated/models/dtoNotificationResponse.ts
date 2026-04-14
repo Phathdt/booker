@@ -9,9 +9,9 @@ import type { DtoNotificationResponseMetadata } from './dtoNotificationResponseM
 
 export interface DtoNotificationResponse {
   body: string;
-  created_at: string;
+  createdAt: string;
   id: string;
-  is_read: boolean;
+  isRead: boolean;
   /** @nullable */
   metadata: DtoNotificationResponseMetadata;
   title: string;

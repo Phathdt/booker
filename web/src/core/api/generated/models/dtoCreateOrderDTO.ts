@@ -7,7 +7,7 @@
  */
 
 export interface DtoCreateOrderDTO {
-  pair_id: string;
+  pairId: string;
   price: string;
   quantity: string;
   side: string;

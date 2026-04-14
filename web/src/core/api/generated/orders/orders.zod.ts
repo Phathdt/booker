@@ -21,17 +21,17 @@ export const GetApiV1OrdersQueryParams = zod.object({
 
 export const GetApiV1OrdersResponse = zod.object({
   "orders": zod.array(zod.object({
-  "created_at": zod.string(),
-  "filled_qty": zod.string(),
+  "createdAt": zod.string(),
+  "filledQty": zod.string(),
   "id": zod.string(),
-  "pair_id": zod.string(),
+  "pairId": zod.string(),
   "price": zod.string(),
   "quantity": zod.string(),
   "side": zod.string(),
   "status": zod.string(),
   "type": zod.string(),
-  "updated_at": zod.string(),
-  "user_id": zod.string()
+  "updatedAt": zod.string(),
+  "userId": zod.string()
 })).nullable()
 })
 
@@ -40,7 +40,7 @@ export const GetApiV1OrdersResponse = zod.object({
  * @summary Create a new limit order
  */
 export const PostApiV1OrdersBody = zod.object({
-  "pair_id": zod.string(),
+  "pairId": zod.string(),
   "price": zod.string(),
   "quantity": zod.string(),
   "side": zod.string(),
@@ -56,17 +56,17 @@ export const DeleteApiV1OrdersIdParams = zod.object({
 })
 
 export const DeleteApiV1OrdersIdResponse = zod.object({
-  "created_at": zod.string(),
-  "filled_qty": zod.string(),
+  "createdAt": zod.string(),
+  "filledQty": zod.string(),
   "id": zod.string(),
-  "pair_id": zod.string(),
+  "pairId": zod.string(),
   "price": zod.string(),
   "quantity": zod.string(),
   "side": zod.string(),
   "status": zod.string(),
   "type": zod.string(),
-  "updated_at": zod.string(),
-  "user_id": zod.string()
+  "updatedAt": zod.string(),
+  "userId": zod.string()
 })
 
 /**
@@ -78,16 +78,16 @@ export const GetApiV1OrdersIdParams = zod.object({
 })
 
 export const GetApiV1OrdersIdResponse = zod.object({
-  "created_at": zod.string(),
-  "filled_qty": zod.string(),
+  "createdAt": zod.string(),
+  "filledQty": zod.string(),
   "id": zod.string(),
-  "pair_id": zod.string(),
+  "pairId": zod.string(),
   "price": zod.string(),
   "quantity": zod.string(),
   "side": zod.string(),
   "status": zod.string(),
   "type": zod.string(),
-  "updated_at": zod.string(),
-  "user_id": zod.string()
+  "updatedAt": zod.string(),
+  "userId": zod.string()
 })
 

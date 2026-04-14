@@ -21,9 +21,9 @@ export const GetApiV1NotificationsQueryParams = zod.object({
 export const GetApiV1NotificationsResponse = zod.object({
   "notifications": zod.array(zod.object({
   "body": zod.string(),
-  "created_at": zod.string(),
+  "createdAt": zod.string(),
   "id": zod.string(),
-  "is_read": zod.boolean(),
+  "isRead": zod.boolean(),
   "metadata": zod.record(zod.string(), zod.string()).nullable(),
   "title": zod.string(),
   "type": zod.string()

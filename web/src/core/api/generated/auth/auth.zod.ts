@@ -18,15 +18,15 @@ export const PostApiV1AuthLoginBody = zod.object({
 })
 
 export const PostApiV1AuthLoginResponse = zod.object({
-  "access_token": zod.string(),
-  "expires_in": zod.number(),
+  "accessToken": zod.string(),
+  "expiresIn": zod.number(),
   "user": zod.object({
-  "created_at": zod.string(),
+  "createdAt": zod.string(),
   "email": zod.string(),
   "id": zod.string(),
   "role": zod.string(),
   "status": zod.string(),
-  "updated_at": zod.string()
+  "updatedAt": zod.string()
 })
 })
 
@@ -43,12 +43,12 @@ export const PostApiV1AuthLogoutResponse = zod.object({
  * @summary Get current authenticated user
  */
 export const GetApiV1AuthMeResponse = zod.object({
-  "created_at": zod.string(),
+  "createdAt": zod.string(),
   "email": zod.string(),
   "id": zod.string(),
   "role": zod.string(),
   "status": zod.string(),
-  "updated_at": zod.string()
+  "updatedAt": zod.string()
 })
 
 /**
@@ -56,8 +56,8 @@ export const GetApiV1AuthMeResponse = zod.object({
  * @summary Refresh access token
  */
 export const PostApiV1AuthRefreshResponse = zod.object({
-  "access_token": zod.string(),
-  "expires_in": zod.number()
+  "accessToken": zod.string(),
+  "expiresIn": zod.number()
 })
 
 /**

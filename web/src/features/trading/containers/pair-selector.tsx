@@ -23,7 +23,7 @@ export function PairSelector({ value, onChange }: PairSelectorProps) {
       <SelectContent>
         {pairs.map((pair) => (
           <SelectItem key={pair.id} value={pair.id}>
-            {pair.base_asset} / {pair.quote_asset}
+            {pair.baseAsset} / {pair.quoteAsset}
           </SelectItem>
         ))}
       </SelectContent>

@@ -28,10 +28,10 @@ function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
     <button
       type="button"
       className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-muted/50 transition-colors border-b border-border last:border-b-0 ${
-        !notification.is_read ? "bg-muted/20" : ""
+        !notification.isRead ? "bg-muted/20" : ""
       }`}
       onClick={() => {
-        if (!notification.is_read) {
+        if (!notification.isRead) {
           onMarkRead(notification.id);
         }
       }}
@@ -39,9 +39,9 @@ function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
       <div className="mt-1.5 shrink-0">
         <span
           className={`block h-2 w-2 rounded-full ${
-            notification.is_read ? "bg-transparent" : "bg-blue-500"
+            notification.isRead ? "bg-transparent" : "bg-blue-500"
           }`}
-          aria-label={notification.is_read ? "read" : "unread"}
+          aria-label={notification.isRead ? "read" : "unread"}
         />
       </div>
       <div className="flex-1 min-w-0">
@@ -52,7 +52,7 @@ function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
           {notification.body}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          {formatTime(notification.created_at)}
+          {formatTime(notification.createdAt)}
         </p>
       </div>
     </button>
@@ -90,7 +90,7 @@ export function NotificationList() {
           size="sm"
           className="text-xs h-auto py-1"
           onClick={() => markAllRead.mutate()}
-          disabled={markAllRead.isPending || notifications.every((n) => n.is_read)}
+          disabled={markAllRead.isPending || notifications.every((n) => n.isRead)}
         >
           Mark all read
         </Button>

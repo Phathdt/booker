@@ -7,10 +7,10 @@
  */
 
 export interface DtoUserResponse {
-  created_at: string;
+  createdAt: string;
   email: string;
   id: string;
   role: string;
   status: string;
-  updated_at: string;
+  updatedAt: string;
 }

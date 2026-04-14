@@ -7,15 +7,15 @@
  */
 
 export interface DtoOrderResponse {
-  created_at: string;
-  filled_qty: string;
+  createdAt: string;
+  filledQty: string;
   id: string;
-  pair_id: string;
+  pairId: string;
   price: string;
   quantity: string;
   side: string;
   status: string;
   type: string;
-  updated_at: string;
-  user_id: string;
+  updatedAt: string;
+  userId: string;
 }

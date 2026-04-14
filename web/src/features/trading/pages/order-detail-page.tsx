@@ -103,7 +103,7 @@ export function OrderDetailPage() {
           </CardHeader>
           <CardContent>
             <DetailRow label="Order ID" value={<span className="font-mono text-xs">{order.id}</span>} />
-            <DetailRow label="Pair" value={order.pair_id} />
+            <DetailRow label="Pair" value={order.pairId} />
             <DetailRow
               label="Side"
               value={
@@ -121,9 +121,9 @@ export function OrderDetailPage() {
             <DetailRow label="Type" value={order.type.toUpperCase()} />
             <DetailRow label="Price" value={<span className="font-mono">{order.price}</span>} />
             <DetailRow label="Quantity" value={<span className="font-mono">{order.quantity}</span>} />
-            <DetailRow label="Filled" value={<span className="font-mono">{order.filled_qty}</span>} />
-            <DetailRow label="Created" value={formatDate(order.created_at)} />
-            <DetailRow label="Updated" value={formatDate(order.updated_at)} />
+            <DetailRow label="Filled" value={<span className="font-mono">{order.filledQty}</span>} />
+            <DetailRow label="Created" value={formatDate(order.createdAt)} />
+            <DetailRow label="Updated" value={formatDate(order.updatedAt)} />
           </CardContent>
         </Card>
 

@@ -8,5 +8,5 @@
 
 export interface DtoWithdrawDTO {
   amount: string;
-  asset_id: string;
+  assetId: string;
 }

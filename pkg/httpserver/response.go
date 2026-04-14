@@ -9,8 +9,8 @@ import (
 type Response struct {
 	Data      any    `json:"data,omitempty"`
 	Error     any    `json:"error,omitempty"`
-	TraceID   string `json:"trace_id,omitempty"`
-	RequestID string `json:"request_id,omitempty"`
+	TraceID   string `json:"traceId,omitempty"`
+	RequestID string `json:"requestId,omitempty"`
 }
 
 // OK sends a 200 response with data + trace context.

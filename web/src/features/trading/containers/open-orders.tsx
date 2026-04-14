@@ -94,14 +94,14 @@ export function OpenOrders({ pairId }: OpenOrdersProps) {
         {orders.map((order) => (
           <TableRow key={order.id}>
             <TableCell className="text-xs text-muted-foreground">
-              {formatDate(order.created_at)}
+              {formatDate(order.createdAt)}
             </TableCell>
             <TableCell className="font-medium">
               <Link
                 to={`/orders/${order.id}`}
                 className="hover:underline"
               >
-                {order.pair_id}
+                {order.pairId}
               </Link>
             </TableCell>
             <TableCell>
@@ -117,7 +117,7 @@ export function OpenOrders({ pairId }: OpenOrdersProps) {
             </TableCell>
             <TableCell className="text-right font-mono">{order.price}</TableCell>
             <TableCell className="text-right font-mono">{order.quantity}</TableCell>
-            <TableCell className="text-right font-mono">{order.filled_qty}</TableCell>
+            <TableCell className="text-right font-mono">{order.filledQty}</TableCell>
             <TableCell>
               <Badge variant={statusVariant(order.status)}>
                 {order.status}

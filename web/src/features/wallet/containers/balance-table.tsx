@@ -28,7 +28,7 @@ interface AssetRow {
 
 function mergeWallets(wallets: IWallet[]): AssetRow[] {
   return KNOWN_ASSETS.map((asset) => {
-    const wallet = wallets.find((w) => w.asset_id === asset.id);
+    const wallet = wallets.find((w) => w.assetId === asset.id);
     return {
       id: asset.id,
       name: asset.name,

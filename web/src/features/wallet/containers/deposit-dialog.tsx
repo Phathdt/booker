@@ -40,7 +40,7 @@ export function DepositDialog({ assetId, open, onOpenChange }: DepositDialogProp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || Number(amount) <= 0) return;
-    mutate({ data: { asset_id: assetId, amount } });
+    mutate({ data: { assetId: assetId, amount } });
   };
 
   return (

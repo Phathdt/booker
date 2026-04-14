@@ -19,8 +19,8 @@ export type { DtoNotificationResponse as INotification } from "./generated/model
 export interface IApiResponse<T> {
   data: T;
   error?: { message: string; code?: string };
-  trace_id?: string;
-  request_id?: string;
+  traceId?: string;
+  requestId?: string;
 }
 
 export interface IHttpError {

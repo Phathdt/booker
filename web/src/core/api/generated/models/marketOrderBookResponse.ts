@@ -12,5 +12,5 @@ export interface MarketOrderBookResponse {
   asks: MarketOrderBookLevel[] | null;
   /** @nullable */
   bids: MarketOrderBookLevel[] | null;
-  pair_id: string;
+  pairId: string;
 }

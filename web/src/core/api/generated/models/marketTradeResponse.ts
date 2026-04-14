@@ -10,5 +10,5 @@ export interface MarketTradeResponse {
   price: string;
   quantity: string;
   timestamp: number;
-  trade_id: string;
+  tradeId: string;
 }

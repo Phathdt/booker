@@ -12,11 +12,11 @@ import (
 type OrderBookLevel struct {
 	Price      string `json:"price"       required:"true" example:"50000.00"`
 	Quantity   string `json:"quantity"    required:"true" example:"1.5"`
-	OrderCount int32  `json:"order_count" required:"true" example:"3"`
+	OrderCount int32  `json:"orderCount" required:"true" example:"3"`
 }
 
 type OrderBookResponse struct {
-	PairID string           `json:"pair_id" required:"true" example:"BTC_USDT"`
+	PairID string           `json:"pairId" required:"true" example:"BTC_USDT"`
 	Bids   []OrderBookLevel `json:"bids"    required:"true"`
 	Asks   []OrderBookLevel `json:"asks"    required:"true"`
 }

@@ -22,16 +22,16 @@ export const GetApiV1MarketOrderbookPairQueryParams = zod.object({
 
 export const GetApiV1MarketOrderbookPairResponse = zod.object({
   "asks": zod.array(zod.object({
-  "order_count": zod.number(),
+  "orderCount": zod.number(),
   "price": zod.string(),
   "quantity": zod.string()
 })).nullable(),
   "bids": zod.array(zod.object({
-  "order_count": zod.number(),
+  "orderCount": zod.number(),
   "price": zod.string(),
   "quantity": zod.string()
 })).nullable(),
-  "pair_id": zod.string()
+  "pairId": zod.string()
 })
 
 /**
@@ -39,11 +39,11 @@ export const GetApiV1MarketOrderbookPairResponse = zod.object({
  * @summary List active trading pairs
  */
 export const GetApiV1MarketPairsResponseItem = zod.object({
-  "base_asset": zod.string(),
+  "baseAsset": zod.string(),
   "id": zod.string(),
-  "min_qty": zod.string(),
-  "quote_asset": zod.string(),
-  "tick_size": zod.string()
+  "minQty": zod.string(),
+  "quoteAsset": zod.string(),
+  "tickSize": zod.string()
 })
 export const GetApiV1MarketPairsResponse = zod.array(GetApiV1MarketPairsResponseItem)
 
@@ -52,10 +52,10 @@ export const GetApiV1MarketPairsResponse = zod.array(GetApiV1MarketPairsResponse
  * @summary Get all pair tickers
  */
 export const GetApiV1MarketTickerResponseItem = zod.object({
-  "change_pct": zod.string(),
+  "changePct": zod.string(),
   "close": zod.string(),
   "high": zod.string(),
-  "last_price": zod.string(),
+  "lastPrice": zod.string(),
   "low": zod.string(),
   "open": zod.string(),
   "pair": zod.string(),
@@ -73,10 +73,10 @@ export const GetApiV1MarketTickerPairParams = zod.object({
 })
 
 export const GetApiV1MarketTickerPairResponse = zod.object({
-  "change_pct": zod.string(),
+  "changePct": zod.string(),
   "close": zod.string(),
   "high": zod.string(),
-  "last_price": zod.string(),
+  "lastPrice": zod.string(),
   "low": zod.string(),
   "open": zod.string(),
   "pair": zod.string(),
@@ -100,7 +100,7 @@ export const GetApiV1MarketTradesPairResponseItem = zod.object({
   "price": zod.string(),
   "quantity": zod.string(),
   "timestamp": zod.number(),
-  "trade_id": zod.string()
+  "tradeId": zod.string()
 })
 export const GetApiV1MarketTradesPairResponse = zod.array(GetApiV1MarketTradesPairResponseItem)
 

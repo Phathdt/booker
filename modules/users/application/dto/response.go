@@ -6,23 +6,23 @@ type UserResponse struct {
 	Email     string `json:"email"      required:"true" example:"user@example.com"`
 	Role      string `json:"role"       required:"true" example:"user"`
 	Status    string `json:"status"     required:"true" example:"active"`
-	CreatedAt string `json:"created_at" required:"true" example:"2026-04-12T00:00:00Z"`
-	UpdatedAt string `json:"updated_at" required:"true" example:"2026-04-12T00:00:00Z"`
+	CreatedAt string `json:"createdAt" required:"true" example:"2026-04-12T00:00:00Z"`
+	UpdatedAt string `json:"updatedAt" required:"true" example:"2026-04-12T00:00:00Z"`
 }
 
 // AuthResponse represents the response for register/login.
 // Refresh token is delivered via HTTP-only cookie, not in the response body.
 type AuthResponse struct {
 	User        UserResponse `json:"user"         required:"true"`
-	AccessToken string       `json:"access_token" required:"true" example:"eyJhbGciOiJIUzI1NiIs..."`
-	ExpiresIn   int          `json:"expires_in"   required:"true" example:"900"`
+	AccessToken string       `json:"accessToken" required:"true" example:"eyJhbGciOiJIUzI1NiIs..."`
+	ExpiresIn   int          `json:"expiresIn"   required:"true" example:"900"`
 }
 
 // TokenPairResponse represents the response for token refresh.
 // Refresh token is delivered via HTTP-only cookie, not in the response body.
 type TokenPairResponse struct {
-	AccessToken string `json:"access_token" required:"true" example:"eyJhbGciOiJIUzI1NiIs..."`
-	ExpiresIn   int    `json:"expires_in"   required:"true" example:"900"`
+	AccessToken string `json:"accessToken" required:"true" example:"eyJhbGciOiJIUzI1NiIs..."`
+	ExpiresIn   int    `json:"expiresIn"   required:"true" example:"900"`
 }
 
 // MessageResponse represents a simple message response.

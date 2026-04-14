@@ -7,10 +7,10 @@
  */
 
 export interface DtoWalletResponse {
-  asset_id: string;
+  assetId: string;
   available: string;
   id: string;
   locked: string;
-  updated_at: string;
-  user_id: string;
+  updatedAt: string;
+  userId: string;
 }

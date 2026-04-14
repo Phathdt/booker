@@ -8,5 +8,5 @@
 
 export interface DtoDepositDTO {
   amount: string;
-  asset_id: string;
+  assetId: string;
 }

@@ -29,7 +29,7 @@ export function TickerBar({ pairId }: TickerBarProps) {
     );
   }
 
-  const changePct = parseFloat(ticker.change_pct);
+  const changePct = parseFloat(ticker.changePct);
   const isPositive = changePct >= 0;
   const changeColor = isPositive ? "text-green-500" : "text-red-500";
   const changeSign = isPositive ? "+" : "";
@@ -40,7 +40,7 @@ export function TickerBar({ pairId }: TickerBarProps) {
       <div className="flex flex-col">
         <span className="text-xs text-muted-foreground">Last Price</span>
         <span className={`text-base font-semibold ${changeColor}`}>
-          {parseFloat(ticker.last_price).toLocaleString(undefined, {
+          {parseFloat(ticker.lastPrice).toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 8,
           })}

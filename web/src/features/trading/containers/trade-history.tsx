@@ -103,7 +103,7 @@ export function TradeHistory({ pairId }: TradeHistoryProps) {
             const priceColor = getPriceColor(trade, prevTrade);
             return (
               <div
-                key={trade.trade_id}
+                key={trade.tradeId}
                 className="grid grid-cols-3 gap-2 px-3 py-1 hover:bg-muted/40"
               >
                 <span className="text-xs text-muted-foreground">

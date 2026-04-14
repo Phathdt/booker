@@ -53,7 +53,7 @@ function SideForm({ side, pairId }: SideFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!price || !quantity) return;
-    mutate({ data: { pair_id: pairId, side, type: "limit", price, quantity } });
+    mutate({ data: { pairId: pairId, side, type: "limit", price, quantity } });
   };
 
   const isBuy = side === "buy";

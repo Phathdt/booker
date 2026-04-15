@@ -11,7 +11,7 @@ type CreateOrderDTO struct {
 }
 
 type ListOrdersDTO struct {
-	PairID string `query:"pair_id"`
+	PairID string `query:"pairId"`
 	Status string `query:"status"  validate:"omitempty,oneof=new partial filled cancelled"`
 	Limit  int32  `query:"limit"   validate:"omitempty,min=1,max=100"`
 	Offset int32  `query:"offset"  validate:"omitempty,min=0,max=10000"`

@@ -42,7 +42,7 @@ function formatDate(iso: string): string {
 export function OpenOrders({ pairId }: OpenOrdersProps) {
   const queryClient = useQueryClient();
   const { data, isLoading } = useGetApiV1Orders(
-    { pair_id: pairId },
+    { pairId },
     { query: { refetchInterval: 5000 } }
   );
   const { mutate: cancel, isPending: isCancelling } = useDeleteApiV1OrdersId({

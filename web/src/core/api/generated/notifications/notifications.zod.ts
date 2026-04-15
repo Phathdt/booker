@@ -15,7 +15,7 @@ import * as zod from 'zod';
 export const GetApiV1NotificationsQueryParams = zod.object({
   "cursor": zod.string().optional(),
   "limit": zod.number().optional(),
-  "only_unread": zod.boolean().optional()
+  "onlyUnread": zod.boolean().optional()
 })
 
 export const GetApiV1NotificationsResponse = zod.object({

@@ -9,5 +9,5 @@
 export type GetApiV1NotificationsParams = {
 cursor?: string;
 limit?: number;
-only_unread?: boolean;
+onlyUnread?: boolean;
 };

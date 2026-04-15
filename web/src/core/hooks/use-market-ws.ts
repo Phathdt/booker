@@ -32,8 +32,8 @@ interface WsOrderBookMessage {
   type: "orderbook";
   pair: string;
   data: {
-    bids: { price: string; quantity: string; order_count: number }[];
-    asks: { price: string; quantity: string; order_count: number }[];
+    bids: { price: string; quantity: string; orderCount: number }[];
+    asks: { price: string; quantity: string; orderCount: number }[];
   };
 }
 
@@ -122,7 +122,7 @@ export function useMarketWS(pair: string): UseMarketWSResult {
             setTrades((prev) => [trade, ...prev].slice(0, MAX_TRADES));
           } else if (msg.type === "orderbook") {
             setOrderBook({
-              pair_id: msg.pair,
+              pairId: msg.pair,
               bids: msg.data.bids,
               asks: msg.data.asks,
             });

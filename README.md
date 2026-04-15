@@ -37,20 +37,20 @@ docker compose up --build -d
 
 Services available:
 
-| Service           | URL                             |
-| ----------------- | ------------------------------- |
-| Web UI            | http://booker.localhost          |
-| API (Traefik)     | http://api.booker.localhost      |
-| API Docs          | http://localhost:8090/docs       |
-| Users             | http://localhost:8081            |
-| Wallet            | http://localhost:8082            |
-| Orders            | http://localhost:8083            |
-| Matching          | gRPC :50054                     |
-| Market            | http://localhost:8085            |
-| Notification      | http://localhost:8086            |
-| Grafana           | http://localhost:3000            |
-| Traefik Dashboard | http://localhost:8888            |
-| NATS Monitoring   | http://localhost:8222            |
+| Service           | URL                         |
+| ----------------- | --------------------------- |
+| Web UI            | http://booker.localhost     |
+| API (Traefik)     | http://api.booker.localhost |
+| API Docs          | http://localhost:8090/docs  |
+| Users             | http://localhost:8081       |
+| Wallet            | http://localhost:8082       |
+| Orders            | http://localhost:8083       |
+| Matching          | gRPC :50054                 |
+| Market            | http://localhost:8085       |
+| Notification      | http://localhost:8086       |
+| Grafana           | http://localhost:3000       |
+| Traefik Dashboard | http://localhost:8888       |
+| NATS Monitoring   | http://localhost:8222       |
 
 ## API Endpoints
 
@@ -89,7 +89,7 @@ GET  /api/v1/wallet/:asset_id
 
 ```
 POST   /api/v1/orders          { pairId, side, price, quantity }
-GET    /api/v1/orders          ?pair_id=&status=&limit=20&offset=0
+GET    /api/v1/orders          ?pairId=&status=&limit=20&offset=0
 GET    /api/v1/orders/:id
 DELETE /api/v1/orders/:id
 ```
@@ -108,7 +108,7 @@ WS  /ws                            (real-time tickers + trades)
 ### Notifications (protected)
 
 ```
-GET   /api/v1/notifications            ?cursor=&limit=20&only_unread=
+GET   /api/v1/notifications            ?cursor=&limit=20&onlyUnread=
 GET   /api/v1/notifications/unread-count
 PATCH /api/v1/notifications/:id/read
 POST  /api/v1/notifications/read-all
@@ -125,7 +125,7 @@ WS    /api/v1/notifications/ws         (real-time notifications)
 }
 ```
 
-All JSON fields use **camelCase**. Query parameters use **snake_case**.
+All fields use **camelCase** (JSON body + query parameters).
 
 ## Development
 

@@ -193,7 +193,7 @@ paths:
         schema:
           type: integer
       - in: query
-        name: only_unread
+        name: onlyUnread
         schema:
           type: boolean
       responses:
@@ -264,7 +264,7 @@ paths:
       description: List orders for current user
       parameters:
       - in: query
-        name: pair_id
+        name: pairId
         schema:
           type: string
       - in: query

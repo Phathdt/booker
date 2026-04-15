@@ -7,7 +7,7 @@
  */
 
 export type GetApiV1OrdersParams = {
-pair_id?: string;
+pairId?: string;
 status?: string;
 limit?: number;
 offset?: number;

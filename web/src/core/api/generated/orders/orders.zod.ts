@@ -13,7 +13,7 @@ import * as zod from 'zod';
  * @summary List orders for current user
  */
 export const GetApiV1OrdersQueryParams = zod.object({
-  "pair_id": zod.string().optional(),
+  "pairId": zod.string().optional(),
   "status": zod.string().optional(),
   "limit": zod.number().optional(),
   "offset": zod.number().optional()

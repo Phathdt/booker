@@ -3,7 +3,7 @@ package dto
 type ListNotificationsDTO struct {
 	Cursor     string `query:"cursor"      validate:"omitempty"`
 	Limit      int32  `query:"limit"       validate:"omitempty,min=1,max=50"`
-	OnlyUnread bool   `query:"only_unread"`
+	OnlyUnread bool   `query:"onlyUnread"`
 }
 
 type NotificationResponse struct {

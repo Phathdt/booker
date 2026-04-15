@@ -7,7 +7,7 @@ type OrderIDParam struct {
 
 // ListOrdersParam documents the list orders query parameters.
 type ListOrdersParam struct {
-	PairID string `query:"pair_id"`
+	PairID string `query:"pairId"`
 	Status string `query:"status"`
 	Limit  int    `query:"limit"`
 	Offset int    `query:"offset"`

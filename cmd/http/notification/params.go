@@ -9,5 +9,5 @@ type NotificationIDParam struct {
 type ListNotificationsParam struct {
 	Cursor     string `query:"cursor"`
 	Limit      int    `query:"limit"`
-	OnlyUnread bool   `query:"only_unread"`
+	OnlyUnread bool   `query:"onlyUnread"`
 }

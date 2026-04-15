@@ -40,7 +40,7 @@ func setupTestService(t *testing.T) (
 		"BTC_USDT": {ID: "BTC_USDT", BaseAsset: "BTC", QuoteAsset: "USDT"},
 	}
 
-	svc := NewMatchingService(engines, tradeRepo, orderClient, walletClient, nil, pairs)
+	svc := NewMatchingService(engines, tradeRepo, orderClient, walletClient, nil, nil, pairs)
 	return engines, tradeRepo, orderClient, walletClient, svc
 }
 
@@ -173,7 +173,7 @@ func TestSubmitOrder_WithNATSPublisher(t *testing.T) {
 		"BTC_USDT": {ID: "BTC_USDT", BaseAsset: "BTC", QuoteAsset: "USDT"},
 	}
 
-	svc := NewMatchingService(engines, tradeRepo, orderClient, walletClient, publisher, pairs)
+	svc := NewMatchingService(engines, tradeRepo, orderClient, walletClient, publisher, nil, pairs)
 
 	sell := newBookOrder("a1", "seller", engine.SideSell, 50000, 0.5)
 	eng.Submit(sell)
@@ -208,7 +208,7 @@ func TestSubmitOrder_WithFailingPublisher(t *testing.T) {
 		"BTC_USDT": {ID: "BTC_USDT", BaseAsset: "BTC", QuoteAsset: "USDT"},
 	}
 
-	svc := NewMatchingService(engines, tradeRepo, orderClient, walletClient, publisher, pairs)
+	svc := NewMatchingService(engines, tradeRepo, orderClient, walletClient, publisher, nil, pairs)
 
 	sell := newBookOrder("a1", "seller", engine.SideSell, 50000, 0.5)
 	eng.Submit(sell)
@@ -253,7 +253,7 @@ func TestSettleTrade_PairNotFound(t *testing.T) {
 	// This means trades will be generated but settleTrade won't find the pair
 	pairs := map[string]*PairInfo{}
 
-	svc := NewMatchingService(engines, tradeRepo, orderClient, walletClient, nil, pairs)
+	svc := NewMatchingService(engines, tradeRepo, orderClient, walletClient, nil, nil, pairs)
 
 	// Add a sell order
 	sell := newBookOrder("a1", "seller", engine.SideSell, 50000, 0.5)

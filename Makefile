@@ -5,7 +5,7 @@ ifneq (,$(wildcard ./.env))
 endif
 
 .PHONY: build run-users-svc migrate-up migrate-down migrate-status seed \
-       sqlc-generate proto-generate proto-lint \
+       sqlc-generate proto-generate proto-lint openapi \
        docker-build docker-up docker-down docker-logs docker-infra docker-services \
        test lint format format-check mock hooks
 
@@ -59,6 +59,9 @@ proto-generate:
 proto-lint:
 	buf lint
 
+openapi:
+	go run . openapi-export
+	cd web && pnpm generate:api
 
 # Docker
 docker-build:

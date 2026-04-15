@@ -108,6 +108,12 @@ func (h *Hub) BroadcastTrade(pair string, data TradeData) {
 	h.broadcast("trades", pair, msg)
 }
 
+// BroadcastOrderBook sends an order book snapshot to all subscribers.
+func (h *Hub) BroadcastOrderBook(pair string, data OrderBookData) {
+	msg := WSMessage{Type: "orderbook", Pair: pair, Data: data}
+	h.broadcast("orderbook", pair, msg)
+}
+
 func (h *Hub) broadcast(channel, pair string, msg WSMessage) {
 	payload, err := json.Marshal(msg)
 	if err != nil {

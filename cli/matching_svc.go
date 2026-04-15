@@ -151,8 +151,13 @@ func RunMatchingSvc(c *urfavecli.Context) error {
 		}
 	}
 
+	var orderBookPublisher pkgnats.OrderBookPublisher
+	if js != nil {
+		orderBookPublisher = pkgnats.NewOrderBookPublisher(js)
+	}
+
 	matchingService := matchingServices.NewMatchingService(
-		engines, tradeRepo, orderClient, walletClient, tradePublisher, pairs,
+		engines, tradeRepo, orderClient, walletClient, tradePublisher, orderBookPublisher, pairs,
 	)
 
 	// --- gRPC server ---

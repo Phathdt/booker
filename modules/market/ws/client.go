@@ -67,7 +67,7 @@ func (c *Client) ReadPump() {
 			continue
 		}
 
-		if sub.Channel != "ticker" && sub.Channel != "trades" {
+		if sub.Channel != "ticker" && sub.Channel != "trades" && sub.Channel != "orderbook" {
 			c.sendError("unknown channel: " + sub.Channel)
 			continue
 		}

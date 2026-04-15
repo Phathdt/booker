@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { IMarketTrade, ITicker } from "@/core/api/types";
+import type { IMarketTrade, ITicker, IOrderBook } from "@/core/api/types";
 import { getWsBaseUrl } from "./ws-utils";
 
 interface WsTickerMessage {
@@ -28,7 +28,16 @@ interface WsTradeMessage {
   };
 }
 
-type WsMessage = WsTickerMessage | WsTradeMessage;
+interface WsOrderBookMessage {
+  type: "orderbook";
+  pair: string;
+  data: {
+    bids: { price: string; quantity: string; order_count: number }[];
+    asks: { price: string; quantity: string; order_count: number }[];
+  };
+}
+
+type WsMessage = WsTickerMessage | WsTradeMessage | WsOrderBookMessage;
 
 const MAX_TRADES = 50;
 const RECONNECT_DELAY_MS = 3000;
@@ -36,6 +45,7 @@ const RECONNECT_DELAY_MS = 3000;
 export interface UseMarketWSResult {
   ticker: ITicker | null;
   trades: IMarketTrade[];
+  orderBook: IOrderBook | null;
   connected: boolean;
 }
 
@@ -48,6 +58,7 @@ export interface UseMarketWSResult {
 export function useMarketWS(pair: string): UseMarketWSResult {
   const [ticker, setTicker] = useState<ITicker | null>(null);
   const [trades, setTrades] = useState<IMarketTrade[]>([]);
+  const [orderBook, setOrderBook] = useState<IOrderBook | null>(null);
   const [connected, setConnected] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -82,6 +93,7 @@ export function useMarketWS(pair: string): UseMarketWSResult {
         setConnected(true);
         ws.send(JSON.stringify({ op: "subscribe", channel: "ticker", pair }));
         ws.send(JSON.stringify({ op: "subscribe", channel: "trades", pair }));
+        ws.send(JSON.stringify({ op: "subscribe", channel: "orderbook", pair }));
       };
 
       ws.onmessage = (event: MessageEvent) => {
@@ -111,6 +123,12 @@ export function useMarketWS(pair: string): UseMarketWSResult {
               executed_at: msg.data.executed_at,
             };
             setTrades((prev) => [trade, ...prev].slice(0, MAX_TRADES));
+          } else if (msg.type === "orderbook") {
+            setOrderBook({
+              pair_id: msg.pair,
+              bids: msg.data.bids,
+              asks: msg.data.asks,
+            });
           }
         } catch {
           // Ignore malformed messages
@@ -141,6 +159,7 @@ export function useMarketWS(pair: string): UseMarketWSResult {
           try {
             ws.send(JSON.stringify({ op: "unsubscribe", channel: "ticker", pair }));
             ws.send(JSON.stringify({ op: "unsubscribe", channel: "trades", pair }));
+            ws.send(JSON.stringify({ op: "unsubscribe", channel: "orderbook", pair }));
           } catch {
             // Ignore send errors during cleanup
           }
@@ -155,5 +174,5 @@ export function useMarketWS(pair: string): UseMarketWSResult {
     };
   }, [pair]);
 
-  return { ticker, trades, connected };
+  return { ticker, trades, orderBook, connected };
 }

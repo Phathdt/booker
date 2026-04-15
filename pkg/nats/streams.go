@@ -12,6 +12,7 @@ func EnsureStreams(js nats.JetStreamContext) error {
 		{Name: "TRADES", Subjects: []string{"trades.>"}, Storage: nats.FileStorage},
 		{Name: "ORDERS", Subjects: []string{"orders.>"}, Storage: nats.FileStorage},
 		{Name: "WALLETS", Subjects: []string{"wallets.>"}, Storage: nats.FileStorage},
+		{Name: "ORDERBOOK", Subjects: []string{"orderbook.>"}, Storage: nats.MemoryStorage, MaxMsgsPerSubject: 1, Discard: nats.DiscardOld},
 	}
 	for _, cfg := range streams {
 		if _, err := js.AddStream(&cfg); err != nil {

@@ -34,3 +34,16 @@ type TradeData struct {
 	Quantity  string `json:"quantity"`
 	Timestamp int64  `json:"ts"`
 }
+
+// OrderBookLevelData is a single price level in the order book.
+type OrderBookLevelData struct {
+	Price      string `json:"price"`
+	Quantity   string `json:"quantity"`
+	OrderCount int    `json:"order_count"`
+}
+
+// OrderBookData is the payload for order book updates.
+type OrderBookData struct {
+	Bids []OrderBookLevelData `json:"bids"`
+	Asks []OrderBookLevelData `json:"asks"`
+}

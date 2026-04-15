@@ -7,11 +7,6 @@ import (
 )
 
 // GetPairs godoc
-// @Summary      List active trading pairs
-// @Tags         market
-// @Produce      json
-// @Success      200  {object}  httpserver.Response{data=[]PairResponse}
-// @Router       /api/v1/market/pairs [get]
 func GetPairs(pairs []PairInfo) fiber.Handler {
 	// Pre-compute response
 	resp := make([]PairResponse, len(pairs))

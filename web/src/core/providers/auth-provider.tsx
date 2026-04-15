@@ -51,7 +51,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     authService
       .refresh()
       .then((res) => {
-        setAccessToken(res.access_token);
+        setAccessToken(res.accessToken);
         // Now fetch user profile with the fresh access token
         return authService.getMe();
       })
@@ -64,13 +64,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string) => {
     const res = await authService.login(email, password);
-    setAccessToken(res.access_token);
+    setAccessToken(res.accessToken);
     setUser(res.user);
   };
 
   const register = async (email: string, password: string) => {
     const res = await authService.register(email, password);
-    setAccessToken(res.access_token);
+    setAccessToken(res.accessToken);
     setUser(res.user);
   };
 

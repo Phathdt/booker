@@ -1,0 +1,887 @@
+openapi: 3.0.3
+info:
+  description: Centralized Exchange demo — token trading platform
+  title: Booker CEX API
+  version: "1.0"
+paths:
+  /api/v1/auth/login:
+    post:
+      description: Login with email and password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DtoLoginDTO'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoAuthResponse'
+          description: OK
+      summary: Login with email and password
+      tags:
+      - auth
+  /api/v1/auth/logout:
+    post:
+      description: Logout (revoke all tokens)
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoMessageResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Logout (revoke all tokens)
+      tags:
+      - auth
+  /api/v1/auth/me:
+    get:
+      description: Get current authenticated user
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoUserResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Get current authenticated user
+      tags:
+      - auth
+  /api/v1/auth/refresh:
+    post:
+      description: Refresh access token
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoTokenPairResponse'
+          description: OK
+      summary: Refresh access token
+      tags:
+      - auth
+  /api/v1/auth/register:
+    post:
+      description: Register a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DtoRegisterDTO'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoAuthResponse'
+          description: Created
+      summary: Register a new user
+      tags:
+      - auth
+  /api/v1/market/orderbook/{pair}:
+    get:
+      description: Get order book depth for a trading pair
+      parameters:
+      - in: query
+        name: depth
+        schema:
+          type: integer
+      - in: path
+        name: pair
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketOrderBookResponse'
+          description: OK
+      summary: Get order book depth for a trading pair
+      tags:
+      - market
+  /api/v1/market/pairs:
+    get:
+      description: List active trading pairs
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MarketPairResponse'
+                type: array
+          description: OK
+      summary: List active trading pairs
+      tags:
+      - market
+  /api/v1/market/ticker:
+    get:
+      description: Get all pair tickers
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MarketTickerResponse'
+                type: array
+          description: OK
+      summary: Get all pair tickers
+      tags:
+      - market
+  /api/v1/market/ticker/{pair}:
+    get:
+      description: Get ticker for a single pair
+      parameters:
+      - in: path
+        name: pair
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketTickerResponse'
+          description: OK
+      summary: Get ticker for a single pair
+      tags:
+      - market
+  /api/v1/market/trades/{pair}:
+    get:
+      description: Get recent trades for a pair
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: path
+        name: pair
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MarketTradeResponse'
+                type: array
+          description: OK
+      summary: Get recent trades for a pair
+      tags:
+      - market
+  /api/v1/notifications:
+    get:
+      description: List notifications for current user
+      parameters:
+      - in: query
+        name: cursor
+        schema:
+          type: string
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: onlyUnread
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoNotificationListResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: List notifications for current user
+      tags:
+      - notifications
+  /api/v1/notifications/{id}/read:
+    patch:
+      description: Mark a notification as read
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V2Map'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Mark a notification as read
+      tags:
+      - notifications
+  /api/v1/notifications/read-all:
+    post:
+      description: Mark all notifications as read
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V2Map'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Mark all notifications as read
+      tags:
+      - notifications
+  /api/v1/notifications/unread-count:
+    get:
+      description: Get unread notification count
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoUnreadCountResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Get unread notification count
+      tags:
+      - notifications
+  /api/v1/orders:
+    get:
+      description: List orders for current user
+      parameters:
+      - in: query
+        name: pairId
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: offset
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoOrderListResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: List orders for current user
+      tags:
+      - orders
+    post:
+      description: Create a new limit order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DtoCreateOrderDTO'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoOrderResponse'
+          description: Created
+      security:
+      - BearerAuth: []
+      summary: Create a new limit order
+      tags:
+      - orders
+  /api/v1/orders/{id}:
+    delete:
+      description: Cancel an order
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoOrderResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Cancel an order
+      tags:
+      - orders
+    get:
+      description: Get a single order by ID
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoOrderResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Get a single order by ID
+      tags:
+      - orders
+  /api/v1/users:
+    get:
+      description: List users
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: offset
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoUserListResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: List users
+      tags:
+      - users
+  /api/v1/users/{id}:
+    get:
+      description: Get user by ID
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoUserResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - users
+  /api/v1/wallet:
+    get:
+      description: Get all wallet balances for current user
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoWalletListResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Get all wallet balances for current user
+      tags:
+      - wallet
+  /api/v1/wallet/{asset_id}:
+    get:
+      description: Get wallet balance for a specific asset
+      parameters:
+      - in: path
+        name: asset_id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoWalletResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Get wallet balance for a specific asset
+      tags:
+      - wallet
+  /api/v1/wallet/deposit:
+    post:
+      description: Deposit funds to wallet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DtoDepositDTO'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoWalletResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Deposit funds to wallet
+      tags:
+      - wallet
+  /api/v1/wallet/withdraw:
+    post:
+      description: Withdraw funds from wallet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DtoWithdrawDTO'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DtoWalletResponse'
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Withdraw funds from wallet
+      tags:
+      - wallet
+components:
+  schemas:
+    DtoAuthResponse:
+      properties:
+        accessToken:
+          example: eyJhbGciOiJIUzI1NiIs...
+          type: string
+        expiresIn:
+          example: 900
+          type: integer
+        user:
+          $ref: '#/components/schemas/DtoUserResponse'
+      required:
+      - user
+      - accessToken
+      - expiresIn
+      type: object
+    DtoCreateOrderDTO:
+      properties:
+        pairId:
+          type: string
+        price:
+          type: string
+        quantity:
+          type: string
+        side:
+          type: string
+        type:
+          type: string
+      required:
+      - pairId
+      - side
+      - type
+      - price
+      - quantity
+      type: object
+    DtoDepositDTO:
+      properties:
+        amount:
+          type: string
+        assetId:
+          type: string
+      required:
+      - assetId
+      - amount
+      type: object
+    DtoLoginDTO:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      type: object
+    DtoMessageResponse:
+      properties:
+        message:
+          example: logged out
+          type: string
+      required:
+      - message
+      type: object
+    DtoNotificationListResponse:
+      properties:
+        notifications:
+          items:
+            $ref: '#/components/schemas/DtoNotificationResponse'
+          nullable: true
+          type: array
+      required:
+      - notifications
+      type: object
+    DtoNotificationResponse:
+      properties:
+        body:
+          example: Your buy order for 0.5 BTC was filled
+          type: string
+        createdAt:
+          example: "2026-04-12T00:00:00Z"
+          type: string
+        id:
+          example: 550e8400-e29b-41d4-a716-446655440000
+          type: string
+        isRead:
+          example: false
+          type: boolean
+        metadata:
+          additionalProperties:
+            type: string
+          nullable: true
+          type: object
+        title:
+          example: Order Filled
+          type: string
+        type:
+          example: order_filled
+          type: string
+      required:
+      - id
+      - type
+      - title
+      - body
+      - metadata
+      - isRead
+      - createdAt
+      type: object
+    DtoOrderListResponse:
+      properties:
+        orders:
+          items:
+            $ref: '#/components/schemas/DtoOrderResponse'
+          nullable: true
+          type: array
+      required:
+      - orders
+      type: object
+    DtoOrderResponse:
+      properties:
+        createdAt:
+          example: "2026-04-12T00:00:00Z"
+          type: string
+        filledQty:
+          example: "0"
+          type: string
+        id:
+          example: 550e8400-e29b-41d4-a716-446655440000
+          type: string
+        pairId:
+          example: BTC_USDT
+          type: string
+        price:
+          example: "50000.00"
+          type: string
+        quantity:
+          example: "0.5"
+          type: string
+        side:
+          example: buy
+          type: string
+        status:
+          example: new
+          type: string
+        type:
+          example: limit
+          type: string
+        updatedAt:
+          example: "2026-04-12T00:00:00Z"
+          type: string
+        userId:
+          example: 550e8400-e29b-41d4-a716-446655440001
+          type: string
+      required:
+      - id
+      - userId
+      - pairId
+      - side
+      - type
+      - price
+      - quantity
+      - filledQty
+      - status
+      - createdAt
+      - updatedAt
+      type: object
+    DtoRegisterDTO:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      type: object
+    DtoTokenPairResponse:
+      properties:
+        accessToken:
+          example: eyJhbGciOiJIUzI1NiIs...
+          type: string
+        expiresIn:
+          example: 900
+          type: integer
+      required:
+      - accessToken
+      - expiresIn
+      type: object
+    DtoUnreadCountResponse:
+      properties:
+        count:
+          example: 5
+          format: int64
+          type: integer
+      required:
+      - count
+      type: object
+    DtoUserListResponse:
+      properties:
+        total:
+          example: 42
+          format: int64
+          type: integer
+        users:
+          items:
+            $ref: '#/components/schemas/DtoUserResponse'
+          nullable: true
+          type: array
+      required:
+      - users
+      - total
+      type: object
+    DtoUserResponse:
+      properties:
+        createdAt:
+          example: "2026-04-12T00:00:00Z"
+          type: string
+        email:
+          example: user@example.com
+          type: string
+        id:
+          example: 550e8400-e29b-41d4-a716-446655440000
+          type: string
+        role:
+          example: user
+          type: string
+        status:
+          example: active
+          type: string
+        updatedAt:
+          example: "2026-04-12T00:00:00Z"
+          type: string
+      required:
+      - id
+      - email
+      - role
+      - status
+      - createdAt
+      - updatedAt
+      type: object
+    DtoWalletListResponse:
+      properties:
+        wallets:
+          items:
+            $ref: '#/components/schemas/DtoWalletResponse'
+          nullable: true
+          type: array
+      required:
+      - wallets
+      type: object
+    DtoWalletResponse:
+      properties:
+        assetId:
+          example: USDT
+          type: string
+        available:
+          example: "1000.00"
+          type: string
+        id:
+          example: 550e8400-e29b-41d4-a716-446655440000
+          type: string
+        locked:
+          example: "0.00"
+          type: string
+        updatedAt:
+          example: "2026-04-12T00:00:00Z"
+          type: string
+        userId:
+          example: 550e8400-e29b-41d4-a716-446655440001
+          type: string
+      required:
+      - id
+      - userId
+      - assetId
+      - available
+      - locked
+      - updatedAt
+      type: object
+    DtoWithdrawDTO:
+      properties:
+        amount:
+          type: string
+        assetId:
+          type: string
+      required:
+      - assetId
+      - amount
+      type: object
+    MarketOrderBookLevel:
+      properties:
+        orderCount:
+          example: 3
+          format: int32
+          type: integer
+        price:
+          example: "50000.00"
+          type: string
+        quantity:
+          example: "1.5"
+          type: string
+      required:
+      - price
+      - quantity
+      - orderCount
+      type: object
+    MarketOrderBookResponse:
+      properties:
+        asks:
+          items:
+            $ref: '#/components/schemas/MarketOrderBookLevel'
+          nullable: true
+          type: array
+        bids:
+          items:
+            $ref: '#/components/schemas/MarketOrderBookLevel'
+          nullable: true
+          type: array
+        pairId:
+          example: BTC_USDT
+          type: string
+      required:
+      - pairId
+      - bids
+      - asks
+      type: object
+    MarketPairResponse:
+      properties:
+        baseAsset:
+          example: BTC
+          type: string
+        id:
+          example: BTC_USDT
+          type: string
+        minQty:
+          example: "0.00001"
+          type: string
+        quoteAsset:
+          example: USDT
+          type: string
+        tickSize:
+          example: "0.01"
+          type: string
+      required:
+      - id
+      - baseAsset
+      - quoteAsset
+      - minQty
+      - tickSize
+      type: object
+    MarketTickerResponse:
+      properties:
+        changePct:
+          example: "1.00"
+          type: string
+        close:
+          example: "50500.00"
+          type: string
+        high:
+          example: "51000.00"
+          type: string
+        lastPrice:
+          example: "50500.00"
+          type: string
+        low:
+          example: "49000.00"
+          type: string
+        open:
+          example: "50000.00"
+          type: string
+        pair:
+          example: BTC_USDT
+          type: string
+        timestamp:
+          example: 1.744444444e+12
+          format: int64
+          type: integer
+        volume:
+          example: "1234.56"
+          type: string
+      required:
+      - pair
+      - open
+      - high
+      - low
+      - close
+      - volume
+      - changePct
+      - lastPrice
+      - timestamp
+      type: object
+    MarketTradeResponse:
+      properties:
+        price:
+          example: "50000.00"
+          type: string
+        quantity:
+          example: "0.5"
+          type: string
+        timestamp:
+          example: 1.744444444e+12
+          format: int64
+          type: integer
+        tradeId:
+          example: 550e8400-e29b-41d4-a716-446655440000
+          type: string
+      required:
+      - tradeId
+      - price
+      - quantity
+      - timestamp
+      type: object
+    V2Map:
+      additionalProperties: {}
+      nullable: true
+      type: object
+  securitySchemes:
+    BearerAuth:
+      scheme: Bearer
+      type: http

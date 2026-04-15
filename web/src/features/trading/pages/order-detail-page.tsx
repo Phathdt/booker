@@ -5,8 +5,7 @@ import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { OrderModel } from "../data/models";
-import { useMutationCancelOrder } from "../data/mutations";
+import { getApiV1OrdersId, useDeleteApiV1OrdersId } from "@/core/api/generated/orders/orders";
 import type { IOrder } from "@/core/api/types";
 
 function statusVariant(
@@ -50,11 +49,15 @@ export function OrderDetailPage() {
 
   const { data: order, isLoading, isError } = useQuery({
     queryKey: ["order", id],
-    queryFn: () => OrderModel.getById(id!),
+    queryFn: () => getApiV1OrdersId(id!),
     enabled: Boolean(id),
   });
 
-  const { mutate: cancel, isPending: isCancelling } = useMutationCancelOrder();
+  const { mutate: cancel, isPending: isCancelling } = useDeleteApiV1OrdersId({
+    mutation: {
+      onSuccess: () => navigate("/trade"),
+    },
+  });
 
   const canCancel = order?.status === "new" || order?.status === "partial";
 
@@ -100,7 +103,7 @@ export function OrderDetailPage() {
           </CardHeader>
           <CardContent>
             <DetailRow label="Order ID" value={<span className="font-mono text-xs">{order.id}</span>} />
-            <DetailRow label="Pair" value={order.pair_id} />
+            <DetailRow label="Pair" value={order.pairId} />
             <DetailRow
               label="Side"
               value={
@@ -118,9 +121,9 @@ export function OrderDetailPage() {
             <DetailRow label="Type" value={order.type.toUpperCase()} />
             <DetailRow label="Price" value={<span className="font-mono">{order.price}</span>} />
             <DetailRow label="Quantity" value={<span className="font-mono">{order.quantity}</span>} />
-            <DetailRow label="Filled" value={<span className="font-mono">{order.filled_qty}</span>} />
-            <DetailRow label="Created" value={formatDate(order.created_at)} />
-            <DetailRow label="Updated" value={formatDate(order.updated_at)} />
+            <DetailRow label="Filled" value={<span className="font-mono">{order.filledQty}</span>} />
+            <DetailRow label="Created" value={formatDate(order.createdAt)} />
+            <DetailRow label="Updated" value={formatDate(order.updatedAt)} />
           </CardContent>
         </Card>
 
@@ -130,9 +133,7 @@ export function OrderDetailPage() {
             className="w-full"
             disabled={isCancelling}
             onClick={() => {
-              cancel(order.id, {
-                onSuccess: () => navigate("/trade"),
-              });
+              cancel({ id: order.id });
             }}
           >
             {isCancelling ? "Cancelling..." : "Cancel Order"}

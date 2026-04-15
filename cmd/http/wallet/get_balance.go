@@ -1,7 +1,6 @@
 package wallet
 
 import (
-	_ "booker/modules/wallet/application/dto" // swagger
 	"booker/modules/wallet/domain/interfaces"
 	"booker/pkg/httpserver"
 
@@ -9,13 +8,6 @@ import (
 )
 
 // GetBalance godoc
-// @Summary      Get wallet balance for a specific asset
-// @Tags         wallet
-// @Security     BearerAuth
-// @Param        asset_id  path  string  true  "Asset ID (e.g. BTC, USDT)"
-// @Success      200  {object}  httpserver.Response{data=dto.WalletResponse}
-// @Failure      401  {object}  httpserver.Response{error=object}
-// @Router       /api/v1/wallet/{asset_id} [get]
 func GetBalance(walletSvc interfaces.WalletService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userID, ok := c.Locals("user_id").(string)

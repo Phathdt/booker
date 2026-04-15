@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { Bell } from "lucide-react";
-import { useQueryUnreadCount } from "../data/queries";
+import { useGetApiV1NotificationsUnreadCount } from "@/core/api/generated/notifications/notifications";
 import { NotificationList } from "./notification-list";
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { data } = useQueryUnreadCount();
+  const { data } = useGetApiV1NotificationsUnreadCount({ query: { refetchInterval: 10000 } });
   const unreadCount = data?.count ?? 0;
 
   // Close dropdown when clicking outside

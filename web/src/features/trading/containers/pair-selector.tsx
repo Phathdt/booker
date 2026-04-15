@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useQueryPairs } from "../data/queries";
+import { useGetApiV1MarketPairs } from "@/core/api/generated/market/market";
 
 interface PairSelectorProps {
   value: string;
@@ -13,7 +13,7 @@ interface PairSelectorProps {
 }
 
 export function PairSelector({ value, onChange }: PairSelectorProps) {
-  const { data: pairs = [], isLoading } = useQueryPairs();
+  const { data: pairs = [], isLoading } = useGetApiV1MarketPairs({ query: { staleTime: 60000 } });
 
   return (
     <Select value={value} onValueChange={(v) => v && onChange(v)} disabled={isLoading}>
@@ -23,7 +23,7 @@ export function PairSelector({ value, onChange }: PairSelectorProps) {
       <SelectContent>
         {pairs.map((pair) => (
           <SelectItem key={pair.id} value={pair.id}>
-            {pair.base_asset} / {pair.quote_asset}
+            {pair.baseAsset} / {pair.quoteAsset}
           </SelectItem>
         ))}
       </SelectContent>

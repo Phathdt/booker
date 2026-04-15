@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useMutationDeposit } from "../data/mutations";
+import { usePostApiV1WalletDeposit, getGetApiV1WalletQueryKey } from "@/core/api/generated/wallet/wallet";
 
 interface DepositDialogProps {
   assetId: string;
@@ -19,20 +21,26 @@ interface DepositDialogProps {
 
 export function DepositDialog({ assetId, open, onOpenChange }: DepositDialogProps) {
   const [amount, setAmount] = useState("");
-  const { mutate, isPending } = useMutationDeposit();
+  const queryClient = useQueryClient();
+  const { mutate, isPending } = usePostApiV1WalletDeposit({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetApiV1WalletQueryKey() });
+        toast.success("Deposit successful");
+        setAmount("");
+        onOpenChange(false);
+      },
+      onError: (err: unknown) => {
+        const message = err instanceof Error ? err.message : "Deposit failed";
+        toast.error(message);
+      },
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || Number(amount) <= 0) return;
-    mutate(
-      { assetId, amount },
-      {
-        onSuccess: () => {
-          setAmount("");
-          onOpenChange(false);
-        },
-      }
-    );
+    mutate({ data: { assetId: assetId, amount } });
   };
 
   return (

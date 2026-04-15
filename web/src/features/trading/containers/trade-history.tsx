@@ -1,4 +1,4 @@
-import { useQueryMarketTrades } from "../data/queries";
+import { useGetApiV1MarketTradesPair } from "@/core/api/generated/market/market";
 import type { IMarketTrade } from "@/core/api/types";
 
 interface TradeHistoryProps {
@@ -7,9 +7,9 @@ interface TradeHistoryProps {
 
 const MAX_TRADES = 20;
 
-function formatTime(isoString: string): string {
+function formatTime(timestamp: number): string {
   try {
-    return new Date(isoString).toLocaleTimeString(undefined, {
+    return new Date(timestamp).toLocaleTimeString(undefined, {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
@@ -50,9 +50,9 @@ function getPriceColor(trade: IMarketTrade, prevTrade: IMarketTrade | undefined)
  * Usage: <TradeHistory pairId="BTC-USDT" />
  */
 export function TradeHistory({ pairId }: TradeHistoryProps) {
-  const { data, isLoading } = useQueryMarketTrades(pairId);
+  const { data, isLoading } = useGetApiV1MarketTradesPair(pairId, undefined, { query: { refetchInterval: 5000, enabled: Boolean(pairId) } });
 
-  const trades = (data?.trades ?? []).slice(0, MAX_TRADES);
+  const trades = (data ?? []).slice(0, MAX_TRADES);
 
   if (isLoading) {
     return (
@@ -103,11 +103,11 @@ export function TradeHistory({ pairId }: TradeHistoryProps) {
             const priceColor = getPriceColor(trade, prevTrade);
             return (
               <div
-                key={trade.id}
+                key={trade.tradeId}
                 className="grid grid-cols-3 gap-2 px-3 py-1 hover:bg-muted/40"
               >
                 <span className="text-xs text-muted-foreground">
-                  {formatTime(trade.executed_at)}
+                  {formatTime(trade.timestamp)}
                 </span>
                 <span className={`text-right text-xs font-medium tabular-nums ${priceColor}`}>
                   {formatPrice(trade.price)}

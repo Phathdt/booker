@@ -11,8 +11,8 @@ interface WsTickerMessage {
     low: string;
     close: string;
     volume: string;
-    change_pct: string;
-    last_price: string;
+    changePct: string;
+    lastPrice: string;
     ts: number;
   };
 }
@@ -32,8 +32,8 @@ interface WsOrderBookMessage {
   type: "orderbook";
   pair: string;
   data: {
-    bids: { price: string; quantity: string; order_count: number }[];
-    asks: { price: string; quantity: string; order_count: number }[];
+    bids: { price: string; quantity: string; orderCount: number }[];
+    asks: { price: string; quantity: string; orderCount: number }[];
   };
 }
 
@@ -108,24 +108,21 @@ export function useMarketWS(pair: string): UseMarketWSResult {
               low: msg.data.low,
               close: msg.data.close,
               volume: msg.data.volume,
-              change_pct: msg.data.change_pct,
-              last_price: msg.data.last_price,
-              ts: msg.data.ts,
+              changePct: msg.data.changePct,
+              lastPrice: msg.data.lastPrice,
+              timestamp: msg.data.ts,
             });
           } else if (msg.type === "trade") {
             const trade: IMarketTrade = {
-              id: msg.data.id,
-              pair_id: msg.pair,
+              tradeId: msg.data.id,
               price: msg.data.price,
               quantity: msg.data.quantity,
-              buyer_id: "",
-              seller_id: "",
-              executed_at: msg.data.executed_at,
+              timestamp: new Date(msg.data.executed_at).getTime(),
             };
             setTrades((prev) => [trade, ...prev].slice(0, MAX_TRADES));
           } else if (msg.type === "orderbook") {
             setOrderBook({
-              pair_id: msg.pair,
+              pairId: msg.pair,
               bids: msg.data.bids,
               asks: msg.data.asks,
             });

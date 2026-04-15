@@ -149,7 +149,8 @@ func RunWalletSvc(c *urfavecli.Context) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	walletHTTP.RegisterRoutes(app, walletService, tokenService)
+	r := shared.NewOpenAPIRouter(app)
+	walletHTTP.RegisterRoutes(r, walletService, tokenService)
 
 	httpserver.LogRoutes(app, "wallet-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)

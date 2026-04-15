@@ -28,8 +28,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	_ "booker/docs"
 )
 
 // RunMarketSvc starts the market data service (REST + WebSocket).
@@ -157,7 +155,8 @@ func RunMarketSvc(c *urfavecli.Context) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	marketHTTP.RegisterRoutes(app, tickers, recentTrades, pairInfos, hub, matchingClient)
+	r := shared.NewOpenAPIRouter(app)
+	marketHTTP.RegisterRoutes(app, r, tickers, recentTrades, pairInfos, hub, matchingClient)
 
 	httpserver.LogRoutes(app, "market-svc")
 	httpAddr := fmt.Sprintf(":%d", httpPort)

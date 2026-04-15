@@ -1,4 +1,4 @@
-import { useQueryTicker } from "../data/queries";
+import { useGetApiV1MarketTickerPair } from "@/core/api/generated/market/market";
 
 interface TickerBarProps {
   pairId: string;
@@ -9,7 +9,7 @@ interface TickerBarProps {
  * Usage: <TickerBar pairId="BTC-USDT" />
  */
 export function TickerBar({ pairId }: TickerBarProps) {
-  const { data: ticker, isLoading } = useQueryTicker(pairId);
+  const { data: ticker, isLoading } = useGetApiV1MarketTickerPair(pairId, { query: { refetchInterval: 3000, enabled: Boolean(pairId) } });
 
   if (isLoading) {
     return (
@@ -29,7 +29,7 @@ export function TickerBar({ pairId }: TickerBarProps) {
     );
   }
 
-  const changePct = parseFloat(ticker.change_pct);
+  const changePct = parseFloat(ticker.changePct);
   const isPositive = changePct >= 0;
   const changeColor = isPositive ? "text-green-500" : "text-red-500";
   const changeSign = isPositive ? "+" : "";
@@ -40,7 +40,7 @@ export function TickerBar({ pairId }: TickerBarProps) {
       <div className="flex flex-col">
         <span className="text-xs text-muted-foreground">Last Price</span>
         <span className={`text-base font-semibold ${changeColor}`}>
-          {parseFloat(ticker.last_price).toLocaleString(undefined, {
+          {parseFloat(ticker.lastPrice).toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 8,
           })}

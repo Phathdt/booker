@@ -9,16 +9,6 @@ import (
 )
 
 // Withdraw godoc
-// @Summary      Withdraw funds from wallet
-// @Tags         wallet
-// @Security     BearerAuth
-// @Accept       json
-// @Produce      json
-// @Param        body  body      dto.WithdrawDTO  true  "Withdraw request"
-// @Success      200   {object}  httpserver.Response{data=dto.WalletResponse}
-// @Failure      400   {object}  httpserver.Response{error=object}
-// @Failure      401   {object}  httpserver.Response{error=object}
-// @Router       /api/v1/wallet/withdraw [post]
 func Withdraw(walletSvc interfaces.WalletService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req dto.WithdrawDTO

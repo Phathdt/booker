@@ -9,12 +9,6 @@ import (
 )
 
 // GetBalances godoc
-// @Summary      Get all wallet balances for current user
-// @Tags         wallet
-// @Security     BearerAuth
-// @Success      200  {object}  httpserver.Response{data=dto.WalletListResponse}
-// @Failure      401  {object}  httpserver.Response{error=object}
-// @Router       /api/v1/wallet [get]
 func GetBalances(walletSvc interfaces.WalletService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userID, ok := c.Locals("user_id").(string)

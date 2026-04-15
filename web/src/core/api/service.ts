@@ -96,10 +96,10 @@ export class Service {
 
         try {
           const { data } = await this.client.post<{
-            data: { access_token: string };
+            data: { accessToken: string };
           }>(AUTH_ENDPOINT.REFRESH);
 
-          const newToken = data.data.access_token;
+          const newToken = data.data.accessToken;
           setAccessToken(newToken);
           processQueue(null, newToken);
 

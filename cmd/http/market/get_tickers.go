@@ -8,11 +8,6 @@ import (
 )
 
 // GetTickers godoc
-// @Summary      Get all pair tickers
-// @Tags         market
-// @Produce      json
-// @Success      200  {object}  httpserver.Response{data=[]TickerResponse}
-// @Router       /api/v1/market/ticker [get]
 func GetTickers(tickers map[string]*ticker.Aggregator) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		result := make([]TickerResponse, 0, len(tickers))
@@ -35,13 +30,6 @@ func GetTickers(tickers map[string]*ticker.Aggregator) fiber.Handler {
 }
 
 // GetTicker godoc
-// @Summary      Get ticker for a single pair
-// @Tags         market
-// @Produce      json
-// @Param        pair  path  string  true  "Trading pair (e.g. BTC_USDT)"
-// @Success      200  {object}  httpserver.Response{data=TickerResponse}
-// @Failure      404  {object}  httpserver.Response{error=object}
-// @Router       /api/v1/market/ticker/{pair} [get]
 func GetTicker(tickers map[string]*ticker.Aggregator) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		pair := c.Params("pair")

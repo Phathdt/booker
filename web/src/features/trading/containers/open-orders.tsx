@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -9,8 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useQueryOrders } from "../data/queries";
-import { useMutationCancelOrder } from "../data/mutations";
+import { useGetApiV1Orders, useDeleteApiV1OrdersId, getGetApiV1OrdersQueryKey } from "@/core/api/generated/orders/orders";
 import type { IOrder } from "@/core/api/types";
 
 interface OpenOrdersProps {
@@ -39,8 +40,23 @@ function formatDate(iso: string): string {
 }
 
 export function OpenOrders({ pairId }: OpenOrdersProps) {
-  const { data, isLoading } = useQueryOrders(pairId);
-  const { mutate: cancel, isPending: isCancelling } = useMutationCancelOrder();
+  const queryClient = useQueryClient();
+  const { data, isLoading } = useGetApiV1Orders(
+    { pairId },
+    { query: { refetchInterval: 5000 } }
+  );
+  const { mutate: cancel, isPending: isCancelling } = useDeleteApiV1OrdersId({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetApiV1OrdersQueryKey() });
+        toast.success("Order cancelled");
+      },
+      onError: (err: unknown) => {
+        const message = err instanceof Error ? err.message : "Failed to cancel order";
+        toast.error(message);
+      },
+    },
+  });
 
   const orders = data?.orders ?? [];
 
@@ -78,14 +94,14 @@ export function OpenOrders({ pairId }: OpenOrdersProps) {
         {orders.map((order) => (
           <TableRow key={order.id}>
             <TableCell className="text-xs text-muted-foreground">
-              {formatDate(order.created_at)}
+              {formatDate(order.createdAt)}
             </TableCell>
             <TableCell className="font-medium">
               <Link
                 to={`/orders/${order.id}`}
                 className="hover:underline"
               >
-                {order.pair_id}
+                {order.pairId}
               </Link>
             </TableCell>
             <TableCell>
@@ -101,7 +117,7 @@ export function OpenOrders({ pairId }: OpenOrdersProps) {
             </TableCell>
             <TableCell className="text-right font-mono">{order.price}</TableCell>
             <TableCell className="text-right font-mono">{order.quantity}</TableCell>
-            <TableCell className="text-right font-mono">{order.filled_qty}</TableCell>
+            <TableCell className="text-right font-mono">{order.filledQty}</TableCell>
             <TableCell>
               <Badge variant={statusVariant(order.status)}>
                 {order.status}
@@ -113,7 +129,7 @@ export function OpenOrders({ pairId }: OpenOrdersProps) {
                   size="sm"
                   variant="destructive"
                   disabled={isCancelling}
-                  onClick={() => cancel(order.id)}
+                  onClick={() => cancel({ id: order.id })}
                 >
                   Cancel
                 </Button>

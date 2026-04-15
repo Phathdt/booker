@@ -47,7 +47,7 @@ export const getApiV1Wallet = (
 
 
       return axiosInstance<DtoWalletListResponse>(
-      {url: `/api/v1/wallet/`, method: 'GET', signal
+      {url: `/api/v1/wallet`, method: 'GET', signal
     },
       );
     }
@@ -57,7 +57,7 @@ export const getApiV1Wallet = (
 
 export const getGetApiV1WalletQueryKey = () => {
     return [
-    `/api/v1/wallet/`
+    `/api/v1/wallet`
     ] as const;
     }
 

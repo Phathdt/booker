@@ -47,7 +47,7 @@ export const getApiV1Orders = (
 
 
       return axiosInstance<DtoOrderListResponse>(
-      {url: `/api/v1/orders/`, method: 'GET',
+      {url: `/api/v1/orders`, method: 'GET',
         params, signal
     },
       );
@@ -58,7 +58,7 @@ export const getApiV1Orders = (
 
 export const getGetApiV1OrdersQueryKey = (params?: GetApiV1OrdersParams,) => {
     return [
-    `/api/v1/orders/`, ...(params ? [params] : [])
+    `/api/v1/orders`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -141,7 +141,7 @@ export const postApiV1Orders = (
 
 
       return axiosInstance<DtoOrderResponse>(
-      {url: `/api/v1/orders/`, method: 'POST',
+      {url: `/api/v1/orders`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: dtoCreateOrderDTO, signal
     },

@@ -64,7 +64,7 @@ func RegisterRoutes(
 		option.Request(new(UserIDParam)),
 		option.Response(200, new(userDTO.UserResponse)),
 	)
-	usersGroup.Get("/", ListUsers(userSvc)).With(
+	usersGroup.Get("", ListUsers(userSvc)).With(
 		option.Summary("List users"),
 		option.Request(new(ListUsersParam)),
 		option.Response(200, new(userDTO.UserListResponse)),

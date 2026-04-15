@@ -26,7 +26,7 @@ func RegisterRoutes(
 		option.GroupTags("notifications"),
 	)
 
-	n.Get("/", ListNotifications(svc)).With(
+	n.Get("", ListNotifications(svc)).With(
 		option.Summary("List notifications for current user"),
 		option.Request(new(ListNotificationsParam)),
 		option.Response(200, new(notifDTO.NotificationListResponse)),

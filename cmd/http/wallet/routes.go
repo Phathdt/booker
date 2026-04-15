@@ -17,7 +17,7 @@ func RegisterRoutes(r fiberopenapi.Router, walletSvc walletInterfaces.WalletServ
 		option.GroupTags("wallet"),
 	)
 
-	w.Get("/", GetBalances(walletSvc)).With(
+	w.Get("", GetBalances(walletSvc)).With(
 		option.Summary("Get all wallet balances for current user"),
 		option.Response(200, new(walletDTO.WalletListResponse)),
 	)

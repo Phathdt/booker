@@ -42,6 +42,11 @@ AXIOS_INSTANCE.interceptors.response.use(
       original._retry ||
       original.url === AUTH_ENDPOINT.REFRESH
     ) {
+      // Extract business error message from { error: { message } } wrapper
+      const apiMessage = error.response?.data?.error?.message;
+      if (apiMessage) {
+        error.message = apiMessage;
+      }
       return Promise.reject(error);
     }
 
@@ -49,6 +54,7 @@ AXIOS_INSTANCE.interceptors.response.use(
       return new Promise<string>((resolve, reject) => {
         failedQueue.push({ resolve, reject });
       }).then((token) => {
+        original._retry = true;
         original.headers = { ...original.headers, Authorization: `Bearer ${token}` };
         return AXIOS_INSTANCE(original);
       });

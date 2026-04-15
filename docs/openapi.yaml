@@ -180,7 +180,7 @@ paths:
       summary: Get recent trades for a pair
       tags:
       - market
-  /api/v1/notifications/:
+  /api/v1/notifications:
     get:
       description: List notifications for current user
       parameters:
@@ -259,7 +259,7 @@ paths:
       summary: Get unread notification count
       tags:
       - notifications
-  /api/v1/orders/:
+  /api/v1/orders:
     get:
       description: List orders for current user
       parameters:
@@ -351,7 +351,7 @@ paths:
       summary: Get a single order by ID
       tags:
       - orders
-  /api/v1/users/:
+  /api/v1/users:
     get:
       description: List users
       parameters:
@@ -396,7 +396,7 @@ paths:
       summary: Get user by ID
       tags:
       - users
-  /api/v1/wallet/:
+  /api/v1/wallet:
     get:
       description: Get all wallet balances for current user
       responses:

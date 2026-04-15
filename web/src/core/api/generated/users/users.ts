@@ -42,7 +42,7 @@ export const getApiV1Users = (
 
 
       return axiosInstance<DtoUserListResponse>(
-      {url: `/api/v1/users/`, method: 'GET',
+      {url: `/api/v1/users`, method: 'GET',
         params, signal
     },
       );
@@ -53,7 +53,7 @@ export const getApiV1Users = (
 
 export const getGetApiV1UsersQueryKey = (params?: GetApiV1UsersParams,) => {
     return [
-    `/api/v1/users/`, ...(params ? [params] : [])
+    `/api/v1/users`, ...(params ? [params] : [])
     ] as const;
     }
 

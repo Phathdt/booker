@@ -47,7 +47,7 @@ export const getApiV1Notifications = (
 
 
       return axiosInstance<DtoNotificationListResponse>(
-      {url: `/api/v1/notifications/`, method: 'GET',
+      {url: `/api/v1/notifications`, method: 'GET',
         params, signal
     },
       );
@@ -58,7 +58,7 @@ export const getApiV1Notifications = (
 
 export const getGetApiV1NotificationsQueryKey = (params?: GetApiV1NotificationsParams,) => {
     return [
-    `/api/v1/notifications/`, ...(params ? [params] : [])
+    `/api/v1/notifications`, ...(params ? [params] : [])
     ] as const;
     }
 

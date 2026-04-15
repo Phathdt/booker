@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetApiV1Notifications, getGetApiV1NotificationsQueryKey } from "@/core/api/generated/notifications/notifications";
-import { usePatchApiV1NotificationsIdRead, usePostApiV1NotificationsReadAll, getGetApiV1NotificationsUnreadCountQueryKey } from "@/core/api/generated/notifications/notifications";
+import { useListNotifications, getListNotificationsQueryKey, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, getGetUnreadCountQueryKey } from "@/core/api/generated/notifications/notifications";
 import { Button } from "@/components/ui/button";
 import type { INotification } from "@/core/api/types";
 
@@ -61,20 +60,20 @@ function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
 
 export function NotificationList() {
   const queryClient = useQueryClient();
-  const { data, isLoading } = useGetApiV1Notifications();
-  const markRead = usePatchApiV1NotificationsIdRead({
+  const { data, isLoading } = useListNotifications();
+  const markRead = useMarkNotificationAsRead({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsQueryKey() });
-        queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsUnreadCountQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListNotificationsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetUnreadCountQueryKey() });
       },
     },
   });
-  const markAllRead = usePostApiV1NotificationsReadAll({
+  const markAllRead = useMarkAllNotificationsAsRead({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsQueryKey() });
-        queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsUnreadCountQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListNotificationsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetUnreadCountQueryKey() });
       },
     },
   });

@@ -7,6 +7,7 @@ paths:
   /api/v1/auth/login:
     post:
       description: Login with email and password
+      operationId: login
       requestBody:
         content:
           application/json:
@@ -25,6 +26,7 @@ paths:
   /api/v1/auth/logout:
     post:
       description: Logout (revoke all tokens)
+      operationId: logout
       responses:
         "200":
           content:
@@ -40,6 +42,7 @@ paths:
   /api/v1/auth/me:
     get:
       description: Get current authenticated user
+      operationId: getMe
       responses:
         "200":
           content:
@@ -55,6 +58,7 @@ paths:
   /api/v1/auth/refresh:
     post:
       description: Refresh access token
+      operationId: refreshToken
       responses:
         "200":
           content:
@@ -68,6 +72,7 @@ paths:
   /api/v1/auth/register:
     post:
       description: Register a new user
+      operationId: register
       requestBody:
         content:
           application/json:
@@ -86,6 +91,7 @@ paths:
   /api/v1/market/orderbook/{pair}:
     get:
       description: Get order book depth for a trading pair
+      operationId: getOrderBook
       parameters:
       - in: query
         name: depth
@@ -109,6 +115,7 @@ paths:
   /api/v1/market/pairs:
     get:
       description: List active trading pairs
+      operationId: getPairs
       responses:
         "200":
           content:
@@ -124,6 +131,7 @@ paths:
   /api/v1/market/ticker:
     get:
       description: Get all pair tickers
+      operationId: getTickers
       responses:
         "200":
           content:
@@ -139,6 +147,7 @@ paths:
   /api/v1/market/ticker/{pair}:
     get:
       description: Get ticker for a single pair
+      operationId: getTicker
       parameters:
       - in: path
         name: pair
@@ -158,6 +167,7 @@ paths:
   /api/v1/market/trades/{pair}:
     get:
       description: Get recent trades for a pair
+      operationId: getTrades
       parameters:
       - in: query
         name: limit
@@ -183,6 +193,7 @@ paths:
   /api/v1/notifications:
     get:
       description: List notifications for current user
+      operationId: listNotifications
       parameters:
       - in: query
         name: cursor
@@ -211,6 +222,7 @@ paths:
   /api/v1/notifications/{id}/read:
     patch:
       description: Mark a notification as read
+      operationId: markNotificationAsRead
       parameters:
       - in: path
         name: id
@@ -232,6 +244,7 @@ paths:
   /api/v1/notifications/read-all:
     post:
       description: Mark all notifications as read
+      operationId: markAllNotificationsAsRead
       responses:
         "200":
           content:
@@ -247,6 +260,7 @@ paths:
   /api/v1/notifications/unread-count:
     get:
       description: Get unread notification count
+      operationId: getUnreadCount
       responses:
         "200":
           content:
@@ -262,6 +276,7 @@ paths:
   /api/v1/orders:
     get:
       description: List orders for current user
+      operationId: listOrders
       parameters:
       - in: query
         name: pairId
@@ -293,6 +308,7 @@ paths:
       - orders
     post:
       description: Create a new limit order
+      operationId: createOrder
       requestBody:
         content:
           application/json:
@@ -313,6 +329,7 @@ paths:
   /api/v1/orders/{id}:
     delete:
       description: Cancel an order
+      operationId: cancelOrder
       parameters:
       - in: path
         name: id
@@ -333,6 +350,7 @@ paths:
       - orders
     get:
       description: Get a single order by ID
+      operationId: getOrder
       parameters:
       - in: path
         name: id
@@ -354,6 +372,7 @@ paths:
   /api/v1/users:
     get:
       description: List users
+      operationId: listUsers
       parameters:
       - in: query
         name: limit
@@ -378,6 +397,7 @@ paths:
   /api/v1/users/{id}:
     get:
       description: Get user by ID
+      operationId: getUser
       parameters:
       - in: path
         name: id
@@ -399,6 +419,7 @@ paths:
   /api/v1/wallet:
     get:
       description: Get all wallet balances for current user
+      operationId: getBalances
       responses:
         "200":
           content:
@@ -414,6 +435,7 @@ paths:
   /api/v1/wallet/{asset_id}:
     get:
       description: Get wallet balance for a specific asset
+      operationId: getBalance
       parameters:
       - in: path
         name: asset_id
@@ -435,6 +457,7 @@ paths:
   /api/v1/wallet/deposit:
     post:
       description: Deposit funds to wallet
+      operationId: deposit
       requestBody:
         content:
           application/json:
@@ -455,6 +478,7 @@ paths:
   /api/v1/wallet/withdraw:
     post:
       description: Withdraw funds from wallet
+      operationId: withdraw
       requestBody:
         content:
           application/json:

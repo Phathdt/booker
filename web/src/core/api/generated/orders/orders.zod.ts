@@ -12,14 +12,14 @@ import * as zod from 'zod';
  * List orders for current user
  * @summary List orders for current user
  */
-export const GetApiV1OrdersQueryParams = zod.object({
+export const ListOrdersQueryParams = zod.object({
   "pairId": zod.string().optional(),
   "status": zod.string().optional(),
   "limit": zod.number().optional(),
   "offset": zod.number().optional()
 })
 
-export const GetApiV1OrdersResponse = zod.object({
+export const ListOrdersResponse = zod.object({
   "orders": zod.array(zod.object({
   "createdAt": zod.string(),
   "filledQty": zod.string(),
@@ -39,7 +39,7 @@ export const GetApiV1OrdersResponse = zod.object({
  * Create a new limit order
  * @summary Create a new limit order
  */
-export const PostApiV1OrdersBody = zod.object({
+export const CreateOrderBody = zod.object({
   "pairId": zod.string(),
   "price": zod.string(),
   "quantity": zod.string(),
@@ -51,11 +51,11 @@ export const PostApiV1OrdersBody = zod.object({
  * Cancel an order
  * @summary Cancel an order
  */
-export const DeleteApiV1OrdersIdParams = zod.object({
+export const CancelOrderParams = zod.object({
   "id": zod.string()
 })
 
-export const DeleteApiV1OrdersIdResponse = zod.object({
+export const CancelOrderResponse = zod.object({
   "createdAt": zod.string(),
   "filledQty": zod.string(),
   "id": zod.string(),
@@ -73,11 +73,11 @@ export const DeleteApiV1OrdersIdResponse = zod.object({
  * Get a single order by ID
  * @summary Get a single order by ID
  */
-export const GetApiV1OrdersIdParams = zod.object({
+export const GetOrderParams = zod.object({
   "id": zod.string()
 })
 
-export const GetApiV1OrdersIdResponse = zod.object({
+export const GetOrderResponse = zod.object({
   "createdAt": zod.string(),
   "filledQty": zod.string(),
   "id": zod.string(),

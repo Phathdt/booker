@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-export type GetApiV1UsersParams = {
+export type GetTradesParams = {
 limit?: number;
-offset?: number;
 };

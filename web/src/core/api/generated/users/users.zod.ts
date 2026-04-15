@@ -12,12 +12,12 @@ import * as zod from 'zod';
  * List users
  * @summary List users
  */
-export const GetApiV1UsersQueryParams = zod.object({
+export const ListUsersQueryParams = zod.object({
   "limit": zod.number().optional(),
   "offset": zod.number().optional()
 })
 
-export const GetApiV1UsersResponse = zod.object({
+export const ListUsersResponse = zod.object({
   "total": zod.number(),
   "users": zod.array(zod.object({
   "createdAt": zod.string(),
@@ -33,11 +33,11 @@ export const GetApiV1UsersResponse = zod.object({
  * Get user by ID
  * @summary Get user by ID
  */
-export const GetApiV1UsersIdParams = zod.object({
+export const GetUserParams = zod.object({
   "id": zod.string()
 })
 
-export const GetApiV1UsersIdResponse = zod.object({
+export const GetUserResponse = zod.object({
   "createdAt": zod.string(),
   "email": zod.string(),
   "id": zod.string(),

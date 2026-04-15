@@ -12,7 +12,7 @@ import * as zod from 'zod';
  * Get all wallet balances for current user
  * @summary Get all wallet balances for current user
  */
-export const GetApiV1WalletResponse = zod.object({
+export const GetBalancesResponse = zod.object({
   "wallets": zod.array(zod.object({
   "assetId": zod.string(),
   "available": zod.string(),
@@ -27,11 +27,11 @@ export const GetApiV1WalletResponse = zod.object({
  * Get wallet balance for a specific asset
  * @summary Get wallet balance for a specific asset
  */
-export const GetApiV1WalletAssetIdParams = zod.object({
+export const GetBalanceParams = zod.object({
   "asset_id": zod.string()
 })
 
-export const GetApiV1WalletAssetIdResponse = zod.object({
+export const GetBalanceResponse = zod.object({
   "assetId": zod.string(),
   "available": zod.string(),
   "id": zod.string(),
@@ -44,12 +44,12 @@ export const GetApiV1WalletAssetIdResponse = zod.object({
  * Deposit funds to wallet
  * @summary Deposit funds to wallet
  */
-export const PostApiV1WalletDepositBody = zod.object({
+export const DepositBody = zod.object({
   "amount": zod.string(),
   "assetId": zod.string()
 })
 
-export const PostApiV1WalletDepositResponse = zod.object({
+export const DepositResponse = zod.object({
   "assetId": zod.string(),
   "available": zod.string(),
   "id": zod.string(),
@@ -62,12 +62,12 @@ export const PostApiV1WalletDepositResponse = zod.object({
  * Withdraw funds from wallet
  * @summary Withdraw funds from wallet
  */
-export const PostApiV1WalletWithdrawBody = zod.object({
+export const WithdrawBody = zod.object({
   "amount": zod.string(),
   "assetId": zod.string()
 })
 
-export const PostApiV1WalletWithdrawResponse = zod.object({
+export const WithdrawResponse = zod.object({
   "assetId": zod.string(),
   "available": zod.string(),
   "id": zod.string(),

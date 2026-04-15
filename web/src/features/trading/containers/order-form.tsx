@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { usePostApiV1Orders, getGetApiV1OrdersQueryKey } from "@/core/api/generated/orders/orders";
+import { useCreateOrder, getListOrdersQueryKey } from "@/core/api/generated/orders/orders";
 import { cn } from "@/lib/utils";
 
 interface OrderFormProps {
@@ -33,10 +33,10 @@ function SideForm({ side, pairId }: SideFormProps) {
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("");
   const queryClient = useQueryClient();
-  const { mutate, isPending } = usePostApiV1Orders({
+  const { mutate, isPending } = useCreateOrder({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetApiV1OrdersQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey() });
         toast.success("Order placed");
         setPrice("");
         setQuantity("");

@@ -6,9 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-export type GetApiV1OrdersParams = {
-pairId?: string;
-status?: string;
-limit?: number;
-offset?: number;
+export type GetOrderBookParams = {
+depth?: number;
 };

@@ -27,16 +27,19 @@ func RegisterRoutes(
 	// Public auth routes
 	auth := api.Group("/auth").With(option.GroupTags("auth"))
 	auth.Post("/register", Register(cfg, registerUC)).With(
+		option.OperationID("register"),
 		option.Summary("Register a new user"),
 		option.Request(new(userDTO.RegisterDTO)),
 		option.Response(201, new(userDTO.AuthResponse)),
 	)
 	auth.Post("/login", Login(cfg, loginUC)).With(
+		option.OperationID("login"),
 		option.Summary("Login with email and password"),
 		option.Request(new(userDTO.LoginDTO)),
 		option.Response(200, new(userDTO.AuthResponse)),
 	)
 	auth.Post("/refresh", RefreshToken(cfg, refreshTokenUC)).With(
+		option.OperationID("refreshToken"),
 		option.Summary("Refresh access token"),
 		option.Response(200, new(userDTO.TokenPairResponse)),
 	)
@@ -46,10 +49,12 @@ func RegisterRoutes(
 		option.GroupSecurity("BearerAuth"),
 	)
 	authProtected.Post("/logout", Logout(cfg, logoutUC)).With(
+		option.OperationID("logout"),
 		option.Summary("Logout (revoke all tokens)"),
 		option.Response(200, new(userDTO.MessageResponse)),
 	)
 	authProtected.Get("/me", GetMe(userSvc)).With(
+		option.OperationID("getMe"),
 		option.Summary("Get current authenticated user"),
 		option.Response(200, new(userDTO.UserResponse)),
 	)
@@ -60,11 +65,13 @@ func RegisterRoutes(
 		option.GroupTags("users"),
 	)
 	usersGroup.Get("/:id", GetUser(userSvc)).With(
+		option.OperationID("getUser"),
 		option.Summary("Get user by ID"),
 		option.Request(new(UserIDParam)),
 		option.Response(200, new(userDTO.UserResponse)),
 	)
 	usersGroup.Get("", ListUsers(userSvc)).With(
+		option.OperationID("listUsers"),
 		option.Summary("List users"),
 		option.Request(new(ListUsersParam)),
 		option.Response(200, new(userDTO.UserListResponse)),

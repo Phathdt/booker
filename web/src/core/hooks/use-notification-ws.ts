@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getAccessToken } from "@/core/api/service";
 import type { INotification } from "@/core/api/types";
-import { getGetApiV1NotificationsQueryKey, getGetApiV1NotificationsUnreadCountQueryKey } from "@/core/api/generated/notifications/notifications";
+import { getListNotificationsQueryKey, getGetUnreadCountQueryKey } from "@/core/api/generated/notifications/notifications";
 import { getWsBaseUrl } from "./ws-utils";
 
 interface WsNotificationMessage {
@@ -73,8 +73,8 @@ export function useNotificationWS(): UseNotificationWSResult {
 
           if (msg.data) {
             setLastNotification(msg.data);
-            queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsQueryKey() });
-            queryClient.invalidateQueries({ queryKey: getGetApiV1NotificationsUnreadCountQueryKey() });
+            queryClient.invalidateQueries({ queryKey: getListNotificationsQueryKey() });
+            queryClient.invalidateQueries({ queryKey: getGetUnreadCountQueryKey() });
           }
         } catch {
           // Ignore malformed messages

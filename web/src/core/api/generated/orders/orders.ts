@@ -28,7 +28,7 @@ import type {
   DtoCreateOrderDTO,
   DtoOrderListResponse,
   DtoOrderResponse,
-  GetApiV1OrdersParams
+  ListOrdersParams
 } from '../models';
 
 import { axiosInstance } from '../../axios-instance';
@@ -40,8 +40,8 @@ import { axiosInstance } from '../../axios-instance';
  * List orders for current user
  * @summary List orders for current user
  */
-export const getApiV1Orders = (
-    params?: GetApiV1OrdersParams,
+export const listOrders = (
+    params?: ListOrdersParams,
  signal?: AbortSignal
 ) => {
 
@@ -56,69 +56,69 @@ export const getApiV1Orders = (
 
 
 
-export const getGetApiV1OrdersQueryKey = (params?: GetApiV1OrdersParams,) => {
+export const getListOrdersQueryKey = (params?: ListOrdersParams,) => {
     return [
     `/api/v1/orders`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetApiV1OrdersQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1Orders>>, TError = unknown>(params?: GetApiV1OrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Orders>>, TError, TData>>, }
+export const getListOrdersQueryOptions = <TData = Awaited<ReturnType<typeof listOrders>>, TError = unknown>(params?: ListOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrders>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1OrdersQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getListOrdersQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1Orders>>> = ({ signal }) => getApiV1Orders(params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listOrders>>> = ({ signal }) => listOrders(params, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1Orders>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listOrders>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1OrdersQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1Orders>>>
-export type GetApiV1OrdersQueryError = unknown
+export type ListOrdersQueryResult = NonNullable<Awaited<ReturnType<typeof listOrders>>>
+export type ListOrdersQueryError = unknown
 
 
-export function useGetApiV1Orders<TData = Awaited<ReturnType<typeof getApiV1Orders>>, TError = unknown>(
- params: undefined |  GetApiV1OrdersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Orders>>, TError, TData>> & Pick<
+export function useListOrders<TData = Awaited<ReturnType<typeof listOrders>>, TError = unknown>(
+ params: undefined |  ListOrdersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrders>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1Orders>>,
+          Awaited<ReturnType<typeof listOrders>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1Orders>>
+          Awaited<ReturnType<typeof listOrders>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1Orders<TData = Awaited<ReturnType<typeof getApiV1Orders>>, TError = unknown>(
- params?: GetApiV1OrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Orders>>, TError, TData>> & Pick<
+export function useListOrders<TData = Awaited<ReturnType<typeof listOrders>>, TError = unknown>(
+ params?: ListOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrders>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1Orders>>,
+          Awaited<ReturnType<typeof listOrders>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1Orders>>
+          Awaited<ReturnType<typeof listOrders>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1Orders<TData = Awaited<ReturnType<typeof getApiV1Orders>>, TError = unknown>(
- params?: GetApiV1OrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Orders>>, TError, TData>>, }
+export function useListOrders<TData = Awaited<ReturnType<typeof listOrders>>, TError = unknown>(
+ params?: ListOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrders>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List orders for current user
  */
 
-export function useGetApiV1Orders<TData = Awaited<ReturnType<typeof getApiV1Orders>>, TError = unknown>(
- params?: GetApiV1OrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Orders>>, TError, TData>>, }
+export function useListOrders<TData = Awaited<ReturnType<typeof listOrders>>, TError = unknown>(
+ params?: ListOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrders>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1OrdersQueryOptions(params,options)
+  const queryOptions = getListOrdersQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -134,7 +134,7 @@ export function useGetApiV1Orders<TData = Awaited<ReturnType<typeof getApiV1Orde
  * Create a new limit order
  * @summary Create a new limit order
  */
-export const postApiV1Orders = (
+export const createOrder = (
     dtoCreateOrderDTO: DtoCreateOrderDTO,
  signal?: AbortSignal
 ) => {
@@ -150,11 +150,11 @@ export const postApiV1Orders = (
 
 
 
-export const getPostApiV1OrdersMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1Orders>>, TError,{data: DtoCreateOrderDTO}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postApiV1Orders>>, TError,{data: DtoCreateOrderDTO}, TContext> => {
+export const getCreateOrderMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createOrder>>, TError,{data: DtoCreateOrderDTO}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof createOrder>>, TError,{data: DtoCreateOrderDTO}, TContext> => {
 
-const mutationKey = ['postApiV1Orders'];
+const mutationKey = ['createOrder'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -164,10 +164,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1Orders>>, {data: DtoCreateOrderDTO}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createOrder>>, {data: DtoCreateOrderDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiV1Orders(data,)
+          return  createOrder(data,)
         }
 
 
@@ -177,28 +177,28 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type PostApiV1OrdersMutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1Orders>>>
-    export type PostApiV1OrdersMutationBody = DtoCreateOrderDTO
-    export type PostApiV1OrdersMutationError = unknown
+    export type CreateOrderMutationResult = NonNullable<Awaited<ReturnType<typeof createOrder>>>
+    export type CreateOrderMutationBody = DtoCreateOrderDTO
+    export type CreateOrderMutationError = unknown
 
     /**
  * @summary Create a new limit order
  */
-export const usePostApiV1Orders = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1Orders>>, TError,{data: DtoCreateOrderDTO}, TContext>, }
+export const useCreateOrder = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createOrder>>, TError,{data: DtoCreateOrderDTO}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postApiV1Orders>>,
+        Awaited<ReturnType<typeof createOrder>>,
         TError,
         {data: DtoCreateOrderDTO},
         TContext
       > => {
-      return useMutation(getPostApiV1OrdersMutationOptions(options), queryClient);
+      return useMutation(getCreateOrderMutationOptions(options), queryClient);
     }
     /**
  * Cancel an order
  * @summary Cancel an order
  */
-export const deleteApiV1OrdersId = (
+export const cancelOrder = (
     id: string,
  signal?: AbortSignal
 ) => {
@@ -212,11 +212,11 @@ export const deleteApiV1OrdersId = (
 
 
 
-export const getDeleteApiV1OrdersIdMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiV1OrdersId>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteApiV1OrdersId>>, TError,{id: string}, TContext> => {
+export const getCancelOrderMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelOrder>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cancelOrder>>, TError,{id: string}, TContext> => {
 
-const mutationKey = ['deleteApiV1OrdersId'];
+const mutationKey = ['cancelOrder'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -226,10 +226,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiV1OrdersId>>, {id: string}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cancelOrder>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  deleteApiV1OrdersId(id,)
+          return  cancelOrder(id,)
         }
 
 
@@ -239,28 +239,28 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type DeleteApiV1OrdersIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiV1OrdersId>>>
+    export type CancelOrderMutationResult = NonNullable<Awaited<ReturnType<typeof cancelOrder>>>
 
-    export type DeleteApiV1OrdersIdMutationError = unknown
+    export type CancelOrderMutationError = unknown
 
     /**
  * @summary Cancel an order
  */
-export const useDeleteApiV1OrdersId = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiV1OrdersId>>, TError,{id: string}, TContext>, }
+export const useCancelOrder = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelOrder>>, TError,{id: string}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteApiV1OrdersId>>,
+        Awaited<ReturnType<typeof cancelOrder>>,
         TError,
         {id: string},
         TContext
       > => {
-      return useMutation(getDeleteApiV1OrdersIdMutationOptions(options), queryClient);
+      return useMutation(getCancelOrderMutationOptions(options), queryClient);
     }
     /**
  * Get a single order by ID
  * @summary Get a single order by ID
  */
-export const getApiV1OrdersId = (
+export const getOrder = (
     id: string,
  signal?: AbortSignal
 ) => {
@@ -275,69 +275,69 @@ export const getApiV1OrdersId = (
 
 
 
-export const getGetApiV1OrdersIdQueryKey = (id: string,) => {
+export const getGetOrderQueryKey = (id: string,) => {
     return [
     `/api/v1/orders/${id}`
     ] as const;
     }
 
 
-export const getGetApiV1OrdersIdQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1OrdersId>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1OrdersId>>, TError, TData>>, }
+export const getGetOrderQueryOptions = <TData = Awaited<ReturnType<typeof getOrder>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrder>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1OrdersIdQueryKey(id);
+  const queryKey =  queryOptions?.queryKey ?? getGetOrderQueryKey(id);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1OrdersId>>> = ({ signal }) => getApiV1OrdersId(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOrder>>> = ({ signal }) => getOrder(id, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1OrdersId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOrder>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1OrdersIdQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1OrdersId>>>
-export type GetApiV1OrdersIdQueryError = unknown
+export type GetOrderQueryResult = NonNullable<Awaited<ReturnType<typeof getOrder>>>
+export type GetOrderQueryError = unknown
 
 
-export function useGetApiV1OrdersId<TData = Awaited<ReturnType<typeof getApiV1OrdersId>>, TError = unknown>(
- id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1OrdersId>>, TError, TData>> & Pick<
+export function useGetOrder<TData = Awaited<ReturnType<typeof getOrder>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrder>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1OrdersId>>,
+          Awaited<ReturnType<typeof getOrder>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1OrdersId>>
+          Awaited<ReturnType<typeof getOrder>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1OrdersId<TData = Awaited<ReturnType<typeof getApiV1OrdersId>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1OrdersId>>, TError, TData>> & Pick<
+export function useGetOrder<TData = Awaited<ReturnType<typeof getOrder>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrder>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1OrdersId>>,
+          Awaited<ReturnType<typeof getOrder>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1OrdersId>>
+          Awaited<ReturnType<typeof getOrder>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1OrdersId<TData = Awaited<ReturnType<typeof getApiV1OrdersId>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1OrdersId>>, TError, TData>>, }
+export function useGetOrder<TData = Awaited<ReturnType<typeof getOrder>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrder>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get a single order by ID
  */
 
-export function useGetApiV1OrdersId<TData = Awaited<ReturnType<typeof getApiV1OrdersId>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1OrdersId>>, TError, TData>>, }
+export function useGetOrder<TData = Awaited<ReturnType<typeof getOrder>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrder>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1OrdersIdQueryOptions(id,options)
+  const queryOptions = getGetOrderQueryOptions(id,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

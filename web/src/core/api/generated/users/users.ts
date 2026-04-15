@@ -23,7 +23,7 @@ import type {
 import type {
   DtoUserListResponse,
   DtoUserResponse,
-  GetApiV1UsersParams
+  ListUsersParams
 } from '../models';
 
 import { axiosInstance } from '../../axios-instance';
@@ -35,8 +35,8 @@ import { axiosInstance } from '../../axios-instance';
  * List users
  * @summary List users
  */
-export const getApiV1Users = (
-    params?: GetApiV1UsersParams,
+export const listUsers = (
+    params?: ListUsersParams,
  signal?: AbortSignal
 ) => {
 
@@ -51,69 +51,69 @@ export const getApiV1Users = (
 
 
 
-export const getGetApiV1UsersQueryKey = (params?: GetApiV1UsersParams,) => {
+export const getListUsersQueryKey = (params?: ListUsersParams,) => {
     return [
     `/api/v1/users`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetApiV1UsersQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1Users>>, TError = unknown>(params?: GetApiV1UsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Users>>, TError, TData>>, }
+export const getListUsersQueryOptions = <TData = Awaited<ReturnType<typeof listUsers>>, TError = unknown>(params?: ListUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1UsersQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getListUsersQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1Users>>> = ({ signal }) => getApiV1Users(params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUsers>>> = ({ signal }) => listUsers(params, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1Users>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1UsersQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1Users>>>
-export type GetApiV1UsersQueryError = unknown
+export type ListUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listUsers>>>
+export type ListUsersQueryError = unknown
 
 
-export function useGetApiV1Users<TData = Awaited<ReturnType<typeof getApiV1Users>>, TError = unknown>(
- params: undefined |  GetApiV1UsersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Users>>, TError, TData>> & Pick<
+export function useListUsers<TData = Awaited<ReturnType<typeof listUsers>>, TError = unknown>(
+ params: undefined |  ListUsersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1Users>>,
+          Awaited<ReturnType<typeof listUsers>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1Users>>
+          Awaited<ReturnType<typeof listUsers>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1Users<TData = Awaited<ReturnType<typeof getApiV1Users>>, TError = unknown>(
- params?: GetApiV1UsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Users>>, TError, TData>> & Pick<
+export function useListUsers<TData = Awaited<ReturnType<typeof listUsers>>, TError = unknown>(
+ params?: ListUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1Users>>,
+          Awaited<ReturnType<typeof listUsers>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1Users>>
+          Awaited<ReturnType<typeof listUsers>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1Users<TData = Awaited<ReturnType<typeof getApiV1Users>>, TError = unknown>(
- params?: GetApiV1UsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Users>>, TError, TData>>, }
+export function useListUsers<TData = Awaited<ReturnType<typeof listUsers>>, TError = unknown>(
+ params?: ListUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List users
  */
 
-export function useGetApiV1Users<TData = Awaited<ReturnType<typeof getApiV1Users>>, TError = unknown>(
- params?: GetApiV1UsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Users>>, TError, TData>>, }
+export function useListUsers<TData = Awaited<ReturnType<typeof listUsers>>, TError = unknown>(
+ params?: ListUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1UsersQueryOptions(params,options)
+  const queryOptions = getListUsersQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -129,7 +129,7 @@ export function useGetApiV1Users<TData = Awaited<ReturnType<typeof getApiV1Users
  * Get user by ID
  * @summary Get user by ID
  */
-export const getApiV1UsersId = (
+export const getUser = (
     id: string,
  signal?: AbortSignal
 ) => {
@@ -144,69 +144,69 @@ export const getApiV1UsersId = (
 
 
 
-export const getGetApiV1UsersIdQueryKey = (id: string,) => {
+export const getGetUserQueryKey = (id: string,) => {
     return [
     `/api/v1/users/${id}`
     ] as const;
     }
 
 
-export const getGetApiV1UsersIdQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1UsersId>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1UsersId>>, TError, TData>>, }
+export const getGetUserQueryOptions = <TData = Awaited<ReturnType<typeof getUser>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1UsersIdQueryKey(id);
+  const queryKey =  queryOptions?.queryKey ?? getGetUserQueryKey(id);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1UsersId>>> = ({ signal }) => getApiV1UsersId(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUser>>> = ({ signal }) => getUser(id, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1UsersId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1UsersIdQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1UsersId>>>
-export type GetApiV1UsersIdQueryError = unknown
+export type GetUserQueryResult = NonNullable<Awaited<ReturnType<typeof getUser>>>
+export type GetUserQueryError = unknown
 
 
-export function useGetApiV1UsersId<TData = Awaited<ReturnType<typeof getApiV1UsersId>>, TError = unknown>(
- id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1UsersId>>, TError, TData>> & Pick<
+export function useGetUser<TData = Awaited<ReturnType<typeof getUser>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1UsersId>>,
+          Awaited<ReturnType<typeof getUser>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1UsersId>>
+          Awaited<ReturnType<typeof getUser>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1UsersId<TData = Awaited<ReturnType<typeof getApiV1UsersId>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1UsersId>>, TError, TData>> & Pick<
+export function useGetUser<TData = Awaited<ReturnType<typeof getUser>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1UsersId>>,
+          Awaited<ReturnType<typeof getUser>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1UsersId>>
+          Awaited<ReturnType<typeof getUser>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1UsersId<TData = Awaited<ReturnType<typeof getApiV1UsersId>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1UsersId>>, TError, TData>>, }
+export function useGetUser<TData = Awaited<ReturnType<typeof getUser>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get user by ID
  */
 
-export function useGetApiV1UsersId<TData = Awaited<ReturnType<typeof getApiV1UsersId>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1UsersId>>, TError, TData>>, }
+export function useGetUser<TData = Awaited<ReturnType<typeof getUser>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1UsersIdQueryOptions(id,options)
+  const queryOptions = getGetUserQueryOptions(id,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

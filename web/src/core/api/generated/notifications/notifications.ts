@@ -27,7 +27,7 @@ import type {
 import type {
   DtoNotificationListResponse,
   DtoUnreadCountResponse,
-  GetApiV1NotificationsParams,
+  ListNotificationsParams,
   V2Map
 } from '../models';
 
@@ -40,8 +40,8 @@ import { axiosInstance } from '../../axios-instance';
  * List notifications for current user
  * @summary List notifications for current user
  */
-export const getApiV1Notifications = (
-    params?: GetApiV1NotificationsParams,
+export const listNotifications = (
+    params?: ListNotificationsParams,
  signal?: AbortSignal
 ) => {
 
@@ -56,69 +56,69 @@ export const getApiV1Notifications = (
 
 
 
-export const getGetApiV1NotificationsQueryKey = (params?: GetApiV1NotificationsParams,) => {
+export const getListNotificationsQueryKey = (params?: ListNotificationsParams,) => {
     return [
     `/api/v1/notifications`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetApiV1NotificationsQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1Notifications>>, TError = unknown>(params?: GetApiV1NotificationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Notifications>>, TError, TData>>, }
+export const getListNotificationsQueryOptions = <TData = Awaited<ReturnType<typeof listNotifications>>, TError = unknown>(params?: ListNotificationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNotifications>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1NotificationsQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getListNotificationsQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1Notifications>>> = ({ signal }) => getApiV1Notifications(params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listNotifications>>> = ({ signal }) => listNotifications(params, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1Notifications>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listNotifications>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1NotificationsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1Notifications>>>
-export type GetApiV1NotificationsQueryError = unknown
+export type ListNotificationsQueryResult = NonNullable<Awaited<ReturnType<typeof listNotifications>>>
+export type ListNotificationsQueryError = unknown
 
 
-export function useGetApiV1Notifications<TData = Awaited<ReturnType<typeof getApiV1Notifications>>, TError = unknown>(
- params: undefined |  GetApiV1NotificationsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Notifications>>, TError, TData>> & Pick<
+export function useListNotifications<TData = Awaited<ReturnType<typeof listNotifications>>, TError = unknown>(
+ params: undefined |  ListNotificationsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNotifications>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1Notifications>>,
+          Awaited<ReturnType<typeof listNotifications>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1Notifications>>
+          Awaited<ReturnType<typeof listNotifications>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1Notifications<TData = Awaited<ReturnType<typeof getApiV1Notifications>>, TError = unknown>(
- params?: GetApiV1NotificationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Notifications>>, TError, TData>> & Pick<
+export function useListNotifications<TData = Awaited<ReturnType<typeof listNotifications>>, TError = unknown>(
+ params?: ListNotificationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNotifications>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1Notifications>>,
+          Awaited<ReturnType<typeof listNotifications>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1Notifications>>
+          Awaited<ReturnType<typeof listNotifications>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1Notifications<TData = Awaited<ReturnType<typeof getApiV1Notifications>>, TError = unknown>(
- params?: GetApiV1NotificationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Notifications>>, TError, TData>>, }
+export function useListNotifications<TData = Awaited<ReturnType<typeof listNotifications>>, TError = unknown>(
+ params?: ListNotificationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNotifications>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List notifications for current user
  */
 
-export function useGetApiV1Notifications<TData = Awaited<ReturnType<typeof getApiV1Notifications>>, TError = unknown>(
- params?: GetApiV1NotificationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Notifications>>, TError, TData>>, }
+export function useListNotifications<TData = Awaited<ReturnType<typeof listNotifications>>, TError = unknown>(
+ params?: ListNotificationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNotifications>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1NotificationsQueryOptions(params,options)
+  const queryOptions = getListNotificationsQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -134,7 +134,7 @@ export function useGetApiV1Notifications<TData = Awaited<ReturnType<typeof getAp
  * Mark a notification as read
  * @summary Mark a notification as read
  */
-export const patchApiV1NotificationsIdRead = (
+export const markNotificationAsRead = (
     id: string,
  signal?: AbortSignal
 ) => {
@@ -148,11 +148,11 @@ export const patchApiV1NotificationsIdRead = (
 
 
 
-export const getPatchApiV1NotificationsIdReadMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiV1NotificationsIdRead>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof patchApiV1NotificationsIdRead>>, TError,{id: string}, TContext> => {
+export const getMarkNotificationAsReadMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markNotificationAsRead>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof markNotificationAsRead>>, TError,{id: string}, TContext> => {
 
-const mutationKey = ['patchApiV1NotificationsIdRead'];
+const mutationKey = ['markNotificationAsRead'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -162,10 +162,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiV1NotificationsIdRead>>, {id: string}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof markNotificationAsRead>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  patchApiV1NotificationsIdRead(id,)
+          return  markNotificationAsRead(id,)
         }
 
 
@@ -175,28 +175,28 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type PatchApiV1NotificationsIdReadMutationResult = NonNullable<Awaited<ReturnType<typeof patchApiV1NotificationsIdRead>>>
+    export type MarkNotificationAsReadMutationResult = NonNullable<Awaited<ReturnType<typeof markNotificationAsRead>>>
 
-    export type PatchApiV1NotificationsIdReadMutationError = unknown
+    export type MarkNotificationAsReadMutationError = unknown
 
     /**
  * @summary Mark a notification as read
  */
-export const usePatchApiV1NotificationsIdRead = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiV1NotificationsIdRead>>, TError,{id: string}, TContext>, }
+export const useMarkNotificationAsRead = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markNotificationAsRead>>, TError,{id: string}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof patchApiV1NotificationsIdRead>>,
+        Awaited<ReturnType<typeof markNotificationAsRead>>,
         TError,
         {id: string},
         TContext
       > => {
-      return useMutation(getPatchApiV1NotificationsIdReadMutationOptions(options), queryClient);
+      return useMutation(getMarkNotificationAsReadMutationOptions(options), queryClient);
     }
     /**
  * Mark all notifications as read
  * @summary Mark all notifications as read
  */
-export const postApiV1NotificationsReadAll = (
+export const markAllNotificationsAsRead = (
 
  signal?: AbortSignal
 ) => {
@@ -210,11 +210,11 @@ export const postApiV1NotificationsReadAll = (
 
 
 
-export const getPostApiV1NotificationsReadAllMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1NotificationsReadAll>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postApiV1NotificationsReadAll>>, TError,void, TContext> => {
+export const getMarkAllNotificationsAsReadMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markAllNotificationsAsRead>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof markAllNotificationsAsRead>>, TError,void, TContext> => {
 
-const mutationKey = ['postApiV1NotificationsReadAll'];
+const mutationKey = ['markAllNotificationsAsRead'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -224,10 +224,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1NotificationsReadAll>>, void> = () => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof markAllNotificationsAsRead>>, void> = () => {
 
 
-          return  postApiV1NotificationsReadAll()
+          return  markAllNotificationsAsRead()
         }
 
 
@@ -237,28 +237,28 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type PostApiV1NotificationsReadAllMutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1NotificationsReadAll>>>
+    export type MarkAllNotificationsAsReadMutationResult = NonNullable<Awaited<ReturnType<typeof markAllNotificationsAsRead>>>
 
-    export type PostApiV1NotificationsReadAllMutationError = unknown
+    export type MarkAllNotificationsAsReadMutationError = unknown
 
     /**
  * @summary Mark all notifications as read
  */
-export const usePostApiV1NotificationsReadAll = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1NotificationsReadAll>>, TError,void, TContext>, }
+export const useMarkAllNotificationsAsRead = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markAllNotificationsAsRead>>, TError,void, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postApiV1NotificationsReadAll>>,
+        Awaited<ReturnType<typeof markAllNotificationsAsRead>>,
         TError,
         void,
         TContext
       > => {
-      return useMutation(getPostApiV1NotificationsReadAllMutationOptions(options), queryClient);
+      return useMutation(getMarkAllNotificationsAsReadMutationOptions(options), queryClient);
     }
     /**
  * Get unread notification count
  * @summary Get unread notification count
  */
-export const getApiV1NotificationsUnreadCount = (
+export const getUnreadCount = (
 
  signal?: AbortSignal
 ) => {
@@ -273,69 +273,69 @@ export const getApiV1NotificationsUnreadCount = (
 
 
 
-export const getGetApiV1NotificationsUnreadCountQueryKey = () => {
+export const getGetUnreadCountQueryKey = () => {
     return [
     `/api/v1/notifications/unread-count`
     ] as const;
     }
 
 
-export const getGetApiV1NotificationsUnreadCountQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError, TData>>, }
+export const getGetUnreadCountQueryOptions = <TData = Awaited<ReturnType<typeof getUnreadCount>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUnreadCount>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1NotificationsUnreadCountQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetUnreadCountQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>> = ({ signal }) => getApiV1NotificationsUnreadCount(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUnreadCount>>> = ({ signal }) => getUnreadCount(signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUnreadCount>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1NotificationsUnreadCountQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>>
-export type GetApiV1NotificationsUnreadCountQueryError = unknown
+export type GetUnreadCountQueryResult = NonNullable<Awaited<ReturnType<typeof getUnreadCount>>>
+export type GetUnreadCountQueryError = unknown
 
 
-export function useGetApiV1NotificationsUnreadCount<TData = Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError, TData>> & Pick<
+export function useGetUnreadCount<TData = Awaited<ReturnType<typeof getUnreadCount>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUnreadCount>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>,
+          Awaited<ReturnType<typeof getUnreadCount>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>
+          Awaited<ReturnType<typeof getUnreadCount>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1NotificationsUnreadCount<TData = Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError, TData>> & Pick<
+export function useGetUnreadCount<TData = Awaited<ReturnType<typeof getUnreadCount>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUnreadCount>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>,
+          Awaited<ReturnType<typeof getUnreadCount>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>
+          Awaited<ReturnType<typeof getUnreadCount>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1NotificationsUnreadCount<TData = Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError, TData>>, }
+export function useGetUnreadCount<TData = Awaited<ReturnType<typeof getUnreadCount>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUnreadCount>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get unread notification count
  */
 
-export function useGetApiV1NotificationsUnreadCount<TData = Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1NotificationsUnreadCount>>, TError, TData>>, }
+export function useGetUnreadCount<TData = Awaited<ReturnType<typeof getUnreadCount>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUnreadCount>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1NotificationsUnreadCountQueryOptions(options)
+  const queryOptions = getGetUnreadCountQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

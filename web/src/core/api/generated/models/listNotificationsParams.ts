@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type GetApiV1MarketOrderbookPairParams = {
-depth?: number;
+export type ListNotificationsParams = {
+cursor?: string;
+limit?: number;
+onlyUnread?: boolean;
 };

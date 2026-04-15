@@ -12,15 +12,15 @@ import * as zod from 'zod';
  * Get order book depth for a trading pair
  * @summary Get order book depth for a trading pair
  */
-export const GetApiV1MarketOrderbookPairParams = zod.object({
+export const GetOrderBookParams = zod.object({
   "pair": zod.string()
 })
 
-export const GetApiV1MarketOrderbookPairQueryParams = zod.object({
+export const GetOrderBookQueryParams = zod.object({
   "depth": zod.number().optional()
 })
 
-export const GetApiV1MarketOrderbookPairResponse = zod.object({
+export const GetOrderBookResponse = zod.object({
   "asks": zod.array(zod.object({
   "orderCount": zod.number(),
   "price": zod.string(),
@@ -38,20 +38,20 @@ export const GetApiV1MarketOrderbookPairResponse = zod.object({
  * List active trading pairs
  * @summary List active trading pairs
  */
-export const GetApiV1MarketPairsResponseItem = zod.object({
+export const GetPairsResponseItem = zod.object({
   "baseAsset": zod.string(),
   "id": zod.string(),
   "minQty": zod.string(),
   "quoteAsset": zod.string(),
   "tickSize": zod.string()
 })
-export const GetApiV1MarketPairsResponse = zod.array(GetApiV1MarketPairsResponseItem)
+export const GetPairsResponse = zod.array(GetPairsResponseItem)
 
 /**
  * Get all pair tickers
  * @summary Get all pair tickers
  */
-export const GetApiV1MarketTickerResponseItem = zod.object({
+export const GetTickersResponseItem = zod.object({
   "changePct": zod.string(),
   "close": zod.string(),
   "high": zod.string(),
@@ -62,17 +62,17 @@ export const GetApiV1MarketTickerResponseItem = zod.object({
   "timestamp": zod.number(),
   "volume": zod.string()
 })
-export const GetApiV1MarketTickerResponse = zod.array(GetApiV1MarketTickerResponseItem)
+export const GetTickersResponse = zod.array(GetTickersResponseItem)
 
 /**
  * Get ticker for a single pair
  * @summary Get ticker for a single pair
  */
-export const GetApiV1MarketTickerPairParams = zod.object({
+export const GetTickerParams = zod.object({
   "pair": zod.string()
 })
 
-export const GetApiV1MarketTickerPairResponse = zod.object({
+export const GetTickerResponse = zod.object({
   "changePct": zod.string(),
   "close": zod.string(),
   "high": zod.string(),
@@ -88,19 +88,19 @@ export const GetApiV1MarketTickerPairResponse = zod.object({
  * Get recent trades for a pair
  * @summary Get recent trades for a pair
  */
-export const GetApiV1MarketTradesPairParams = zod.object({
+export const GetTradesParams = zod.object({
   "pair": zod.string()
 })
 
-export const GetApiV1MarketTradesPairQueryParams = zod.object({
+export const GetTradesQueryParams = zod.object({
   "limit": zod.number().optional()
 })
 
-export const GetApiV1MarketTradesPairResponseItem = zod.object({
+export const GetTradesResponseItem = zod.object({
   "price": zod.string(),
   "quantity": zod.string(),
   "timestamp": zod.number(),
   "tradeId": zod.string()
 })
-export const GetApiV1MarketTradesPairResponse = zod.array(GetApiV1MarketTradesPairResponseItem)
+export const GetTradesResponse = zod.array(GetTradesResponseItem)
 

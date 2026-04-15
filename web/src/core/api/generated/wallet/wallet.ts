@@ -40,7 +40,7 @@ import { axiosInstance } from '../../axios-instance';
  * Get all wallet balances for current user
  * @summary Get all wallet balances for current user
  */
-export const getApiV1Wallet = (
+export const getBalances = (
 
  signal?: AbortSignal
 ) => {
@@ -55,69 +55,69 @@ export const getApiV1Wallet = (
 
 
 
-export const getGetApiV1WalletQueryKey = () => {
+export const getGetBalancesQueryKey = () => {
     return [
     `/api/v1/wallet`
     ] as const;
     }
 
 
-export const getGetApiV1WalletQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1Wallet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Wallet>>, TError, TData>>, }
+export const getGetBalancesQueryOptions = <TData = Awaited<ReturnType<typeof getBalances>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalances>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1WalletQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetBalancesQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1Wallet>>> = ({ signal }) => getApiV1Wallet(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBalances>>> = ({ signal }) => getBalances(signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1Wallet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBalances>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1WalletQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1Wallet>>>
-export type GetApiV1WalletQueryError = unknown
+export type GetBalancesQueryResult = NonNullable<Awaited<ReturnType<typeof getBalances>>>
+export type GetBalancesQueryError = unknown
 
 
-export function useGetApiV1Wallet<TData = Awaited<ReturnType<typeof getApiV1Wallet>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Wallet>>, TError, TData>> & Pick<
+export function useGetBalances<TData = Awaited<ReturnType<typeof getBalances>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalances>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1Wallet>>,
+          Awaited<ReturnType<typeof getBalances>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1Wallet>>
+          Awaited<ReturnType<typeof getBalances>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1Wallet<TData = Awaited<ReturnType<typeof getApiV1Wallet>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Wallet>>, TError, TData>> & Pick<
+export function useGetBalances<TData = Awaited<ReturnType<typeof getBalances>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalances>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1Wallet>>,
+          Awaited<ReturnType<typeof getBalances>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1Wallet>>
+          Awaited<ReturnType<typeof getBalances>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1Wallet<TData = Awaited<ReturnType<typeof getApiV1Wallet>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Wallet>>, TError, TData>>, }
+export function useGetBalances<TData = Awaited<ReturnType<typeof getBalances>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalances>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get all wallet balances for current user
  */
 
-export function useGetApiV1Wallet<TData = Awaited<ReturnType<typeof getApiV1Wallet>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Wallet>>, TError, TData>>, }
+export function useGetBalances<TData = Awaited<ReturnType<typeof getBalances>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalances>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1WalletQueryOptions(options)
+  const queryOptions = getGetBalancesQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -133,7 +133,7 @@ export function useGetApiV1Wallet<TData = Awaited<ReturnType<typeof getApiV1Wall
  * Get wallet balance for a specific asset
  * @summary Get wallet balance for a specific asset
  */
-export const getApiV1WalletAssetId = (
+export const getBalance = (
     assetId: string,
  signal?: AbortSignal
 ) => {
@@ -148,69 +148,69 @@ export const getApiV1WalletAssetId = (
 
 
 
-export const getGetApiV1WalletAssetIdQueryKey = (assetId: string,) => {
+export const getGetBalanceQueryKey = (assetId: string,) => {
     return [
     `/api/v1/wallet/${assetId}`
     ] as const;
     }
 
 
-export const getGetApiV1WalletAssetIdQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError = unknown>(assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError, TData>>, }
+export const getGetBalanceQueryOptions = <TData = Awaited<ReturnType<typeof getBalance>>, TError = unknown>(assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalance>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1WalletAssetIdQueryKey(assetId);
+  const queryKey =  queryOptions?.queryKey ?? getGetBalanceQueryKey(assetId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1WalletAssetId>>> = ({ signal }) => getApiV1WalletAssetId(assetId, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBalance>>> = ({ signal }) => getBalance(assetId, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: !!(assetId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(assetId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBalance>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1WalletAssetIdQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1WalletAssetId>>>
-export type GetApiV1WalletAssetIdQueryError = unknown
+export type GetBalanceQueryResult = NonNullable<Awaited<ReturnType<typeof getBalance>>>
+export type GetBalanceQueryError = unknown
 
 
-export function useGetApiV1WalletAssetId<TData = Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError = unknown>(
- assetId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError, TData>> & Pick<
+export function useGetBalance<TData = Awaited<ReturnType<typeof getBalance>>, TError = unknown>(
+ assetId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalance>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1WalletAssetId>>,
+          Awaited<ReturnType<typeof getBalance>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1WalletAssetId>>
+          Awaited<ReturnType<typeof getBalance>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1WalletAssetId<TData = Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError = unknown>(
- assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError, TData>> & Pick<
+export function useGetBalance<TData = Awaited<ReturnType<typeof getBalance>>, TError = unknown>(
+ assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalance>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1WalletAssetId>>,
+          Awaited<ReturnType<typeof getBalance>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1WalletAssetId>>
+          Awaited<ReturnType<typeof getBalance>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1WalletAssetId<TData = Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError = unknown>(
- assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError, TData>>, }
+export function useGetBalance<TData = Awaited<ReturnType<typeof getBalance>>, TError = unknown>(
+ assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalance>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get wallet balance for a specific asset
  */
 
-export function useGetApiV1WalletAssetId<TData = Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError = unknown>(
- assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1WalletAssetId>>, TError, TData>>, }
+export function useGetBalance<TData = Awaited<ReturnType<typeof getBalance>>, TError = unknown>(
+ assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBalance>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1WalletAssetIdQueryOptions(assetId,options)
+  const queryOptions = getGetBalanceQueryOptions(assetId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -226,7 +226,7 @@ export function useGetApiV1WalletAssetId<TData = Awaited<ReturnType<typeof getAp
  * Deposit funds to wallet
  * @summary Deposit funds to wallet
  */
-export const postApiV1WalletDeposit = (
+export const deposit = (
     dtoDepositDTO: DtoDepositDTO,
  signal?: AbortSignal
 ) => {
@@ -242,11 +242,11 @@ export const postApiV1WalletDeposit = (
 
 
 
-export const getPostApiV1WalletDepositMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1WalletDeposit>>, TError,{data: DtoDepositDTO}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postApiV1WalletDeposit>>, TError,{data: DtoDepositDTO}, TContext> => {
+export const getDepositMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deposit>>, TError,{data: DtoDepositDTO}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deposit>>, TError,{data: DtoDepositDTO}, TContext> => {
 
-const mutationKey = ['postApiV1WalletDeposit'];
+const mutationKey = ['deposit'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -256,10 +256,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1WalletDeposit>>, {data: DtoDepositDTO}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deposit>>, {data: DtoDepositDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiV1WalletDeposit(data,)
+          return  deposit(data,)
         }
 
 
@@ -269,28 +269,28 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type PostApiV1WalletDepositMutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1WalletDeposit>>>
-    export type PostApiV1WalletDepositMutationBody = DtoDepositDTO
-    export type PostApiV1WalletDepositMutationError = unknown
+    export type DepositMutationResult = NonNullable<Awaited<ReturnType<typeof deposit>>>
+    export type DepositMutationBody = DtoDepositDTO
+    export type DepositMutationError = unknown
 
     /**
  * @summary Deposit funds to wallet
  */
-export const usePostApiV1WalletDeposit = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1WalletDeposit>>, TError,{data: DtoDepositDTO}, TContext>, }
+export const useDeposit = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deposit>>, TError,{data: DtoDepositDTO}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postApiV1WalletDeposit>>,
+        Awaited<ReturnType<typeof deposit>>,
         TError,
         {data: DtoDepositDTO},
         TContext
       > => {
-      return useMutation(getPostApiV1WalletDepositMutationOptions(options), queryClient);
+      return useMutation(getDepositMutationOptions(options), queryClient);
     }
     /**
  * Withdraw funds from wallet
  * @summary Withdraw funds from wallet
  */
-export const postApiV1WalletWithdraw = (
+export const withdraw = (
     dtoWithdrawDTO: DtoWithdrawDTO,
  signal?: AbortSignal
 ) => {
@@ -306,11 +306,11 @@ export const postApiV1WalletWithdraw = (
 
 
 
-export const getPostApiV1WalletWithdrawMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1WalletWithdraw>>, TError,{data: DtoWithdrawDTO}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postApiV1WalletWithdraw>>, TError,{data: DtoWithdrawDTO}, TContext> => {
+export const getWithdrawMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof withdraw>>, TError,{data: DtoWithdrawDTO}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof withdraw>>, TError,{data: DtoWithdrawDTO}, TContext> => {
 
-const mutationKey = ['postApiV1WalletWithdraw'];
+const mutationKey = ['withdraw'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -320,10 +320,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1WalletWithdraw>>, {data: DtoWithdrawDTO}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof withdraw>>, {data: DtoWithdrawDTO}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiV1WalletWithdraw(data,)
+          return  withdraw(data,)
         }
 
 
@@ -333,20 +333,20 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type PostApiV1WalletWithdrawMutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1WalletWithdraw>>>
-    export type PostApiV1WalletWithdrawMutationBody = DtoWithdrawDTO
-    export type PostApiV1WalletWithdrawMutationError = unknown
+    export type WithdrawMutationResult = NonNullable<Awaited<ReturnType<typeof withdraw>>>
+    export type WithdrawMutationBody = DtoWithdrawDTO
+    export type WithdrawMutationError = unknown
 
     /**
  * @summary Withdraw funds from wallet
  */
-export const usePostApiV1WalletWithdraw = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1WalletWithdraw>>, TError,{data: DtoWithdrawDTO}, TContext>, }
+export const useWithdraw = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof withdraw>>, TError,{data: DtoWithdrawDTO}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postApiV1WalletWithdraw>>,
+        Awaited<ReturnType<typeof withdraw>>,
         TError,
         {data: DtoWithdrawDTO},
         TContext
       > => {
-      return useMutation(getPostApiV1WalletWithdrawMutationOptions(options), queryClient);
+      return useMutation(getWithdrawMutationOptions(options), queryClient);
     }

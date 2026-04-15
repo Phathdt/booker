@@ -7,10 +7,10 @@ import { OpenOrders } from "../containers/open-orders";
 import { OrderBook } from "../containers/order-book";
 import { TickerBar } from "../containers/ticker-bar";
 import { TradeHistory } from "../containers/trade-history";
-import { useGetApiV1MarketPairs } from "@/core/api/generated/market/market";
+import { useGetPairs } from "@/core/api/generated/market/market";
 
 export function TradingPage() {
-  const { data: pairs = [], isLoading } = useGetApiV1MarketPairs({ query: { staleTime: 60000 } });
+  const { data: pairs = [], isLoading } = useGetPairs({ query: { staleTime: 60000 } });
 
   const [selectedPair, setSelectedPair] = useState<string>("");
 

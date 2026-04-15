@@ -5,7 +5,7 @@ import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getApiV1OrdersId, useDeleteApiV1OrdersId } from "@/core/api/generated/orders/orders";
+import { getOrder, useCancelOrder } from "@/core/api/generated/orders/orders";
 import type { IOrder } from "@/core/api/types";
 
 function statusVariant(
@@ -49,11 +49,11 @@ export function OrderDetailPage() {
 
   const { data: order, isLoading, isError } = useQuery({
     queryKey: ["order", id],
-    queryFn: () => getApiV1OrdersId(id!),
+    queryFn: () => getOrder(id!),
     enabled: Boolean(id),
   });
 
-  const { mutate: cancel, isPending: isCancelling } = useDeleteApiV1OrdersId({
+  const { mutate: cancel, isPending: isCancelling } = useCancelOrder({
     mutation: {
       onSuccess: () => navigate("/trade"),
     },

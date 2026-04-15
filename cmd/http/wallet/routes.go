@@ -18,20 +18,24 @@ func RegisterRoutes(r fiberopenapi.Router, walletSvc walletInterfaces.WalletServ
 	)
 
 	w.Get("", GetBalances(walletSvc)).With(
+		option.OperationID("getBalances"),
 		option.Summary("Get all wallet balances for current user"),
 		option.Response(200, new(walletDTO.WalletListResponse)),
 	)
 	w.Get("/:asset_id", GetBalance(walletSvc)).With(
+		option.OperationID("getBalance"),
 		option.Summary("Get wallet balance for a specific asset"),
 		option.Request(new(AssetIDParam)),
 		option.Response(200, new(walletDTO.WalletResponse)),
 	)
 	w.Post("/deposit", Deposit(walletSvc)).With(
+		option.OperationID("deposit"),
 		option.Summary("Deposit funds to wallet"),
 		option.Request(new(walletDTO.DepositDTO)),
 		option.Response(200, new(walletDTO.WalletResponse)),
 	)
 	w.Post("/withdraw", Withdraw(walletSvc)).With(
+		option.OperationID("withdraw"),
 		option.Summary("Withdraw funds from wallet"),
 		option.Request(new(walletDTO.WithdrawDTO)),
 		option.Response(200, new(walletDTO.WalletResponse)),

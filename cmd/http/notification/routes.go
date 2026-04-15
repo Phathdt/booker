@@ -27,20 +27,24 @@ func RegisterRoutes(
 	)
 
 	n.Get("", ListNotifications(svc)).With(
+		option.OperationID("listNotifications"),
 		option.Summary("List notifications for current user"),
 		option.Request(new(ListNotificationsParam)),
 		option.Response(200, new(notifDTO.NotificationListResponse)),
 	)
 	n.Patch("/:id/read", MarkAsRead(svc)).With(
+		option.OperationID("markNotificationAsRead"),
 		option.Summary("Mark a notification as read"),
 		option.Request(new(NotificationIDParam)),
 		option.Response(200, new(fiber.Map)),
 	)
 	n.Post("/read-all", MarkAllAsRead(svc)).With(
+		option.OperationID("markAllNotificationsAsRead"),
 		option.Summary("Mark all notifications as read"),
 		option.Response(200, new(fiber.Map)),
 	)
 	n.Get("/unread-count", UnreadCount(svc)).With(
+		option.OperationID("getUnreadCount"),
 		option.Summary("Get unread notification count"),
 		option.Response(200, new(notifDTO.UnreadCountResponse)),
 	)

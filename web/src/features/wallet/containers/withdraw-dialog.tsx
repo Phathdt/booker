@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { usePostApiV1WalletWithdraw, getGetApiV1WalletQueryKey } from "@/core/api/generated/wallet/wallet";
+import { useWithdraw, getGetBalancesQueryKey } from "@/core/api/generated/wallet/wallet";
 
 interface WithdrawDialogProps {
   assetId: string;
@@ -28,10 +28,10 @@ export function WithdrawDialog({
 }: WithdrawDialogProps) {
   const [amount, setAmount] = useState("");
   const queryClient = useQueryClient();
-  const { mutate, isPending } = usePostApiV1WalletWithdraw({
+  const { mutate, isPending } = useWithdraw({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetApiV1WalletQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetBalancesQueryKey() });
         toast.success("Withdrawal successful");
         setAmount("");
         onOpenChange(false);

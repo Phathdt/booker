@@ -18,21 +18,25 @@ func RegisterRoutes(r fiberopenapi.Router, orderSvc orderInterfaces.OrderService
 	)
 
 	o.Post("", CreateOrder(orderSvc)).With(
+		option.OperationID("createOrder"),
 		option.Summary("Create a new limit order"),
 		option.Request(new(orderDTO.CreateOrderDTO)),
 		option.Response(201, new(orderDTO.OrderResponse)),
 	)
 	o.Get("", ListOrders(orderSvc)).With(
+		option.OperationID("listOrders"),
 		option.Summary("List orders for current user"),
 		option.Request(new(ListOrdersParam)),
 		option.Response(200, new(orderDTO.OrderListResponse)),
 	)
 	o.Get("/:id", GetOrder(orderSvc)).With(
+		option.OperationID("getOrder"),
 		option.Summary("Get a single order by ID"),
 		option.Request(new(OrderIDParam)),
 		option.Response(200, new(orderDTO.OrderResponse)),
 	)
 	o.Delete("/:id", CancelOrder(orderSvc)).With(
+		option.OperationID("cancelOrder"),
 		option.Summary("Cancel an order"),
 		option.Request(new(OrderIDParam)),
 		option.Response(200, new(orderDTO.OrderResponse)),

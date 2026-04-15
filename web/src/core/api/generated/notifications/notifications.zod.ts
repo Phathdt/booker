@@ -12,13 +12,13 @@ import * as zod from 'zod';
  * List notifications for current user
  * @summary List notifications for current user
  */
-export const GetApiV1NotificationsQueryParams = zod.object({
+export const ListNotificationsQueryParams = zod.object({
   "cursor": zod.string().optional(),
   "limit": zod.number().optional(),
   "onlyUnread": zod.boolean().optional()
 })
 
-export const GetApiV1NotificationsResponse = zod.object({
+export const ListNotificationsResponse = zod.object({
   "notifications": zod.array(zod.object({
   "body": zod.string(),
   "createdAt": zod.string(),
@@ -34,23 +34,23 @@ export const GetApiV1NotificationsResponse = zod.object({
  * Mark a notification as read
  * @summary Mark a notification as read
  */
-export const PatchApiV1NotificationsIdReadParams = zod.object({
+export const MarkNotificationAsReadParams = zod.object({
   "id": zod.string()
 })
 
-export const PatchApiV1NotificationsIdReadResponse = zod.record(zod.string(), zod.unknown()).nullable()
+export const MarkNotificationAsReadResponse = zod.record(zod.string(), zod.unknown()).nullable()
 
 /**
  * Mark all notifications as read
  * @summary Mark all notifications as read
  */
-export const PostApiV1NotificationsReadAllResponse = zod.record(zod.string(), zod.unknown()).nullable()
+export const MarkAllNotificationsAsReadResponse = zod.record(zod.string(), zod.unknown()).nullable()
 
 /**
  * Get unread notification count
  * @summary Get unread notification count
  */
-export const GetApiV1NotificationsUnreadCountResponse = zod.object({
+export const GetUnreadCountResponse = zod.object({
   "count": zod.number()
 })
 

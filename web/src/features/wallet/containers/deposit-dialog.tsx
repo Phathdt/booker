@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { usePostApiV1WalletDeposit, getGetApiV1WalletQueryKey } from "@/core/api/generated/wallet/wallet";
+import { useDeposit, getGetBalancesQueryKey } from "@/core/api/generated/wallet/wallet";
 
 interface DepositDialogProps {
   assetId: string;
@@ -22,10 +22,10 @@ interface DepositDialogProps {
 export function DepositDialog({ assetId, open, onOpenChange }: DepositDialogProps) {
   const [amount, setAmount] = useState("");
   const queryClient = useQueryClient();
-  const { mutate, isPending } = usePostApiV1WalletDeposit({
+  const { mutate, isPending } = useDeposit({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetApiV1WalletQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetBalancesQueryKey() });
         toast.success("Deposit successful");
         setAmount("");
         onOpenChange(false);

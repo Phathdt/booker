@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useGetApiV1MarketOrderbookPair } from "@/core/api/generated/market/market";
+import { useGetOrderBook } from "@/core/api/generated/market/market";
 import { useMarketWS } from "@/core/hooks";
 import type { IOrderBookLevel } from "@/core/api/types";
 
@@ -105,7 +105,7 @@ function BookSide({ levels, side, maxCumQty }: BookSideProps) {
  * Usage: <OrderBook pairId="BTC_USDT" />
  */
 export function OrderBook({ pairId }: OrderBookProps) {
-  const { data: httpData, isLoading } = useGetApiV1MarketOrderbookPair(pairId, undefined, { query: { refetchInterval: 2000, enabled: Boolean(pairId) } });
+  const { data: httpData, isLoading } = useGetOrderBook(pairId, undefined, { query: { refetchInterval: 2000, enabled: Boolean(pairId) } });
   const { orderBook: wsData, connected: wsConnected } = useMarketWS(pairId);
 
   // Use WS data only when connected; fall back to HTTP polling when disconnected

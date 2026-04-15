@@ -12,12 +12,12 @@ import * as zod from 'zod';
  * Login with email and password
  * @summary Login with email and password
  */
-export const PostApiV1AuthLoginBody = zod.object({
+export const LoginBody = zod.object({
   "email": zod.string().optional(),
   "password": zod.string().optional()
 })
 
-export const PostApiV1AuthLoginResponse = zod.object({
+export const LoginResponse = zod.object({
   "accessToken": zod.string(),
   "expiresIn": zod.number(),
   "user": zod.object({
@@ -34,7 +34,7 @@ export const PostApiV1AuthLoginResponse = zod.object({
  * Logout (revoke all tokens)
  * @summary Logout (revoke all tokens)
  */
-export const PostApiV1AuthLogoutResponse = zod.object({
+export const LogoutResponse = zod.object({
   "message": zod.string()
 })
 
@@ -42,7 +42,7 @@ export const PostApiV1AuthLogoutResponse = zod.object({
  * Get current authenticated user
  * @summary Get current authenticated user
  */
-export const GetApiV1AuthMeResponse = zod.object({
+export const GetMeResponse = zod.object({
   "createdAt": zod.string(),
   "email": zod.string(),
   "id": zod.string(),
@@ -55,7 +55,7 @@ export const GetApiV1AuthMeResponse = zod.object({
  * Refresh access token
  * @summary Refresh access token
  */
-export const PostApiV1AuthRefreshResponse = zod.object({
+export const RefreshTokenResponse = zod.object({
   "accessToken": zod.string(),
   "expiresIn": zod.number()
 })
@@ -64,7 +64,7 @@ export const PostApiV1AuthRefreshResponse = zod.object({
  * Register a new user
  * @summary Register a new user
  */
-export const PostApiV1AuthRegisterBody = zod.object({
+export const RegisterBody = zod.object({
   "email": zod.string().optional(),
   "password": zod.string().optional()
 })

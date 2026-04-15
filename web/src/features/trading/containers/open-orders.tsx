@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useGetApiV1Orders, useDeleteApiV1OrdersId, getGetApiV1OrdersQueryKey } from "@/core/api/generated/orders/orders";
+import { useListOrders, useCancelOrder, getListOrdersQueryKey } from "@/core/api/generated/orders/orders";
 import type { IOrder } from "@/core/api/types";
 
 interface OpenOrdersProps {
@@ -41,14 +41,14 @@ function formatDate(iso: string): string {
 
 export function OpenOrders({ pairId }: OpenOrdersProps) {
   const queryClient = useQueryClient();
-  const { data, isLoading } = useGetApiV1Orders(
+  const { data, isLoading } = useListOrders(
     { pairId },
     { query: { refetchInterval: 5000 } }
   );
-  const { mutate: cancel, isPending: isCancelling } = useDeleteApiV1OrdersId({
+  const { mutate: cancel, isPending: isCancelling } = useCancelOrder({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetApiV1OrdersQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey() });
         toast.success("Order cancelled");
       },
       onError: (err: unknown) => {

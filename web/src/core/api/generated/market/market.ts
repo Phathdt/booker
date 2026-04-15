@@ -21,8 +21,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  GetApiV1MarketOrderbookPairParams,
-  GetApiV1MarketTradesPairParams,
+  GetOrderBookParams,
+  GetTradesParams,
   MarketOrderBookResponse,
   MarketPairResponse,
   MarketTickerResponse,
@@ -38,9 +38,9 @@ import { axiosInstance } from '../../axios-instance';
  * Get order book depth for a trading pair
  * @summary Get order book depth for a trading pair
  */
-export const getApiV1MarketOrderbookPair = (
+export const getOrderBook = (
     pair: string,
-    params?: GetApiV1MarketOrderbookPairParams,
+    params?: GetOrderBookParams,
  signal?: AbortSignal
 ) => {
 
@@ -55,75 +55,75 @@ export const getApiV1MarketOrderbookPair = (
 
 
 
-export const getGetApiV1MarketOrderbookPairQueryKey = (pair: string,
-    params?: GetApiV1MarketOrderbookPairParams,) => {
+export const getGetOrderBookQueryKey = (pair: string,
+    params?: GetOrderBookParams,) => {
     return [
     `/api/v1/market/orderbook/${pair}`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetApiV1MarketOrderbookPairQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError = unknown>(pair: string,
-    params?: GetApiV1MarketOrderbookPairParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError, TData>>, }
+export const getGetOrderBookQueryOptions = <TData = Awaited<ReturnType<typeof getOrderBook>>, TError = unknown>(pair: string,
+    params?: GetOrderBookParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderBook>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1MarketOrderbookPairQueryKey(pair,params);
+  const queryKey =  queryOptions?.queryKey ?? getGetOrderBookQueryKey(pair,params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>> = ({ signal }) => getApiV1MarketOrderbookPair(pair,params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOrderBook>>> = ({ signal }) => getOrderBook(pair,params, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: !!(pair), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(pair), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOrderBook>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1MarketOrderbookPairQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>>
-export type GetApiV1MarketOrderbookPairQueryError = unknown
+export type GetOrderBookQueryResult = NonNullable<Awaited<ReturnType<typeof getOrderBook>>>
+export type GetOrderBookQueryError = unknown
 
 
-export function useGetApiV1MarketOrderbookPair<TData = Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError = unknown>(
+export function useGetOrderBook<TData = Awaited<ReturnType<typeof getOrderBook>>, TError = unknown>(
  pair: string,
-    params: undefined |  GetApiV1MarketOrderbookPairParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError, TData>> & Pick<
+    params: undefined |  GetOrderBookParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderBook>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>,
+          Awaited<ReturnType<typeof getOrderBook>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>
+          Awaited<ReturnType<typeof getOrderBook>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketOrderbookPair<TData = Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError = unknown>(
+export function useGetOrderBook<TData = Awaited<ReturnType<typeof getOrderBook>>, TError = unknown>(
  pair: string,
-    params?: GetApiV1MarketOrderbookPairParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError, TData>> & Pick<
+    params?: GetOrderBookParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderBook>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>,
+          Awaited<ReturnType<typeof getOrderBook>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>
+          Awaited<ReturnType<typeof getOrderBook>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketOrderbookPair<TData = Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError = unknown>(
+export function useGetOrderBook<TData = Awaited<ReturnType<typeof getOrderBook>>, TError = unknown>(
  pair: string,
-    params?: GetApiV1MarketOrderbookPairParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError, TData>>, }
+    params?: GetOrderBookParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderBook>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get order book depth for a trading pair
  */
 
-export function useGetApiV1MarketOrderbookPair<TData = Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError = unknown>(
+export function useGetOrderBook<TData = Awaited<ReturnType<typeof getOrderBook>>, TError = unknown>(
  pair: string,
-    params?: GetApiV1MarketOrderbookPairParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketOrderbookPair>>, TError, TData>>, }
+    params?: GetOrderBookParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrderBook>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1MarketOrderbookPairQueryOptions(pair,params,options)
+  const queryOptions = getGetOrderBookQueryOptions(pair,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -139,7 +139,7 @@ export function useGetApiV1MarketOrderbookPair<TData = Awaited<ReturnType<typeof
  * List active trading pairs
  * @summary List active trading pairs
  */
-export const getApiV1MarketPairs = (
+export const getPairs = (
 
  signal?: AbortSignal
 ) => {
@@ -154,69 +154,69 @@ export const getApiV1MarketPairs = (
 
 
 
-export const getGetApiV1MarketPairsQueryKey = () => {
+export const getGetPairsQueryKey = () => {
     return [
     `/api/v1/market/pairs`
     ] as const;
     }
 
 
-export const getGetApiV1MarketPairsQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError, TData>>, }
+export const getGetPairsQueryOptions = <TData = Awaited<ReturnType<typeof getPairs>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPairs>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1MarketPairsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetPairsQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1MarketPairs>>> = ({ signal }) => getApiV1MarketPairs(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPairs>>> = ({ signal }) => getPairs(signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPairs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1MarketPairsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1MarketPairs>>>
-export type GetApiV1MarketPairsQueryError = unknown
+export type GetPairsQueryResult = NonNullable<Awaited<ReturnType<typeof getPairs>>>
+export type GetPairsQueryError = unknown
 
 
-export function useGetApiV1MarketPairs<TData = Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError, TData>> & Pick<
+export function useGetPairs<TData = Awaited<ReturnType<typeof getPairs>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPairs>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketPairs>>,
+          Awaited<ReturnType<typeof getPairs>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketPairs>>
+          Awaited<ReturnType<typeof getPairs>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketPairs<TData = Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError, TData>> & Pick<
+export function useGetPairs<TData = Awaited<ReturnType<typeof getPairs>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPairs>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketPairs>>,
+          Awaited<ReturnType<typeof getPairs>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketPairs>>
+          Awaited<ReturnType<typeof getPairs>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketPairs<TData = Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError, TData>>, }
+export function useGetPairs<TData = Awaited<ReturnType<typeof getPairs>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPairs>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary List active trading pairs
  */
 
-export function useGetApiV1MarketPairs<TData = Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketPairs>>, TError, TData>>, }
+export function useGetPairs<TData = Awaited<ReturnType<typeof getPairs>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPairs>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1MarketPairsQueryOptions(options)
+  const queryOptions = getGetPairsQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -232,7 +232,7 @@ export function useGetApiV1MarketPairs<TData = Awaited<ReturnType<typeof getApiV
  * Get all pair tickers
  * @summary Get all pair tickers
  */
-export const getApiV1MarketTicker = (
+export const getTickers = (
 
  signal?: AbortSignal
 ) => {
@@ -247,69 +247,69 @@ export const getApiV1MarketTicker = (
 
 
 
-export const getGetApiV1MarketTickerQueryKey = () => {
+export const getGetTickersQueryKey = () => {
     return [
     `/api/v1/market/ticker`
     ] as const;
     }
 
 
-export const getGetApiV1MarketTickerQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError, TData>>, }
+export const getGetTickersQueryOptions = <TData = Awaited<ReturnType<typeof getTickers>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTickers>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1MarketTickerQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetTickersQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1MarketTicker>>> = ({ signal }) => getApiV1MarketTicker(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTickers>>> = ({ signal }) => getTickers(signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTickers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1MarketTickerQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1MarketTicker>>>
-export type GetApiV1MarketTickerQueryError = unknown
+export type GetTickersQueryResult = NonNullable<Awaited<ReturnType<typeof getTickers>>>
+export type GetTickersQueryError = unknown
 
 
-export function useGetApiV1MarketTicker<TData = Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError, TData>> & Pick<
+export function useGetTickers<TData = Awaited<ReturnType<typeof getTickers>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTickers>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketTicker>>,
+          Awaited<ReturnType<typeof getTickers>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketTicker>>
+          Awaited<ReturnType<typeof getTickers>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketTicker<TData = Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError, TData>> & Pick<
+export function useGetTickers<TData = Awaited<ReturnType<typeof getTickers>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTickers>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketTicker>>,
+          Awaited<ReturnType<typeof getTickers>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketTicker>>
+          Awaited<ReturnType<typeof getTickers>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketTicker<TData = Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError, TData>>, }
+export function useGetTickers<TData = Awaited<ReturnType<typeof getTickers>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTickers>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get all pair tickers
  */
 
-export function useGetApiV1MarketTicker<TData = Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTicker>>, TError, TData>>, }
+export function useGetTickers<TData = Awaited<ReturnType<typeof getTickers>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTickers>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1MarketTickerQueryOptions(options)
+  const queryOptions = getGetTickersQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -325,7 +325,7 @@ export function useGetApiV1MarketTicker<TData = Awaited<ReturnType<typeof getApi
  * Get ticker for a single pair
  * @summary Get ticker for a single pair
  */
-export const getApiV1MarketTickerPair = (
+export const getTicker = (
     pair: string,
  signal?: AbortSignal
 ) => {
@@ -340,69 +340,69 @@ export const getApiV1MarketTickerPair = (
 
 
 
-export const getGetApiV1MarketTickerPairQueryKey = (pair: string,) => {
+export const getGetTickerQueryKey = (pair: string,) => {
     return [
     `/api/v1/market/ticker/${pair}`
     ] as const;
     }
 
 
-export const getGetApiV1MarketTickerPairQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError = unknown>(pair: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError, TData>>, }
+export const getGetTickerQueryOptions = <TData = Awaited<ReturnType<typeof getTicker>>, TError = unknown>(pair: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTicker>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1MarketTickerPairQueryKey(pair);
+  const queryKey =  queryOptions?.queryKey ?? getGetTickerQueryKey(pair);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1MarketTickerPair>>> = ({ signal }) => getApiV1MarketTickerPair(pair, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTicker>>> = ({ signal }) => getTicker(pair, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: !!(pair), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(pair), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTicker>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1MarketTickerPairQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1MarketTickerPair>>>
-export type GetApiV1MarketTickerPairQueryError = unknown
+export type GetTickerQueryResult = NonNullable<Awaited<ReturnType<typeof getTicker>>>
+export type GetTickerQueryError = unknown
 
 
-export function useGetApiV1MarketTickerPair<TData = Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError = unknown>(
- pair: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError, TData>> & Pick<
+export function useGetTicker<TData = Awaited<ReturnType<typeof getTicker>>, TError = unknown>(
+ pair: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTicker>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketTickerPair>>,
+          Awaited<ReturnType<typeof getTicker>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketTickerPair>>
+          Awaited<ReturnType<typeof getTicker>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketTickerPair<TData = Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError = unknown>(
- pair: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError, TData>> & Pick<
+export function useGetTicker<TData = Awaited<ReturnType<typeof getTicker>>, TError = unknown>(
+ pair: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTicker>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketTickerPair>>,
+          Awaited<ReturnType<typeof getTicker>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketTickerPair>>
+          Awaited<ReturnType<typeof getTicker>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketTickerPair<TData = Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError = unknown>(
- pair: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError, TData>>, }
+export function useGetTicker<TData = Awaited<ReturnType<typeof getTicker>>, TError = unknown>(
+ pair: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTicker>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get ticker for a single pair
  */
 
-export function useGetApiV1MarketTickerPair<TData = Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError = unknown>(
- pair: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTickerPair>>, TError, TData>>, }
+export function useGetTicker<TData = Awaited<ReturnType<typeof getTicker>>, TError = unknown>(
+ pair: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTicker>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1MarketTickerPairQueryOptions(pair,options)
+  const queryOptions = getGetTickerQueryOptions(pair,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -418,9 +418,9 @@ export function useGetApiV1MarketTickerPair<TData = Awaited<ReturnType<typeof ge
  * Get recent trades for a pair
  * @summary Get recent trades for a pair
  */
-export const getApiV1MarketTradesPair = (
+export const getTrades = (
     pair: string,
-    params?: GetApiV1MarketTradesPairParams,
+    params?: GetTradesParams,
  signal?: AbortSignal
 ) => {
 
@@ -435,75 +435,75 @@ export const getApiV1MarketTradesPair = (
 
 
 
-export const getGetApiV1MarketTradesPairQueryKey = (pair: string,
-    params?: GetApiV1MarketTradesPairParams,) => {
+export const getGetTradesQueryKey = (pair: string,
+    params?: GetTradesParams,) => {
     return [
     `/api/v1/market/trades/${pair}`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetApiV1MarketTradesPairQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError = unknown>(pair: string,
-    params?: GetApiV1MarketTradesPairParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError, TData>>, }
+export const getGetTradesQueryOptions = <TData = Awaited<ReturnType<typeof getTrades>>, TError = unknown>(pair: string,
+    params?: GetTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrades>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1MarketTradesPairQueryKey(pair,params);
+  const queryKey =  queryOptions?.queryKey ?? getGetTradesQueryKey(pair,params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1MarketTradesPair>>> = ({ signal }) => getApiV1MarketTradesPair(pair,params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTrades>>> = ({ signal }) => getTrades(pair,params, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: !!(pair), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(pair), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTrades>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiV1MarketTradesPairQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1MarketTradesPair>>>
-export type GetApiV1MarketTradesPairQueryError = unknown
+export type GetTradesQueryResult = NonNullable<Awaited<ReturnType<typeof getTrades>>>
+export type GetTradesQueryError = unknown
 
 
-export function useGetApiV1MarketTradesPair<TData = Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError = unknown>(
+export function useGetTrades<TData = Awaited<ReturnType<typeof getTrades>>, TError = unknown>(
  pair: string,
-    params: undefined |  GetApiV1MarketTradesPairParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError, TData>> & Pick<
+    params: undefined |  GetTradesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrades>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketTradesPair>>,
+          Awaited<ReturnType<typeof getTrades>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketTradesPair>>
+          Awaited<ReturnType<typeof getTrades>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketTradesPair<TData = Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError = unknown>(
+export function useGetTrades<TData = Awaited<ReturnType<typeof getTrades>>, TError = unknown>(
  pair: string,
-    params?: GetApiV1MarketTradesPairParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError, TData>> & Pick<
+    params?: GetTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrades>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiV1MarketTradesPair>>,
+          Awaited<ReturnType<typeof getTrades>>,
           TError,
-          Awaited<ReturnType<typeof getApiV1MarketTradesPair>>
+          Awaited<ReturnType<typeof getTrades>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiV1MarketTradesPair<TData = Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError = unknown>(
+export function useGetTrades<TData = Awaited<ReturnType<typeof getTrades>>, TError = unknown>(
  pair: string,
-    params?: GetApiV1MarketTradesPairParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError, TData>>, }
+    params?: GetTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrades>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get recent trades for a pair
  */
 
-export function useGetApiV1MarketTradesPair<TData = Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError = unknown>(
+export function useGetTrades<TData = Awaited<ReturnType<typeof getTrades>>, TError = unknown>(
  pair: string,
-    params?: GetApiV1MarketTradesPairParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1MarketTradesPair>>, TError, TData>>, }
+    params?: GetTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrades>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1MarketTradesPairQueryOptions(pair,params,options)
+  const queryOptions = getGetTradesQueryOptions(pair,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

@@ -6,8 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export type GetApiV1NotificationsParams = {
-cursor?: string;
+export type ListUsersParams = {
 limit?: number;
-onlyUnread?: boolean;
+offset?: number;
 };

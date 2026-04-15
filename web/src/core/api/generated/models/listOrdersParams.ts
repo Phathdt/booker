@@ -6,6 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 
-export type GetApiV1MarketTradesPairParams = {
+export type ListOrdersParams = {
+pairId?: string;
+status?: string;
 limit?: number;
+offset?: number;
 };

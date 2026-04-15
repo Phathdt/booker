@@ -114,18 +114,21 @@ cd web && pnpm generate:api # Generate TS types, React Query hooks, Zod schemas 
 All features require three layers of testing before merging:
 
 ### Unit Tests (Go)
+
 - Run: `make test-unit`
 - Mockery mocks for service/repository interfaces
 - Located alongside source: `*_test.go` files
 - Must cover business logic in `application/services/` and `application/usecases/`
 
 ### Integration Tests (Go + Docker)
+
 - Run: `make test-integration`
 - Use testcontainers for real Postgres + Redis
 - Located in `test/` and `*_integration_test.go` files
 - Must cover repository implementations and cross-service gRPC calls
 
 ### E2E Tests (Cucumber + TypeScript + Playwright)
+
 - Run: `cd e2e && yarn test`
 - Located in `e2e/` directory
 - Cucumber BDD features in `e2e/tests/features/{auth,trading,wallet}/`

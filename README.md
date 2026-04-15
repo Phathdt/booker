@@ -37,18 +37,20 @@ docker compose up --build -d
 
 Services available:
 
-| Service           | URL                   |
-| ----------------- | --------------------- |
-| API (Traefik)     | http://localhost      |
-| Users             | http://localhost:8081 |
-| Wallet            | http://localhost:8082 |
-| Orders            | http://localhost:8083 |
-| Matching          | gRPC :50054           |
-| Market            | http://localhost:8085 |
-| Notification      | http://localhost:8086 |
-| Grafana           | http://localhost:3000 |
-| Traefik Dashboard | http://localhost:8888 |
-| NATS Monitoring   | http://localhost:8222 |
+| Service           | URL                             |
+| ----------------- | ------------------------------- |
+| Web UI            | http://booker.localhost          |
+| API (Traefik)     | http://api.booker.localhost      |
+| API Docs          | http://localhost:8090/docs       |
+| Users             | http://localhost:8081            |
+| Wallet            | http://localhost:8082            |
+| Orders            | http://localhost:8083            |
+| Matching          | gRPC :50054                     |
+| Market            | http://localhost:8085            |
+| Notification      | http://localhost:8086            |
+| Grafana           | http://localhost:3000            |
+| Traefik Dashboard | http://localhost:8888            |
+| NATS Monitoring   | http://localhost:8222            |
 
 ## API Endpoints
 
@@ -57,7 +59,7 @@ Services available:
 ```
 POST /api/v1/auth/register  { email, password }
 POST /api/v1/auth/login     { email, password }
-POST /api/v1/auth/refresh   { refresh_token }
+POST /api/v1/auth/refresh   (uses HTTP-only cookie)
 ```
 
 ### Auth (protected — Bearer token required)
@@ -77,16 +79,16 @@ GET /api/v1/users?limit=20&offset=0
 ### Wallet (protected)
 
 ```
-POST /api/v1/wallet/deposit    { asset_id, amount }
-POST /api/v1/wallet/withdraw   { asset_id, amount }
-GET  /api/v1/wallet/balances
-GET  /api/v1/wallet/balances/:asset_id
+POST /api/v1/wallet/deposit    { assetId, amount }
+POST /api/v1/wallet/withdraw   { assetId, amount }
+GET  /api/v1/wallet
+GET  /api/v1/wallet/:asset_id
 ```
 
 ### Orders (protected)
 
 ```
-POST   /api/v1/orders          { pair_id, side, price, quantity }
+POST   /api/v1/orders          { pairId, side, price, quantity }
 GET    /api/v1/orders          ?pair_id=&status=&limit=20&offset=0
 GET    /api/v1/orders/:id
 DELETE /api/v1/orders/:id
@@ -96,19 +98,21 @@ DELETE /api/v1/orders/:id
 
 ```
 GET /api/v1/market/pairs
-GET /api/v1/market/tickers
-GET /api/v1/market/trades/:pair_id  ?limit=50
-WS  /api/v1/market/ws              (real-time tickers + trades)
+GET /api/v1/market/ticker
+GET /api/v1/market/ticker/:pair
+GET /api/v1/market/trades/:pair    ?limit=50
+GET /api/v1/market/orderbook/:pair ?depth=20
+WS  /ws                            (real-time tickers + trades)
 ```
 
 ### Notifications (protected)
 
 ```
-GET   /api/v1/notifications           ?limit=20&offset=0
-GET   /api/v1/notifications/unread
+GET   /api/v1/notifications            ?cursor=&limit=20&only_unread=
+GET   /api/v1/notifications/unread-count
 PATCH /api/v1/notifications/:id/read
-PATCH /api/v1/notifications/read-all
-WS    /api/v1/notifications/ws        (real-time notifications)
+POST  /api/v1/notifications/read-all
+WS    /api/v1/notifications/ws         (real-time notifications)
 ```
 
 ### Response format
@@ -116,10 +120,12 @@ WS    /api/v1/notifications/ws        (real-time notifications)
 ```json
 {
   "data": { ... },
-  "trace_id": "abc123",
-  "request_id": "uuid"
+  "traceId": "abc123",
+  "requestId": "uuid"
 }
 ```
+
+All JSON fields use **camelCase**. Query parameters use **snake_case**.
 
 ## Development
 
@@ -131,8 +137,27 @@ make test-coverage  # Coverage report
 make mock           # Regenerate mocks
 make sqlc-generate  # Regenerate SQLC
 make proto-generate # Regenerate protobuf
+
+# API Client Generation (OpenAPI → TypeScript)
+go run . openapi-export      # Export OpenAPI 3.0 spec to docs/openapi.yaml
+cd web && pnpm generate:api  # Generate TS types + React Query hooks + Zod schemas
 ```
+
+### API Client Pipeline
+
+```
+Go structs (required:"true" tags)
+  → oaswrap/spec + fiberopenapi → OpenAPI 3.0.3
+  → go run . openapi-export → docs/openapi.yaml
+  → orval v8 → TypeScript interfaces + React Query hooks + Zod schemas
+```
+
+Each service also serves interactive API docs at `/docs` (Stoplight Elements).
 
 ## Tech Stack
 
-Go, Fiber, gRPC, SQLC, PostgreSQL, Redis, NATS JetStream, Traefik, OpenTelemetry, Grafana/Tempo/Loki, buf, goose, mockery, testcontainers, go-playground/validator
+**Backend:** Go 1.26, Fiber, gRPC, SQLC, PostgreSQL, Redis, NATS JetStream, Traefik, OpenTelemetry, Grafana/Tempo/Loki, buf, goose, mockery, testcontainers, oaswrap/spec
+
+**Frontend:** React 19, Vite 8, TypeScript, TanStack React Query, Axios, Zod 4, Tailwind CSS, shadcn, orval
+
+**Testing:** Go unit/integration tests, Cucumber + Playwright E2E

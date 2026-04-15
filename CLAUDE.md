@@ -13,7 +13,11 @@
 
 ### Tech Stack
 
-Go 1.26, Fiber (REST), gRPC (inter-service), SQLC (Postgres), Redis, NATS JetStream, Traefik v3, buf (protobuf), goose (migrations), mockery (mocks), testcontainers (integration tests), go-playground/validator (input validation), oaswrap/spec + fiberopenapi (OpenAPI 3.0 docs)
+Go 1.26, Fiber (REST), gRPC (inter-service), SQLC (Postgres), Redis, NATS JetStream, Traefik v3, buf (protobuf), goose (migrations), mockery (mocks), testcontainers (integration tests), go-playground/validator (input validation), oaswrap/spec + fiberopenapi (OpenAPI 3.0), orval (API client codegen)
+
+### Frontend (web/)
+
+React 19, Vite 8, TypeScript 6, TanStack React Query, Axios, Zod 4, Tailwind CSS 4, shadcn, orval (generated hooks + types from OpenAPI)
 
 ### Services
 
@@ -34,7 +38,7 @@ cli/                 # Service runners (wiring + lifecycle)
 cmd/
   grpc/{name}/       # gRPC server implementations (inter-service only)
   http/{name}/       # Fiber REST handlers (1 file per endpoint, closure factory pattern)
-  shared/            # Shared providers (DB, Redis, OTel, logger)
+  shared/            # Shared providers (DB, Redis, OTel, logger, OpenAPI router)
 modules/{name}/
   domain/entities/   # Domain structs
   domain/interfaces/ # Repository + service interfaces
@@ -57,6 +61,10 @@ config/              # Viper config loader
 migrations/          # Goose SQL migrations
 infra/               # Docker infra configs (otel, tempo, loki, grafana)
 test/testcontainers/ # Postgres + Redis test containers
+web/                 # React frontend (Vite + React Query + orval-generated API client)
+  src/core/api/generated/  # Auto-generated: models, hooks, zod schemas (do NOT edit)
+  orval.config.ts    # Orval codegen configuration
+e2e/                 # Cucumber + Playwright E2E tests
 ```
 
 ## Commands
@@ -81,6 +89,10 @@ make docker-down           # Stop all services
 make docker-infra          # Restart infra (postgres, redis, nats, otel, tempo, loki, grafana, traefik)
 make docker-services       # Restart app services (all Go services + web)
 make docker-services-build # Rebuild image and recreate app services
+
+# API Client Generation (OpenAPI → TypeScript)
+go run . openapi-export    # Export OpenAPI 3.0 spec to docs/openapi.yaml
+cd web && pnpm generate:api # Generate TS types, React Query hooks, Zod schemas via orval
 ```
 
 ## Conventions
@@ -89,7 +101,9 @@ make docker-services-build # Rebuild image and recreate app services
 - **Constructor DI**: No framework, interface-based
 - **HTTP handlers**: Closure factory pattern — `func Register(uc) fiber.Handler` — 1 file per endpoint
 - **Validation**: `go-playground/validator` tags on DTOs, `httpserver.BindAndValidate()` in handlers
-- **Response format**: `{ data, error, trace_id, request_id }`
+- **Response format**: `{ data, error, traceId, requestId }` (camelCase JSON)
+- **OpenAPI**: oaswrap/spec + fiberopenapi (code-first, `.With()` chains on routes)
+- **API codegen**: orval generates React Query hooks + Zod schemas from `docs/openapi.yaml`
 - **Proto**: Inter-service gRPC only, no REST annotations
 - **Errors**: `pkg/errors.AppError` → mapped to HTTP status in Fiber error handler, gRPC codes in gRPC handler
 - **Testing**: Three-layer test strategy (see Testing section below)
